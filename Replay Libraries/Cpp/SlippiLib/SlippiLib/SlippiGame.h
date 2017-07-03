@@ -1,12 +1,14 @@
 #pragma once
 
-#include "stdafx.h"
-
 #include <string>
 #include <vector>
+#include <map>
 
 namespace Slippi {
 	const uint8_t PLAYER_COUNT = 2;
+	const uint8_t EVENT_GAME_START = 0x37;
+	const uint8_t EVENT_UPDATE = 0x38;
+	const uint8_t EVENT_GAME_END = 0x39;
 
 	typedef struct {
 		uint8_t internalCharacterId;
@@ -57,13 +59,24 @@ namespace Slippi {
 		std::vector<FrameData> frameData;
 		GameSettings settings;
 
+		int32_t frameCount; // Current/last frame count
+
 		//From OnGameEnd event
 		uint8_t winCondition;
 	} Game;
+
+	static bool initialized;
+	static std::map<uint8_t, uint32_t> asmEvents;
 
 	class SlippiGame
 	{
 	public:
 		static SlippiGame* FromFile(std::string path);
+		FrameData* GetFrame(int32_t frame);
+	private:
+		Game* game;
+
+		static void init();
+		static SlippiGame* processFile(uint8_t* fileContents, uint64_t fileSize);
 	};
 }
