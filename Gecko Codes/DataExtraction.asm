@@ -27,10 +27,9 @@ blrl
 cmpwi r3,3 # 3 or more players in match?
 bge- CLEANUP # skip all this if so
 
-#an input to this function is r5, r5 is the pointer of the player currently
-#being considered + 0x60 skip everything if pointer is not equal to the last
-#players pointer the goal of this is to make the update only happen once per
-#frame after the last character update
+#an input to this function is r5, r5 is the pointer of the player currently being considered + 0x60
+#skip everything if pointer is not equal to the last players pointer
+#the goal of this is to make the update only happen once per frame after the last character update
 li r30, 3 #load last player number first
 LAST_PLAYER_CHECK:
 lis r3, 0x8045
@@ -142,8 +141,8 @@ b CLEANUP
 
 #----------- FRAME_UPDATE_CHECKS -----------
 PRE_UPDATE_CHECKS:
-#check if we are on game frame zero (countdown freeze time), if so, skip update
-cmpwi r3,0
+#check if we are on scene controller frame zero, if so, skip update
+cmpwi r4,0
 beq CLEANUP
 
 #check if we are in results screen, if so, skip update
@@ -160,6 +159,13 @@ bl sendByteExi #send OnFrameUpdate event code
 
 lis r3,0x8047
 lwz r3,-0x493C(r3) #load match frame count
+cmpwi r3, 0
+bne SKIP_FRAME_COUNT_ADJUST #this makes it so that if the timer hasn't started yet, we have a unique frame count still
+sub r3,r3,r4
+li r4,-0x7B
+sub r3,r4,r3
+
+SKIP_FRAME_COUNT_ADJUST:
 bl sendWordExi
 
 lis r3,0x804D
@@ -290,7 +296,7 @@ blr
 ################################################################################
 sendByteExi:
 lis r11, 0xCC00 #top bytes of address of EXI registers
-li r10, 0x9 #bit pattern to write to control register to write one byte
+li r10, 0x5 #bit pattern to write to control register to write one byte
 
 #write value in r3 to EXI
 slwi r3, r3, 24 #the byte to send has to be left shifted
@@ -303,10 +309,6 @@ lwz r10, 0x6820(r11)
 andi. r10, r10, 1
 bne EXI_CHECK_RECEIVE_WAIT
 
-#read values from transfer register to r3 for output
-lwz r3, 0x6824(r11) #read from transfer register
-srwi r3, r3, 24 #shift byte to the right of the register
-
 blr
 
 ################################################################################
@@ -317,7 +319,7 @@ blr
 ################################################################################
 sendHalfExi:
 lis r11, 0xCC00 #top bytes of address of EXI registers
-li r10, 0x19 #bit pattern to write to control register to write one byte
+li r10, 0x15 #bit pattern to write to control register to write one byte
 
 #write value in r3 to EXI
 slwi r3, r3, 16 #the bytes to send have to be left shifted
@@ -330,10 +332,6 @@ lwz r10, 0x6820(r11)
 andi. r10, r10, 1
 bne EXI_CHECK_RECEIVE_WAIT_HALF
 
-#read values from transfer register to r3 for output
-lwz r3, 0x6824(r11) #read from transfer register
-srwi r3, r3, 16 #shift byte to the right of the register
-
 blr
 
 ################################################################################
@@ -344,7 +342,7 @@ blr
 ################################################################################
 sendWordExi:
 lis r11, 0xCC00 #top bytes of address of EXI registers
-li r10, 0x39 #bit pattern to write to control register to write four bytes
+li r10, 0x35 #bit pattern to write to control register to write four bytes
 
 #write value in r3 to EXI
 stw r3, 0x6824(r11) #store current bytes into transfer register
@@ -355,9 +353,6 @@ EXI_CHECK_RECEIVE_WAIT_WORD:
 lwz r10, 0x6820(r11)
 andi. r10, r10, 1
 bne EXI_CHECK_RECEIVE_WAIT_WORD
-
-#read values from transfer register to r3 for output
-lwz r3, 0x6824(r11) #read from transfer register
 
 blr
 
