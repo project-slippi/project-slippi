@@ -147,21 +147,7 @@ namespace Slippi {
 		return result;
 	}
 
-	void SlippiGame::init() {
-		if (initialized) {
-			return;
-		}
-
-		asmEvents[EVENT_GAME_START] = 0xA;
-		asmEvents[EVENT_UPDATE] = 0x7A;
-		asmEvents[EVENT_GAME_END] = 0x1;
-
-		initialized = true;
-	}
-
 	SlippiGame* SlippiGame::FromFile(std::string path) {
-		init();
-
 		// Get file and file size
 		FILE* inputFile = fopen(path.c_str(), "rb");
 		uint64_t fileSize = getSize(inputFile);

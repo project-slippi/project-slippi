@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include <map>
+#include <unordered_map>
 
 namespace Slippi {
 	const uint8_t PLAYER_COUNT = 2;
@@ -65,8 +65,11 @@ namespace Slippi {
 		uint8_t winCondition;
 	} Game;
 
-	static bool initialized;
-	static std::map<uint8_t, uint32_t> asmEvents;
+	static std::unordered_map<uint8_t, uint32_t> asmEvents = {
+		{ EVENT_GAME_START, 0xA },
+		{ EVENT_UPDATE, 0x7A },
+		{ EVENT_GAME_END, 0x1 }
+	};
 
 	class SlippiGame
 	{
@@ -76,7 +79,6 @@ namespace Slippi {
 	private:
 		Game* game;
 
-		static void init();
 		static SlippiGame* processFile(uint8_t* fileContents, uint64_t fileSize);
 	};
 }
