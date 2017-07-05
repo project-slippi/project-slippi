@@ -292,7 +292,6 @@ blr
 #                    subroutine: sendByteExi
 #  description: sends one byte over port B exi
 #  inputs: r3 byte to send
-#  outputs: r3 received byte
 ################################################################################
 sendByteExi:
 lis r11, 0xCC00 #top bytes of address of EXI registers
@@ -315,7 +314,6 @@ blr
 #                    subroutine: sendHalfExi
 #  description: sends two bytes over port B exi
 #  inputs: r3 bytes to send
-#  outputs: r3 received bytes
 ################################################################################
 sendHalfExi:
 lis r11, 0xCC00 #top bytes of address of EXI registers
@@ -338,7 +336,6 @@ blr
 #                    subroutine: sendWordExi
 #  description: sends one word over port B exi
 #  inputs: r3 word to send
-#  outputs: r3 received word
 ################################################################################
 sendWordExi:
 lis r11, 0xCC00 #top bytes of address of EXI registers

@@ -1,5 +1,5 @@
 ################################################################################
-#                      Inject at address 8006AD10
+#                      Inject at address 8006b80c
 # Function address provided by UnclePunch. Function is
 # PlayerThink_ControllerInputsToDataOffset
 ################################################################################
@@ -142,4 +142,4 @@ stw r10, 0x6814(r11) #write 0 to the parameter register
 blr
 
 GECKO_END:
-lwz r0, 0x94(r1) #execute replaced code line
+lwz r0, 0x7C(r1) #execute replaced code line
