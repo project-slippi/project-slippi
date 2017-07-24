@@ -19,7 +19,53 @@ stw r31,0x1C(r1)
 stw r30,0x18(r1)
 stw r29,0x14(r1)
 
+# determine if we should run or not
+lis r4,0x8048
+lwz r4,-0x62A8(r4) # load scene controller frame count
+cmpwi r4, 0
+beq CLEANUP # if this is scene controller frame zero, we don't have data
 
+# initalize
+lwz r3,0x10(r27) #get player struct
+lwz r31,0x2c(r3) #get pointed player block
+
+bl startExiTransfer
+
+li r3,0x76
+bl sendByteExi #init slip
+
+#Frame Number
+lis r3,0x8047
+lwz r3,-0x493C(r3) #load match frame count
+cmpwi r3, 0
+bne SKIP_FRAME_COUNT_ADJUST #this makes it so that if the timer hasn't started yet, we have a unique frame count still
+sub r3,r3,r4
+li r4,-0x7B
+sub r3,r4,r3
+SKIP_FRAME_COUNT_ADJUST:
+bl sendWordExi
+
+lbz r3,0xC(r31)			#player slot
+bl sendByteExi
+
+REPLAY:
+bl readWordExi
+stw r3,0x620(r31) #analog X
+bl readWordExi
+stw r3,0x624(r31) #analog Y
+bl readWordExi
+stw r3,0x638(r31) #cstick X
+bl readWordExi
+stw r3,0x63C(r31) #cstick Y
+bl readWordExi
+stw r3,0x650(r31) #trigger
+bl readWordExi
+stw r3,0x65C(r31) #buttons
+bl readWordExi
+lis r3,0x804D
+stw r3,0x5F90(r3) #RNG seed
+
+bl stopExiTransfer
 
 CLEANUP:
 #restore registers and sp
