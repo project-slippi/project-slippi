@@ -16,8 +16,8 @@ mflr r0
 stw r0, 0x4(r1)
 stwu r1,-0x20(r1)
 stw r31,0x1C(r1)
-stw r30,0x18(r1)
-stw r29,0x14(r1)
+#stw r30,0x18(r1)
+#stw r29,0x14(r1)
 
 # determine if we should run or not
 lis r4,0x8048
@@ -65,14 +65,14 @@ bl readWordExi
 lis r3,0x804D
 stw r3,0x5F90(r3) #RNG seed
 
-bl stopExiTransfer
+bl endExiTransfer
 
 CLEANUP:
 #restore registers and sp
 lwz r0, 0x24(r1)
 lwz r31, 0x1C(r1)
-lwz r30, 0x18(r1)
-lwz r29, 0x14(r1)
+#lwz r30, 0x18(r1)
+#lwz r29, 0x14(r1)
 addi r1, r1, 0x20
 mtlr r0
 
