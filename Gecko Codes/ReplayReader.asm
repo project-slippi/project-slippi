@@ -1,5 +1,5 @@
 ################################################################################
-#                      Inject at address 8006b80c
+#                      Inject at address 8006b804
 # Function address provided by UnclePunch. Function is
 # PlayerThink_ControllerInputsToDataOffset
 ################################################################################
@@ -16,8 +16,8 @@ mflr r0
 stw r0, 0x4(r1)
 stwu r1,-0x20(r1)
 stw r31,0x1C(r1)
-#stw r30,0x18(r1)
-#stw r29,0x14(r1)
+stw r3,0x18(r1)
+stw r4,0x14(r1)
 
 # determine if we should run or not
 lis r4,0x8048
@@ -71,8 +71,8 @@ CLEANUP:
 #restore registers and sp
 lwz r0, 0x24(r1)
 lwz r31, 0x1C(r1)
-#lwz r30, 0x18(r1)
-#lwz r29, 0x14(r1)
+lwz r3, 0x18(r1)
+lwz r4, 0x14(r1)
 addi r1, r1, 0x20
 mtlr r0
 
@@ -195,4 +195,4 @@ stw r10, 0x6814(r11) #write 0 to the parameter register
 blr
 
 GECKO_END:
-lwz r0, 0x7C(r1) #execute replaced code line
+addi r3, r30, 0 #execute replaced code line
