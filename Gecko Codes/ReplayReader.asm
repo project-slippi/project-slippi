@@ -1,7 +1,7 @@
 ################################################################################
-#                      Inject at address 8006b804
-# Function address provided by UnclePunch. Function is
-# PlayerThink_ControllerInputsToDataOffset
+#                      Inject at address 8006b0dc
+# Function is PlayerThink_ControllerInputsToDataOffset. Injection location
+# suggested by Achilles
 ################################################################################
 
 #replaced code line is executed at the end
@@ -19,12 +19,6 @@ stw r31,0x1C(r1)
 stw r3,0x18(r1)
 stw r4,0x14(r1)
 
-# determine if we should run or not
-lis r4,0x8048
-lwz r4,-0x62A8(r4) # load scene controller frame count
-cmpwi r4, 0
-beq CLEANUP # if this is scene controller frame zero, we don't have data
-
 # initalize
 lwz r3,0x10(r27) #get player struct
 lwz r31,0x2c(r3) #get pointed player block
@@ -35,6 +29,8 @@ li r3,0x76
 bl sendByteExi #init slip
 
 #Frame Number
+lis r4,0x8048
+lwz r4,-0x62A8(r4) # load scene controller frame count
 lis r3,0x8047
 lwz r3,-0x493C(r3) #load match frame count
 cmpwi r3, 0
@@ -195,4 +191,4 @@ stw r10, 0x6814(r11) #write 0 to the parameter register
 blr
 
 GECKO_END:
-addi r3, r30, 0 #execute replaced code line
+lbz r0, 0x2219(r31) #execute replaced code line

@@ -67,7 +67,7 @@ lwz r4,-0x62A8(r4) # load scene controller frame count
 
 #check scene controller first, if zero it's either start or end of match
 cmpwi r4,0
-bne PRE_UPDATE_CHECKS
+bne PRE_UPDATE_CHECKS #if scene controller is not zero, we are probably in game
 
 #Here the scene controller is equal to zero, either trigger OnStart or OnEnd
 cmpwi r3,0
@@ -122,29 +122,9 @@ cmpwi r30, 4
 blt MP_WRITE_PLAYER
 
 bl endExiTransfer #stop transfer
-b CLEANUP
-
-ON_END_EVENT:
-#------------- ON_END_EVENT -------------
-bl startExiTransfer #indicate transfer start
-
-li r3, 0x39
-bl sendByteExi #send OnMatchEnd event code
-
-#check byte that will tell us whether the game was won by stock loss or by ragequit
-lis r3, 0x8047
-lbz r3, -0x4960(r3)
-bl sendByteExi #send win condition byte. this byte will be 0 on ragequit, 3 on win by stock loss
-
-bl endExiTransfer #stop transfer
-b CLEANUP
 
 #----------- FRAME_UPDATE_CHECKS -----------
 PRE_UPDATE_CHECKS:
-#check if we are on scene controller frame zero, if so, skip update
-cmpwi r4,0
-beq CLEANUP
-
 #check if we are in results screen, if so, skip update
 lis r3, 0x8045
 lbz r3, 0x30C9(r3) #this global address exists for all players and appears to be = 1 when in game and = 0 when in results screen
@@ -157,6 +137,8 @@ bl startExiTransfer #indicate transfer start
 li r3, 0x38
 bl sendByteExi #send OnFrameUpdate event code
 
+lis r4,0x8048
+lwz r4,-0x62A8(r4) # load scene controller frame count
 lis r3,0x8047
 lwz r3,-0x493C(r3) #load match frame count
 cmpwi r3, 0
@@ -256,6 +238,21 @@ FU_INCREMENT:
 addi r30, r30, 1
 cmpwi r30, 4
 blt FU_WRITE_PLAYER
+
+bl endExiTransfer #stop transfer
+b CLEANUP
+
+ON_END_EVENT:
+#------------- ON_END_EVENT -------------
+bl startExiTransfer #indicate transfer start
+
+li r3, 0x39
+bl sendByteExi #send OnMatchEnd event code
+
+#check byte that will tell us whether the game was won by stock loss or by ragequit
+lis r3, 0x8047
+lbz r3, -0x4960(r3)
+bl sendByteExi #send win condition byte. this byte will be 0 on ragequit, 3 on win by stock loss
 
 bl endExiTransfer #stop transfer
 
