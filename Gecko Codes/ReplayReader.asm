@@ -50,8 +50,8 @@ bl sendByteExi
 
 REPLAY:
 bl readWordExi
-lis r3,0x804D
-stw r3,0x5F90(r3) #RNG seed
+lis r4,0x804D
+stw r3,0x5F90(r4) #RNG seed
 bl readWordExi
 stw r3,0x620(r31) #analog X
 bl readWordExi
