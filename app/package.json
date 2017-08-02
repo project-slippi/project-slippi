@@ -199,7 +199,9 @@
     "react-router-redux": "^5.0.0-alpha.6",
     "redux": "^3.7.1",
     "redux-thunk": "^2.2.0",
-    "source-map-support": "^0.4.15"
+    "source-map-support": "^0.4.15",
+    "semantic-ui-css": "^2.2.11",
+    "semantic-ui-react": "^0.71.3"
   },
   "devEngines": {
     "node": ">=7.x",
