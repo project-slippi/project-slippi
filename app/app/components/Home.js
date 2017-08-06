@@ -1,7 +1,7 @@
 // @flow
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Header, Icon, Grid } from 'semantic-ui-react'
+import { Button, Header, Icon, Container } from 'semantic-ui-react'
 import styles from './Home.css';
 import { exec } from 'child_process';
 
@@ -21,25 +21,23 @@ export default class Home extends Component {
     });
   }
 
-  generateNav(iconName, header, subHeader, disabled) {
+  generateNav(iconName, header, subHeader, target, disabled) {
     return (
-      <div>
+      <Link to={target}>
         <Button fluid={true} inverted={true} color={"green"} disabled={disabled}>
-          <Grid centered={true} columns={1}>
-            <Grid.Column>
-              <Header as='h2' inverted={true} color={"green"} textAlign={"center"}>
-                <Icon name={iconName} />
-                <Header.Content>
-                  {header}
-                  <Header.Subheader>
-                    {subHeader}
-                  </Header.Subheader>
-                </Header.Content>
-              </Header>
-            </Grid.Column>
-          </Grid>
+          <div className="grid-list center-items">
+            <Header as='h2' inverted={true} textAlign={"center"}>
+              <Icon name={iconName} />
+              <Header.Content>
+                {header}
+                <Header.Subheader>
+                  {subHeader}
+                </Header.Subheader>
+              </Header.Content>
+            </Header>
+          </div>
         </Button>
-      </div>
+      </Link>
     );
   }
 
@@ -48,6 +46,7 @@ export default class Home extends Component {
       "disk outline",
       "From File System",
       "Play replays from files on your computer",
+      "/files",
       false
     );
 
@@ -55,19 +54,29 @@ export default class Home extends Component {
       "microchip",
       "Stream From Slippi Device",
       "Stream replay from Slippi device",
+      "/",
       true
     );
 
+    let counterPage = this.generateNav(
+      "microchip",
+      "Temporary Test Link",
+      "This should get removed",
+      "/counter",
+      false
+    );
+
     return (
-      <div>
-        <div className={styles.container} data-tid="container">
-          <Button inverted={true} color={"green"} onClick={this.test}>
-            Launch Replay
-          </Button>
+      <Container text={true} className={styles['vertical-space']}>
+        <div className="grid-list">
+          <div className="grid-item-center">
+           <h2>Select Replay Type</h2>
+          </div>
           {playFromFile}
           {streamFromSlippi}
+          {counterPage}
         </div>
-      </div>
+      </Container>
     );
   }
 }

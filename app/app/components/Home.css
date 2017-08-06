@@ -1,14 +1,4 @@
-.container {
-  position: absolute;
-  top: 30%;
-  left: 10px;
-  text-align: center;
-}
-
-.container h2 {
-  font-size: 5rem;
-}
-
-.container a {
-  font-size: 1.4rem;
+.vertical-space {
+  margin-top: 100px;
+  margin-bottom: 20px;
 }
