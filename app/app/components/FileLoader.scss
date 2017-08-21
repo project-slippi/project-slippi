@@ -13,4 +13,10 @@
   border-width: 0 1px 0 0;
   border-color: $separator;
   background: $background-dark;
+  display: grid;
+}
+
+.empty-sidebar-content {
+  align-self: center;
+  justify-self: center;
 }

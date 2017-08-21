@@ -1,15 +1,30 @@
 // @flow
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Table } from 'semantic-ui-react'
+import { Table, Statistic, Icon, Button } from 'semantic-ui-react'
 import styles from './FileLoader.scss';
 
 export default class FileLoader extends Component {
 
+  generateEmptySidebarContent() {
+    return (
+      <div className={styles['empty-sidebar-content']}>
+        <Statistic inverted={true}>
+          <Statistic.Value>
+            <Icon name='folder open outline' />
+          </Statistic.Value>
+          <Button className="top-spacer" fluid={true} compact={true} inverted={true}>
+            Load Folder
+          </Button>
+        </Statistic>
+      </div>
+    )
+  }
+
   generateSidebar() {
     return (
       <div className={styles['sidebar']}>
-
+        {this.generateEmptySidebarContent()}
       </div>
     );
   }
