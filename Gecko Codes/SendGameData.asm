@@ -243,27 +243,6 @@ bne EXI_CHECK_RECEIVE_WAIT_WORD
 blr
 
 ################################################################################
-#                    subroutine: readWordExi
-#  description: reads one word over port B exi
-#  outputs: r3 received word
-################################################################################
-readWordExi:
-lis r11, 0xCC00 #top bytes of address of EXI registers
-li r10, 0x31 #bit pattern to write to control register to read four bytes
-stw r10, 0x6820(r11) #write to control register to begin transfer
-
-#wait until byte has been transferred
-EXI_CHECK_RECEIVE_WAIT_READWORD:
-lwz r10, 0x6820(r11)
-andi. r10, r10, 1
-bne EXI_CHECK_RECEIVE_WAIT_READWORD
-
-#read values from transfer register to r3 for output
-lwz r3, 0x6824(r11) #read from transfer register
-
-blr
-
-################################################################################
 #                  subroutine: endExiTransfer
 #  description: stops port B writes
 ################################################################################

@@ -1,51 +1,74 @@
 ################################################################################
-#                      Inject at address 8016e7bc
-# Function is StartMelee and we are loading game information right before
-# it gets read to initialize the match
+#                      Inject at address 8006b0dc
+# Function is PlayerThink_ControllerInputsToDataOffset. Injection location
+# suggested by Achilles
 ################################################################################
 
 #replaced code line is executed at the end
 
 ################################################################################
-#                   subroutine: gameInfoLoad
-# description: reads game info from slippi and loads those into memory
-# addresses that will be used
+#                   subroutine: readInputs
+# description: reads inputs from Slippi for a given frame and overwrites
+# memory locations
 ################################################################################
 #create stack frame and store link register
 mflr r0
 stw r0, 0x4(r1)
 stwu r1,-0x20(r1)
+stw r31,0x1C(r1)
+stw r3,0x18(r1)
+stw r4,0x14(r1)
 
-# initialize transfer with slippi device
+# initalize
+lwz r3,0x10(r27) #get player struct
+lwz r31,0x2c(r3) #get pointed player block
+
 bl startExiTransfer
 
-# request game information from slippi
-li r3,0x75
+li r3,0x76
+bl sendByteExi #init slip
+
+#Frame Number
+lis r4,0x8048
+lwz r4,-0x62A8(r4) # load scene controller frame count
+lis r3,0x8047
+lwz r3,-0x493C(r3) #load match frame count
+cmpwi r3, 0
+bne SKIP_FRAME_COUNT_ADJUST #this makes it so that if the timer hasn't started yet, we have a unique frame count still
+sub r3,r3,r4
+li r4,-0x7B
+sub r3,r4,r3
+SKIP_FRAME_COUNT_ADJUST:
+bl sendWordExi
+
+lbz r3,0xC(r31)			#player slot
 bl sendByteExi
 
-bl readWordExi #randomSeed
-lis r11, 0x804D
-stw r3, 0x5F90(r11) #load random seed
-bl readWordExi #stageId
-sth r3,0xE(r31)
-bl readWordExi #player 1 info
-stw r3,0x60(r31)
-bl readWordExi #player 2 info
-stw r3,0x84(r31)
-bl readWordExi #player 3 info
-stw r3,0xA8(r31)
-bl readWordExi #player 4 info
-stw r3,0xCC(r31)
-
-# write constant game info
-li r3,0x20 #match type (stocks)
-stb r3,0x0(r31)
+REPLAY:
+bl readWordExi
+#lis r4,0x804D
+#stw r3,0x5F90(r4) #RNG seed
+bl readWordExi
+stw r3,0x620(r31) #analog X
+bl readWordExi
+stw r3,0x624(r31) #analog Y
+bl readWordExi
+stw r3,0x638(r31) #cstick X
+bl readWordExi
+stw r3,0x63C(r31) #cstick Y
+bl readWordExi
+stw r3,0x650(r31) #trigger
+bl readWordExi
+stw r3,0x65C(r31) #buttons
 
 bl endExiTransfer
 
 CLEANUP:
 #restore registers and sp
 lwz r0, 0x24(r1)
+lwz r31, 0x1C(r1)
+lwz r3, 0x18(r1)
+lwz r4, 0x14(r1)
 addi r1, r1, 0x20
 mtlr r0
 
@@ -92,6 +115,27 @@ bne EXI_CHECK_RECEIVE_WAIT
 blr
 
 ################################################################################
+#                    subroutine: sendWordExi
+#  description: sends one word over port B exi
+#  inputs: r3 word to send
+################################################################################
+sendWordExi:
+lis r11, 0xCC00 #top bytes of address of EXI registers
+li r10, 0x35 #bit pattern to write to control register to write four bytes
+
+#write value in r3 to EXI
+stw r3, 0x6824(r11) #store current bytes into transfer register
+stw r10, 0x6820(r11) #write to control register to begin transfer
+
+#wait until byte has been transferred
+EXI_CHECK_RECEIVE_WAIT_WORD:
+lwz r10, 0x6820(r11)
+andi. r10, r10, 1
+bne EXI_CHECK_RECEIVE_WAIT_WORD
+
+blr
+
+################################################################################
 #                    subroutine: readWordExi
 #  description: reads one word over port B exi
 #  outputs: r3 received word
@@ -125,4 +169,4 @@ stw r10, 0x6814(r11) #write 0 to the parameter register
 blr
 
 GECKO_END:
-mr r3, r31 #execute replaced code line
+lbz r0, 0x2219(r31) #execute replaced code line
