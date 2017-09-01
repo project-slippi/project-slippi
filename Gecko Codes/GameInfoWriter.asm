@@ -1,5 +1,5 @@
 ################################################################################
-#                      Inject at address 8016e7bc
+#                      Inject at address 8016e74c
 # Function is StartMelee and we are loading game information right before
 # it gets read to initialize the match
 ################################################################################
@@ -25,17 +25,18 @@ bl sendByteExi
 
 lis r3, 0x804D
 lwz r3, 0x5F90(r3) #load random seed
-bl sendWordExi #8
-lhz r3,0xE(r31)
-bl sendHalfExi #stageId
-lwz r3,0x60(r31)
-bl sendWordExi #player 1 info
-lwz r3,0x84(r31)
-bl sendWordExi #player 2 info
-lwz r3,0xA8(r31)
-bl sendWordExi #player 3 info
-lwz r3,0xCC(r31)
-bl sendWordExi #player 4 info
+bl sendWordExi
+
+li r4, 0
+
+START_LOOP:
+add r3, r31, r4
+lwz r3, 0x0(r3)
+bl sendWordExi
+
+addi r4, r4, 0x4
+cmpwi r4, 0x138
+blt+ START_LOOP
 
 bl endExiTransfer
 
@@ -88,28 +89,6 @@ bne EXI_CHECK_RECEIVE_WAIT
 blr
 
 ################################################################################
-#                    subroutine: sendHalfExi
-#  description: sends two bytes over port B exi
-#  inputs: r3 bytes to send
-################################################################################
-sendHalfExi:
-lis r11, 0xCC00 #top bytes of address of EXI registers
-li r10, 0x15 #bit pattern to write to control register to write one byte
-
-#write value in r3 to EXI
-slwi r3, r3, 16 #the bytes to send have to be left shifted
-stw r3, 0x6824(r11) #store bytes into transfer register
-stw r10, 0x6820(r11) #write to control register to begin transfer
-
-#wait until byte has been transferred
-EXI_CHECK_RECEIVE_WAIT_HALF:
-lwz r10, 0x6820(r11)
-andi. r10, r10, 1
-bne EXI_CHECK_RECEIVE_WAIT_HALF
-
-blr
-
-################################################################################
 #                    subroutine: sendWordExi
 #  description: sends one word over port B exi
 #  inputs: r3 word to send
@@ -143,4 +122,4 @@ stw r10, 0x6814(r11) #write 0 to the parameter register
 blr
 
 GECKO_END:
-mr r3, r31 #execute replaced code line
+lis r3, 0x8017 #execute replaced code line

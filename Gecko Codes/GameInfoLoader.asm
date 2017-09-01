@@ -1,5 +1,5 @@
 ################################################################################
-#                      Inject at address 8016e7bc
+#                      Inject at address 8016e74c
 # Function is StartMelee and we are loading game information right before
 # it gets read to initialize the match
 ################################################################################
@@ -26,20 +26,18 @@ bl sendByteExi
 bl readWordExi #randomSeed
 lis r11, 0x804D
 stw r3, 0x5F90(r11) #load random seed
-bl readWordExi #stageId
-sth r3,0xE(r31)
-bl readWordExi #player 1 info
-stw r3,0x60(r31)
-bl readWordExi #player 2 info
-stw r3,0x84(r31)
-bl readWordExi #player 3 info
-stw r3,0xA8(r31)
-bl readWordExi #player 4 info
-stw r3,0xCC(r31)
 
-# write constant game info
-li r3,0x20 #match type (stocks)
-stb r3,0x0(r31)
+li r4, 0
+
+START_LOOP:
+add r5, r31, r4
+
+bl readWordExi
+stw r3, 0x0(r5)
+
+addi r4, r4, 0x4
+cmpwi r4, 0x138
+blt+ START_LOOP
 
 bl endExiTransfer
 
@@ -125,4 +123,4 @@ stw r10, 0x6814(r11) #write 0 to the parameter register
 blr
 
 GECKO_END:
-mr r3, r31 #execute replaced code line
+lis r3, 0x8017 #execute replaced code line
