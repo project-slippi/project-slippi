@@ -23,12 +23,17 @@ bl startExiTransfer
 li r3,0x36
 bl sendByteExi
 
-lis r3, 0x804D
-lwz r3, 0x5F90(r3) #load random seed
+# build version number. Each byte is one digit
+# any change in command data should result in a minor version change
+# current version: 0.1.0.0
+lis r3, 0x0001
+addi r3, r3, 0x0000
 bl sendWordExi
 
+#------------- GAME INFO BLOCK -------------
+# this iterates through the static game info block that is used to pull data
+# from to initialize the game. it writes out the whole thing (0x138 long)
 li r4, 0
-
 START_LOOP:
 add r3, r31, r4
 lwz r3, 0x0(r3)
@@ -37,6 +42,12 @@ bl sendWordExi
 addi r4, r4, 0x4
 cmpwi r4, 0x138
 blt+ START_LOOP
+
+#------------- OTHER INFO -------------
+# write out random seed
+lis r3, 0x804D
+lwz r3, 0x5F90(r3) #load random seed
+bl sendWordExi
 
 bl endExiTransfer
 

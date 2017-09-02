@@ -14,9 +14,8 @@
 mflr r0
 stw r0, 0x4(r1)
 stwu r1,-0x20(r1)
-stw r31,0x1C(r1)
-stw r30,0x18(r1)
-stw r29,0x14(r1)
+stw r3,0x1C(r1)
+stw r4,0x18(r1)
 
 #check if in single player mode, and ignore code if so
 lis r3,0x801A # load SinglePlayer_Check function
@@ -37,6 +36,17 @@ lis r8, 0x8045
 ori r8, r8, 0x3080
 mulli r3, r7, 0xE90
 add r8, r8, r3
+
+# check if we are playing ice climbers, if we are we need to check if this is nana
+lwz r3, 0x4(r8)
+cmpwi r3, 0xE
+bne+ SKIP_NANA_CHECK
+
+# we need to check if this is a follower (nana). should not save inputs for nana
+lwz r3, 0xB4(r8) # load pointer to follower for this port
+cmpw r3, r30 # compare follower pointer with current pointer
+beq- CLEANUP # if the two match, this is a follower
+SKIP_NANA_CHECK:
 
 # If this is the very first frame of the match, send game start info
 lis r4,0x8048
@@ -151,9 +161,8 @@ bl endExiTransfer #stop transfer
 CLEANUP:
 #restore registers and sp
 lwz r0, 0x24(r1)
-lwz r31, 0x1C(r1)
-lwz r30, 0x18(r1)
-lwz r29, 0x14(r1)
+lwz r3, 0x1C(r1)
+lwz r4, 0x18(r1)
 addi r1, r1, 0x20
 mtlr r0
 

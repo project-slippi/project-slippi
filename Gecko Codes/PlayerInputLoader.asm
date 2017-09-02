@@ -15,18 +15,35 @@
 mflr r0
 stw r0, 0x4(r1)
 stwu r1,-0x20(r1)
-stw r31,0x1C(r1)
-stw r3,0x18(r1)
-stw r4,0x14(r1)
+stw r3,0x1C(r1)
+stw r4,0x18(r1)
 
-# initalize
-lwz r3,0x10(r27) #get player struct
-lwz r31,0x2c(r3) #get pointed player block
+#------------- INITIALIZE -------------
+# here we want to initalize some variables we plan on using throughout
+lbz r7, 0xC(r31) #loads this player slot
 
+# generate address for static player block
+lis r8, 0x8045
+ori r8, r8, 0x3080
+mulli r3, r7, 0xE90
+add r8, r8, r3
+
+# check if we are playing ice climbers, if we are we need to check if this is nana
+lwz r3, 0x4(r8)
+cmpwi r3, 0xE
+bne+ SKIP_NANA_CHECK
+
+# we need to check if this is a follower (nana). should not load inputs for nana
+lwz r3, 0xB4(r8) # load pointer to follower for this port
+cmpw r3, r30 # compare follower pointer with current pointer
+beq- CLEANUP # if the two match, this is a follower
+SKIP_NANA_CHECK:
+
+#------------- START MAIN -------------
 bl startExiTransfer
 
 li r3,0x76
-bl sendByteExi #init slip
+bl sendByteExi
 
 #Frame Number
 lis r4,0x8048
@@ -41,7 +58,7 @@ sub r3,r4,r3
 SKIP_FRAME_COUNT_ADJUST:
 bl sendWordExi
 
-lbz r3,0xC(r31)			#player slot
+mr r3, r7 #player slot
 bl sendByteExi
 
 REPLAY:
@@ -66,9 +83,8 @@ bl endExiTransfer
 CLEANUP:
 #restore registers and sp
 lwz r0, 0x24(r1)
-lwz r31, 0x1C(r1)
-lwz r3, 0x18(r1)
-lwz r4, 0x14(r1)
+lwz r3, 0x1C(r1)
+lwz r4, 0x18(r1)
 addi r1, r1, 0x20
 mtlr r0
 
