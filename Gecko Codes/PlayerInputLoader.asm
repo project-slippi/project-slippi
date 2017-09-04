@@ -63,8 +63,8 @@ bl sendByteExi
 
 REPLAY:
 bl readWordExi
-#lis r4,0x804D
-#stw r3,0x5F90(r4) #RNG seed
+lis r4,0x804D
+stw r3,0x5F90(r4) #RNG seed
 bl readWordExi
 stw r3,0x620(r31) #analog X
 bl readWordExi
@@ -97,11 +97,6 @@ b GECKO_END
 startExiTransfer:
 lis r11, 0xCC00 #top bytes of address of EXI registers
 
-#disable read/write protection on memory pages
-lhz r10, 0x4010(r11)
-ori r10, r10, 0xFF
-sth r10, 0x4010(r11) # disable MP3 memory protection
-
 #set up EXI
 li r10, 0xB0 #bit pattern to set clock to 8 MHz and enable CS for device 0
 stw r10, 0x6814(r11) #start transfer, write to parameter register
@@ -114,21 +109,9 @@ blr
 #  inputs: r3 byte to send
 ################################################################################
 sendByteExi:
-lis r11, 0xCC00 #top bytes of address of EXI registers
-li r10, 0x5 #bit pattern to write to control register to write one byte
-
-#write value in r3 to EXI
 slwi r3, r3, 24 #the byte to send has to be left shifted
-stw r3, 0x6824(r11) #store current byte into transfer register
-stw r10, 0x6820(r11) #write to control register to begin transfer
-
-#wait until byte has been transferred
-EXI_CHECK_RECEIVE_WAIT:
-lwz r10, 0x6820(r11)
-andi. r10, r10, 1
-bne EXI_CHECK_RECEIVE_WAIT
-
-blr
+li r4, 0x5 #bit pattern to write to control register to write one byte
+b handleExi
 
 ################################################################################
 #                    subroutine: sendWordExi
@@ -136,20 +119,8 @@ blr
 #  inputs: r3 word to send
 ################################################################################
 sendWordExi:
-lis r11, 0xCC00 #top bytes of address of EXI registers
-li r10, 0x35 #bit pattern to write to control register to write four bytes
-
-#write value in r3 to EXI
-stw r3, 0x6824(r11) #store current bytes into transfer register
-stw r10, 0x6820(r11) #write to control register to begin transfer
-
-#wait until byte has been transferred
-EXI_CHECK_RECEIVE_WAIT_WORD:
-lwz r10, 0x6820(r11)
-andi. r10, r10, 1
-bne EXI_CHECK_RECEIVE_WAIT_WORD
-
-blr
+li r4, 0x35 #bit pattern to write to control register to write four bytes
+b handleExi
 
 ################################################################################
 #                    subroutine: readWordExi
@@ -157,15 +128,47 @@ blr
 #  outputs: r3 received word
 ################################################################################
 readWordExi:
-lis r11, 0xCC00 #top bytes of address of EXI registers
-li r10, 0x31 #bit pattern to write to control register to read four bytes
-stw r10, 0x6820(r11) #write to control register to begin transfer
+li r4, 0x31 #bit pattern to write to control register to read four bytes
+b handleExi
 
+################################################################################
+#                    subroutine: handleExi
+#  description: Handles an exi operation over port B
+#  inputs:
+#  r3 data to write to transfer register
+#  r4 bit pattern for control register
+#  outputs:
+#  r3 value read from transfer register after operation
+################################################################################
+handleExi:
+#write value in r3 to EXI
+stw r3, 0x6824(r11) #store data into transfer register
+b handleExiStart
+
+handleExiRetry:
+# this effectively calls endExiTransfer and then startExiTransfer again
+# the reason for this is on dolphin sometimes I would get an error that read:
+# Exception thrown at 0x0000000019E04D6B in Dolphin.exe: 0xC0000005: Access violation reading location 0x000000034BFF6820
+# this was causing data to not be written successfully and the only way I found
+# to not soft-lock the game (the receive_wait loop would loop forever) was
+# to do this
+li r10, 0
+stw r10, 0x6814(r11) #write 0 to the parameter register
+li r10, 0xB0 #bit pattern to set clock to 8 MHz and enable CS for device 0
+stw r10, 0x6814(r11) #start transfer, write to parameter register
+
+handleExiStart:
+stw r4, 0x6820(r11) #write to control register to begin transfer
+
+li r9, 0
 #wait until byte has been transferred
-EXI_CHECK_RECEIVE_WAIT_READWORD:
+handleExiWait:
+addi r9, r9, 1
+cmpwi r9, 15
+bge- handleExiRetry
 lwz r10, 0x6820(r11)
 andi. r10, r10, 1
-bne EXI_CHECK_RECEIVE_WAIT_READWORD
+bne handleExiWait
 
 #read values from transfer register to r3 for output
 lwz r3, 0x6824(r11) #read from transfer register
@@ -177,8 +180,6 @@ blr
 #  description: stops port B writes
 ################################################################################
 endExiTransfer:
-lis r11, 0xCC00 #top bytes of address of EXI registers
-
 li r10, 0
 stw r10, 0x6814(r11) #write 0 to the parameter register
 
