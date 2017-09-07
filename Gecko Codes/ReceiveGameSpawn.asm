@@ -1,31 +1,19 @@
 ################################################################################
-#                      Inject at address 8006b0dc
-# Function is PlayerThink_ControllerInputsToDataOffset. Injection location
-# suggested by Achilles
+#                      Inject at address 80067cf8
+# Injection point provided by Achilles, runs every time somebody spawns
 ################################################################################
 
 #replaced code line is executed at the end
 
 ################################################################################
-#                   subroutine: writeStats
-#  description: writes stats to EXI port on each frame
+#                   subroutine: receiveGameSpawn
+# description: reads inputs from Slippi for a given frame and overwrites
+# memory locations
 ################################################################################
 #create stack frame and store link register
 mflr r0
 stw r0, 0x4(r1)
 stwu r1,-0x20(r1)
-stw r3,0x1C(r1)
-stw r4,0x18(r1)
-
-#check if in single player mode, and ignore code if so
-lis r3,0x801A # load SinglePlayer_Check function
-ori r3,r3,0x4340
-mtlr r3
-lis r3,0x8048
-lbz r3,-0x62D0(r3) #load menu controller major
-blrl
-cmpwi r3,1 # is this single player mode?
-beq- CLEANUP # if in single player, ignore everything
 
 #------------- INITIALIZE -------------
 # here we want to initalize some variables we plan on using throughout
@@ -37,57 +25,13 @@ ori r8, r8, 0x3080
 mulli r3, r7, 0xE90
 add r8, r8, r3
 
-# check if we are playing ice climbers, if we are we need to check if this is nana
-lwz r3, 0x4(r8)
-cmpwi r3, 0xE
-bne+ SKIP_NANA_CHECK
+#------------- START MAIN -------------
+bl startExiTransfer
 
-# we need to check if this is a follower (nana). should not save inputs for nana
-lwz r3, 0xB4(r8) # load pointer to follower for this port
-cmpw r3, r30 # compare follower pointer with current pointer
-beq- CLEANUP # if the two match, this is a follower
-SKIP_NANA_CHECK:
-
-# If this is the very first frame of the match, send game start info
-lis r4,0x8048
-lwz r4,-0x62A8(r4) # load scene controller frame count
-
-#check frame count, if zero it's the start of the match
-cmpwi r4,0
-bne FRAME_UPDATE #if scene controller is not zero, game has started
-
-#------------- ON_START_EVENT -------------
-bl startExiTransfer #indicate transfer start
-
-li r3, 0x37
-bl sendByteExi #send OnMatchStart event code
-
-lis r3, 0x8046
-lhz r3, -0x539A(r3) #stage ID half word
-bl sendHalfExi
-
-mr r3, r7 #player slot
+li r3,0x77
 bl sendByteExi
 
-lwz r3, 0x4(r8) #character ID
-bl sendByteExi
-lwz r3, 0x8(r8) #player type
-bl sendByteExi
-lbz r3, 0x44(r8) #costume ID
-bl sendByteExi
-
-# TODO: Add timer, stocks, teams, etc
-
-bl endExiTransfer #stop transfer
-
-FRAME_UPDATE:
-#------------- FRAME_UPDATE -------------
-bl startExiTransfer #indicate transfer start
-
-li r3, 0x38
-bl sendByteExi #send OnFrameUpdate event code
-
-# Compute and send frame count (supports negatives before timer starts)
+#Frame Number
 lis r4,0x8048
 lwz r4,-0x62A8(r4) # load scene controller frame count
 lis r3,0x8047
@@ -97,72 +41,48 @@ bne SKIP_FRAME_COUNT_ADJUST #this makes it so that if the timer hasn't started y
 sub r3,r3,r4
 li r4,-0x7B
 sub r3,r4,r3
-
 SKIP_FRAME_COUNT_ADJUST:
-bl sendWordExi
-
-lis r3, 0x804D
-lwz r3, 0x5F90(r3) #load random seed
 bl sendWordExi
 
 mr r3, r7 #player slot
 bl sendByteExi
-lwz r3, 0x64(r30) #load internal char ID
-bl sendByteExi
-lwz r3, 0x70(r30) #load action state ID
-bl sendHalfExi
-lwz r3, 0x110(r30) #load Top-N X coord
-bl sendWordExi
-lwz r3, 0x114(r30) #load Top-N Y coord
-bl sendWordExi
-lwz r3, 0x8C(r30) #load facing direction
-bl sendWordExi
-lwz r3, 0x680(r30) #load Joystick X axis
-bl sendWordExi
-lwz r3, 0x684(r30) #load Joystick Y axis
-bl sendWordExi
-lwz r3, 0x698(r30) #load c-stick X axis
-bl sendWordExi
-lwz r3, 0x69c(r30) #load c-stick Y axis
-bl sendWordExi
-lwz r3, 0x6b0(r30) #load analog trigger input
-bl sendWordExi
-lwz r3, 0x6bc(r30) #load buttons pressed this frame
-bl sendWordExi
-lwz r3, 0x1890(r30) #load current damage
-bl sendWordExi
-lwz r3, 0x19f8(r30) #load shield size
-bl sendWordExi
-lwz r3, 0x20ec(r30) #load last attack landed
-bl sendByteExi
-lhz r3, 0x20f0(r30) #load combo count
-bl sendByteExi
-lwz r3, 0x1924(r30) #load player who last hit this player
-bl sendByteExi
 
-lbz r3, 0x8E(r8) # load stocks remaining
-bl sendByteExi
+REPLAY:
+bl readWordExi
+stw r3, 0x2c(sp) # x position
+bl readWordExi
+stw r3, 0x30(sp) # y position
+bl readWordExi
+stw r3, 0x2c(r31) # facing direction
 
-#get raw controller inputs
-lis r4, 0x804C
-ori r4, r4, 0x1FAC
-mulli r3, r7, 0x44
-add r4, r4, r3
+# check if we are playing ice climbers, if we are we need to check if this is nana
+lwz r3, 0x4(r8)
+cmpwi r3, 0xE
+bne+ SKIP_NANA_CHECK
 
-lhz r3, 0x2(r4) #load constant button presses
-bl sendHalfExi
-lwz r3, 0x30(r4) #load l analog trigger
-bl sendWordExi
-lwz r3, 0x34(r4) #load r analog trigger
-bl sendWordExi
+# we need to check if this is a follower (nana). if nana should modify position
+lwz r3, 0xB0(r8) # load pointer to main player for this port
+lwz r3, 0x8(r3) # load pointer to secondary player for this port
+addi r3, r3, 0x60 # add offset to turn into pointer to data
+cmpw r3, r31 # compare follower pointer with current pointer
+bne SKIP_NANA_CHECK # if the two match, this is a follower
 
-bl endExiTransfer #stop transfer
+# here we have detected we are spawning nana, let's put her 10 distance away
+lfs f10, 0x2c(r31) # load facing direction into floating point register
+lfs f12, 0x2c(sp) # load the current x position into f11
+lis r3, 0x4120 # prepare to load the float 10 into f11
+stw r3, 0x2c(sp) # write to memory so we can read back as float
+lfs f11, 0x2c(sp) # read memory as float
+fmuls f10, f10, f11 # multiply facing direction by 10
+fsubs f10, f12, f10 # move x position by the nana offset
+stfs f10, 0x2c(sp)
+
+SKIP_NANA_CHECK:
+bl endExiTransfer
 
 CLEANUP:
 #restore registers and sp
 lwz r0, 0x24(r1)
-lwz r3, 0x1C(r1)
-lwz r4, 0x18(r1)
 addi r1, r1, 0x20
 mtlr r0
 
@@ -192,22 +112,21 @@ li r4, 0x5 #bit pattern to write to control register to write one byte
 b handleExi
 
 ################################################################################
-#                    subroutine: sendHalfExi
-#  description: sends two bytes over port B exi
-#  inputs: r3 bytes to send
-################################################################################
-sendHalfExi:
-slwi r3, r3, 16 #the bytes to send have to be left shifted
-li r4, 0x15 #bit pattern to write to control register to write two bytes
-b handleExi
-
-################################################################################
 #                    subroutine: sendWordExi
 #  description: sends one word over port B exi
 #  inputs: r3 word to send
 ################################################################################
 sendWordExi:
 li r4, 0x35 #bit pattern to write to control register to write four bytes
+b handleExi
+
+################################################################################
+#                    subroutine: readWordExi
+#  description: reads one word over port B exi
+#  outputs: r3 received word
+################################################################################
+readWordExi:
+li r4, 0x31 #bit pattern to write to control register to read four bytes
 b handleExi
 
 ################################################################################
@@ -265,4 +184,5 @@ stw r10, 0x6814(r11) #write 0 to the parameter register
 blr
 
 GECKO_END:
-lbz r0, 0x2219(r31) #execute replaced code line
+lfs f0, 0xc(sp) # previous code line, redo for safety and 20XX compatibility
+stfs f0, 0xb0(r27) # default code line at this injection point
