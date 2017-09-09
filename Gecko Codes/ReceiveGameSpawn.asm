@@ -17,7 +17,7 @@ stwu r1,-0x20(r1)
 
 #------------- INITIALIZE -------------
 # here we want to initalize some variables we plan on using throughout
-lbz r7, 0xC(r31) #loads this player slot
+lbz r7, 0xC(r27) #loads this player slot
 
 # generate address for static player block
 lis r8, 0x8045
@@ -53,7 +53,7 @@ stw r3, 0x2c(sp) # x position
 bl readWordExi
 stw r3, 0x30(sp) # y position
 bl readWordExi
-stw r3, 0x2c(r31) # facing direction
+stw r3, 0x2c(r27) # facing direction
 
 # check if we are playing ice climbers, if we are we need to check if this is nana
 lwz r3, 0x4(r8)
@@ -64,11 +64,11 @@ bne+ SKIP_NANA_CHECK
 lwz r3, 0xB0(r8) # load pointer to main player for this port
 lwz r3, 0x8(r3) # load pointer to secondary player for this port
 addi r3, r3, 0x60 # add offset to turn into pointer to data
-cmpw r3, r31 # compare follower pointer with current pointer
+cmpw r3, r27 # compare follower pointer with current pointer
 bne SKIP_NANA_CHECK # if the two match, this is a follower
 
 # here we have detected we are spawning nana, let's put her 10 distance away
-lfs f10, 0x2c(r31) # load facing direction into floating point register
+lfs f10, 0x2c(r27) # load facing direction into floating point register
 lfs f12, 0x2c(sp) # load the current x position into f11
 lis r3, 0x4120 # prepare to load the float 10 into f11
 stw r3, 0x2c(sp) # write to memory so we can read back as float
@@ -184,5 +184,6 @@ stw r10, 0x6814(r11) #write 0 to the parameter register
 blr
 
 GECKO_END:
+li r0, 255 # this was the value in r0 for some reason from 80067ce4
 lfs f0, 0xc(sp) # previous code line, redo for safety and 20XX compatibility
 stfs f0, 0xb0(r27) # default code line at this injection point
