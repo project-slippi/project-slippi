@@ -8,6 +8,10 @@
   height: 100vh;
 }
 
+.main {
+  padding: 20px;
+}
+
 .sidebar {
   border-style: solid;
   border-width: 0 1px 0 0;
@@ -17,6 +21,20 @@
 }
 
 .empty-sidebar-content {
-  align-self: center;
+  margin-top: 70px;
   justify-self: center;
+}
+
+.play-cell {
+  text-align: center;
+
+  button>i {
+    color: #94969A;
+  }
+
+  button:hover {
+    i {
+      color: #FFFFFF;
+    }
+  }
 }

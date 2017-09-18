@@ -3,24 +3,8 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Header, Icon, Container } from 'semantic-ui-react'
 import styles from './Home.css';
-import { exec } from 'child_process';
 
 export default class Home extends Component {
-  test() {
-    const dolphinPath = "D:\\Users\\Fizzi\\Documents\\Github\\Ishiiruka\\Binary\\x64";
-    const meleeFile = "C:\\Dolphin\\Games\\ssbm-v1_02.iso";
-    const command = `D: & cd \"${dolphinPath}\" & Dolphin.exe /b /e \"${meleeFile}\"`;
-    console.log(command);
-    exec(command, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`exec error: ${error}`);
-        return;
-      }
-      console.log(`stdout: ${stdout}`);
-      console.log(`stderr: ${stderr}`);
-    });
-  }
-
   generateNav(iconName, header, subHeader, target, disabled) {
     return (
       <Link to={target}>
@@ -58,14 +42,6 @@ export default class Home extends Component {
       true
     );
 
-    let counterPage = this.generateNav(
-      "microchip",
-      "Temporary Test Link",
-      "This should get removed",
-      "/counter",
-      false
-    );
-
     return (
       <Container text={true} className={styles['vertical-space']}>
         <div className="grid-list">
@@ -74,7 +50,6 @@ export default class Home extends Component {
           </div>
           {playFromFile}
           {streamFromSlippi}
-          {counterPage}
         </div>
       </Container>
     );
