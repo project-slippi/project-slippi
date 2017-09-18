@@ -1,39 +1,59 @@
 ################################################################################
-#                      Inject at address 801a5b04
-# Don't know much about this function. Got it from looking at skip results
-# screen code. Runs whenever a game ends
+#                      Inject at address 8016e74c
+# Function is StartMelee and we are loading game information right before
+# it gets read to initialize the match
 ################################################################################
 
 #replaced code line is executed at the end
 
 ################################################################################
-#                   subroutine: sendGameEnd
-# description: sends game end message when a game ends
+#                   subroutine: gameInfoLoad
+# description: reads game info from slippi and loads those into memory
+# addresses that will be used
 ################################################################################
 #create stack frame and store link register
 mflr r0
 stw r0, 0x4(r1)
 stwu r1,-0x20(r1)
-stw r3,0x1C(r1) # store r3 because following bl call uses it as input
 
 # initialize transfer with slippi device
 bl startExiTransfer
 
 # request game information from slippi
-li r3,0x39
+li r3,0x36
 bl sendByteExi
 
-#check byte that will tell us whether the game was won by stock loss or by ragequit
-lis r3, 0x8047
-lbz r3, -0x4960(r3)
-bl sendByteExi #send win condition byte. this byte will be 0 on ragequit, 3 on win by stock loss
+# build version number. Each byte is one digit
+# any change in command data should result in a minor version change
+# current version: 0.1.0.0
+lis r3, 0x0001
+addi r3, r3, 0x0000
+bl sendWordExi
+
+#------------- GAME INFO BLOCK -------------
+# this iterates through the static game info block that is used to pull data
+# from to initialize the game. it writes out the whole thing (0x138 long)
+li r7, 0
+START_LOOP:
+add r3, r31, r7
+lwz r3, 0x0(r3)
+bl sendWordExi
+
+addi r7, r7, 0x4
+cmpwi r7, 0x138
+blt+ START_LOOP
+
+#------------- OTHER INFO -------------
+# write out random seed
+lis r3, 0x804D
+lwz r3, 0x5F90(r3) #load random seed
+bl sendWordExi
 
 bl endExiTransfer
 
 CLEANUP:
 #restore registers and sp
 lwz r0, 0x24(r1)
-lwz r3, 0x1C(r1)
 addi r1, r1, 0x20
 mtlr r0
 
@@ -60,6 +80,15 @@ blr
 sendByteExi:
 slwi r3, r3, 24 #the byte to send has to be left shifted
 li r4, 0x5 #bit pattern to write to control register to write one byte
+b handleExi
+
+################################################################################
+#                    subroutine: sendWordExi
+#  description: sends one word over port B exi
+#  inputs: r3 word to send
+################################################################################
+sendWordExi:
+li r4, 0x35 #bit pattern to write to control register to write four bytes
 b handleExi
 
 ################################################################################
@@ -117,4 +146,4 @@ stw r10, 0x6814(r11) #write 0 to the parameter register
 blr
 
 GECKO_END:
-addi r28, r5, 0 #execute replaced code line
+lis r3, 0x8017 #execute replaced code line

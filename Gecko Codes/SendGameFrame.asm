@@ -14,9 +14,8 @@
 mflr r0
 stw r0, 0x4(r1)
 stwu r1,-0x20(r1)
-stw r31,0x1C(r1)
-stw r30,0x18(r1)
-stw r29,0x14(r1)
+stw r3,0x1C(r1)
+stw r4,0x18(r1)
 
 #check if in single player mode, and ignore code if so
 lis r3,0x801A # load SinglePlayer_Check function
@@ -37,6 +36,17 @@ lis r8, 0x8045
 ori r8, r8, 0x3080
 mulli r3, r7, 0xE90
 add r8, r8, r3
+
+# check if we are playing ice climbers, if we are we need to check if this is nana
+lwz r3, 0x4(r8)
+cmpwi r3, 0xE
+bne+ SKIP_NANA_CHECK
+
+# we need to check if this is a follower (nana). should not save inputs for nana
+lwz r3, 0xB4(r8) # load pointer to follower for this port
+cmpw r3, r30 # compare follower pointer with current pointer
+beq- CLEANUP # if the two match, this is a follower
+SKIP_NANA_CHECK:
 
 # If this is the very first frame of the match, send game start info
 lis r4,0x8048
@@ -89,49 +99,49 @@ li r4,-0x7B
 sub r3,r4,r3
 
 SKIP_FRAME_COUNT_ADJUST:
-bl sendWordExi #4
+bl sendWordExi
 
 lis r3, 0x804D
 lwz r3, 0x5F90(r3) #load random seed
-bl sendWordExi #8
-
-# TODO: handle sheik/zelda
+bl sendWordExi
 
 mr r3, r7 #player slot
-bl sendByteExi #9
+bl sendByteExi
 lwz r3, 0x64(r30) #load internal char ID
-bl sendByteExi #10
+bl sendByteExi
 lwz r3, 0x70(r30) #load action state ID
-bl sendHalfExi #12
+bl sendHalfExi
 lwz r3, 0x110(r30) #load Top-N X coord
-bl sendWordExi #16
+bl sendWordExi
 lwz r3, 0x114(r30) #load Top-N Y coord
-bl sendWordExi #20
+bl sendWordExi
+lwz r3, 0x8C(r30) #load facing direction
+bl sendWordExi
 lwz r3, 0x680(r30) #load Joystick X axis
-bl sendWordExi #24
+bl sendWordExi
 lwz r3, 0x684(r30) #load Joystick Y axis
-bl sendWordExi #28
+bl sendWordExi
 lwz r3, 0x698(r30) #load c-stick X axis
-bl sendWordExi #32
+bl sendWordExi
 lwz r3, 0x69c(r30) #load c-stick Y axis
-bl sendWordExi #36
+bl sendWordExi
 lwz r3, 0x6b0(r30) #load analog trigger input
-bl sendWordExi #40
+bl sendWordExi
 lwz r3, 0x6bc(r30) #load buttons pressed this frame
-bl sendWordExi #44
+bl sendWordExi
 lwz r3, 0x1890(r30) #load current damage
-bl sendWordExi #48
+bl sendWordExi
 lwz r3, 0x19f8(r30) #load shield size
-bl sendWordExi #52
+bl sendWordExi
 lwz r3, 0x20ec(r30) #load last attack landed
-bl sendByteExi #53
+bl sendByteExi
 lhz r3, 0x20f0(r30) #load combo count
-bl sendByteExi #54
+bl sendByteExi
 lwz r3, 0x1924(r30) #load player who last hit this player
-bl sendByteExi #55
+bl sendByteExi
 
 lbz r3, 0x8E(r8) # load stocks remaining
-bl sendByteExi #56
+bl sendByteExi
 
 #get raw controller inputs
 lis r4, 0x804C
@@ -140,20 +150,19 @@ mulli r3, r7, 0x44
 add r4, r4, r3
 
 lhz r3, 0x2(r4) #load constant button presses
-bl sendHalfExi #58
+bl sendHalfExi
 lwz r3, 0x30(r4) #load l analog trigger
-bl sendWordExi #62
+bl sendWordExi
 lwz r3, 0x34(r4) #load r analog trigger
-bl sendWordExi #66
+bl sendWordExi
 
 bl endExiTransfer #stop transfer
 
 CLEANUP:
 #restore registers and sp
 lwz r0, 0x24(r1)
-lwz r31, 0x1C(r1)
-lwz r30, 0x18(r1)
-lwz r29, 0x14(r1)
+lwz r3, 0x1C(r1)
+lwz r4, 0x18(r1)
 addi r1, r1, 0x20
 mtlr r0
 
@@ -165,11 +174,6 @@ b GECKO_END
 ################################################################################
 startExiTransfer:
 lis r11, 0xCC00 #top bytes of address of EXI registers
-
-#disable read/write protection on memory pages
-lhz r10, 0x4010(r11)
-ori r10, r10, 0xFF
-sth r10, 0x4010(r11) # disable MP3 memory protection
 
 #set up EXI
 li r10, 0xB0 #bit pattern to set clock to 8 MHz and enable CS for device 0
@@ -183,21 +187,9 @@ blr
 #  inputs: r3 byte to send
 ################################################################################
 sendByteExi:
-lis r11, 0xCC00 #top bytes of address of EXI registers
-li r10, 0x5 #bit pattern to write to control register to write one byte
-
-#write value in r3 to EXI
 slwi r3, r3, 24 #the byte to send has to be left shifted
-stw r3, 0x6824(r11) #store current byte into transfer register
-stw r10, 0x6820(r11) #write to control register to begin transfer
-
-#wait until byte has been transferred
-EXI_CHECK_RECEIVE_WAIT:
-lwz r10, 0x6820(r11)
-andi. r10, r10, 1
-bne EXI_CHECK_RECEIVE_WAIT
-
-blr
+li r4, 0x5 #bit pattern to write to control register to write one byte
+b handleExi
 
 ################################################################################
 #                    subroutine: sendHalfExi
@@ -205,21 +197,9 @@ blr
 #  inputs: r3 bytes to send
 ################################################################################
 sendHalfExi:
-lis r11, 0xCC00 #top bytes of address of EXI registers
-li r10, 0x15 #bit pattern to write to control register to write one byte
-
-#write value in r3 to EXI
 slwi r3, r3, 16 #the bytes to send have to be left shifted
-stw r3, 0x6824(r11) #store bytes into transfer register
-stw r10, 0x6820(r11) #write to control register to begin transfer
-
-#wait until byte has been transferred
-EXI_CHECK_RECEIVE_WAIT_HALF:
-lwz r10, 0x6820(r11)
-andi. r10, r10, 1
-bne EXI_CHECK_RECEIVE_WAIT_HALF
-
-blr
+li r4, 0x15 #bit pattern to write to control register to write two bytes
+b handleExi
 
 ################################################################################
 #                    subroutine: sendWordExi
@@ -227,36 +207,47 @@ blr
 #  inputs: r3 word to send
 ################################################################################
 sendWordExi:
-lis r11, 0xCC00 #top bytes of address of EXI registers
-li r10, 0x35 #bit pattern to write to control register to write four bytes
+li r4, 0x35 #bit pattern to write to control register to write four bytes
+b handleExi
 
+################################################################################
+#                    subroutine: handleExi
+#  description: Handles an exi operation over port B
+#  inputs:
+#  r3 data to write to transfer register
+#  r4 bit pattern for control register
+#  outputs:
+#  r3 value read from transfer register after operation
+################################################################################
+handleExi:
 #write value in r3 to EXI
-stw r3, 0x6824(r11) #store current bytes into transfer register
-stw r10, 0x6820(r11) #write to control register to begin transfer
+stw r3, 0x6824(r11) #store data into transfer register
+b handleExiStart
 
+handleExiRetry:
+# this effectively calls endExiTransfer and then startExiTransfer again
+# the reason for this is on dolphin sometimes I would get an error that read:
+# Exception thrown at 0x0000000019E04D6B in Dolphin.exe: 0xC0000005: Access violation reading location 0x000000034BFF6820
+# this was causing data to not be written successfully and the only way I found
+# to not soft-lock the game (the receive_wait loop would loop forever) was
+# to do this
+li r10, 0
+stw r10, 0x6814(r11) #write 0 to the parameter register
+li r10, 0xB0 #bit pattern to set clock to 8 MHz and enable CS for device 0
+stw r10, 0x6814(r11) #start transfer, write to parameter register
+
+handleExiStart:
+stw r4, 0x6820(r11) #write to control register to begin transfer
+
+li r9, 0
 #wait until byte has been transferred
-EXI_CHECK_RECEIVE_WAIT_WORD:
+handleExiWait:
+addi r9, r9, 1
+cmpwi r9, 15
+bge- handleExiRetry
 lwz r10, 0x6820(r11)
 andi. r10, r10, 1
-bne EXI_CHECK_RECEIVE_WAIT_WORD
-
-blr
-
-################################################################################
-#                    subroutine: readWordExi
-#  description: reads one word over port B exi
-#  outputs: r3 received word
-################################################################################
-readWordExi:
-lis r11, 0xCC00 #top bytes of address of EXI registers
-li r10, 0x31 #bit pattern to write to control register to read four bytes
-stw r10, 0x6820(r11) #write to control register to begin transfer
-
-#wait until byte has been transferred
-EXI_CHECK_RECEIVE_WAIT_READWORD:
-lwz r10, 0x6820(r11)
-andi. r10, r10, 1
-bne EXI_CHECK_RECEIVE_WAIT_READWORD
+bne handleExiWait
 
 #read values from transfer register to r3 for output
 lwz r3, 0x6824(r11) #read from transfer register
@@ -268,8 +259,6 @@ blr
 #  description: stops port B writes
 ################################################################################
 endExiTransfer:
-lis r11, 0xCC00 #top bytes of address of EXI registers
-
 li r10, 0
 stw r10, 0x6814(r11) #write 0 to the parameter register
 

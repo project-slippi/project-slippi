@@ -1,39 +1,88 @@
 ################################################################################
-#                      Inject at address 801a5b04
-# Don't know much about this function. Got it from looking at skip results
-# screen code. Runs whenever a game ends
+#                      Inject at address 80067cf8
+# Injection point provided by Achilles, runs every time somebody spawns
 ################################################################################
 
 #replaced code line is executed at the end
 
 ################################################################################
-#                   subroutine: sendGameEnd
-# description: sends game end message when a game ends
+#                   subroutine: receiveGameSpawn
+# description: reads inputs from Slippi for a given frame and overwrites
+# memory locations
 ################################################################################
 #create stack frame and store link register
 mflr r0
 stw r0, 0x4(r1)
 stwu r1,-0x20(r1)
-stw r3,0x1C(r1) # store r3 because following bl call uses it as input
 
-# initialize transfer with slippi device
+#------------- INITIALIZE -------------
+# here we want to initalize some variables we plan on using throughout
+lbz r7, 0xC(r27) #loads this player slot
+
+# generate address for static player block
+lis r8, 0x8045
+ori r8, r8, 0x3080
+mulli r3, r7, 0xE90
+add r8, r8, r3
+
+#------------- START MAIN -------------
 bl startExiTransfer
 
-# request game information from slippi
-li r3,0x39
+li r3,0x77
 bl sendByteExi
 
-#check byte that will tell us whether the game was won by stock loss or by ragequit
-lis r3, 0x8047
-lbz r3, -0x4960(r3)
-bl sendByteExi #send win condition byte. this byte will be 0 on ragequit, 3 on win by stock loss
+#Frame Number
+lis r4,0x8048
+lwz r4,-0x62A8(r4) # load scene controller frame count
+lis r3,0x8047
+lwz r3,-0x493C(r3) #load match frame count
+cmpwi r3, 0
+bne SKIP_FRAME_COUNT_ADJUST #this makes it so that if the timer hasn't started yet, we have a unique frame count still
+sub r3,r3,r4
+li r4,-0x7B
+sub r3,r4,r3
+SKIP_FRAME_COUNT_ADJUST:
+bl sendWordExi
 
+mr r3, r7 #player slot
+bl sendByteExi
+
+REPLAY:
+bl readWordExi
+stw r3, 0x2c(sp) # x position
+bl readWordExi
+stw r3, 0x30(sp) # y position
+bl readWordExi
+stw r3, 0x2c(r27) # facing direction
+
+# check if we are playing ice climbers, if we are we need to check if this is nana
+lwz r3, 0x4(r8)
+cmpwi r3, 0xE
+bne+ SKIP_NANA_CHECK
+
+# we need to check if this is a follower (nana). if nana should modify position
+lwz r3, 0xB0(r8) # load pointer to main player for this port
+lwz r3, 0x8(r3) # load pointer to secondary player for this port
+addi r3, r3, 0x60 # add offset to turn into pointer to data
+cmpw r3, r27 # compare follower pointer with current pointer
+bne SKIP_NANA_CHECK # if the two match, this is a follower
+
+# here we have detected we are spawning nana, let's put her 10 distance away
+lfs f10, 0x2c(r27) # load facing direction into floating point register
+lfs f12, 0x2c(sp) # load the current x position into f11
+lis r3, 0x4120 # prepare to load the float 10 into f11
+stw r3, 0x2c(sp) # write to memory so we can read back as float
+lfs f11, 0x2c(sp) # read memory as float
+fmuls f10, f10, f11 # multiply facing direction by 10
+fsubs f10, f12, f10 # move x position by the nana offset
+stfs f10, 0x2c(sp)
+
+SKIP_NANA_CHECK:
 bl endExiTransfer
 
 CLEANUP:
 #restore registers and sp
 lwz r0, 0x24(r1)
-lwz r3, 0x1C(r1)
 addi r1, r1, 0x20
 mtlr r0
 
@@ -60,6 +109,24 @@ blr
 sendByteExi:
 slwi r3, r3, 24 #the byte to send has to be left shifted
 li r4, 0x5 #bit pattern to write to control register to write one byte
+b handleExi
+
+################################################################################
+#                    subroutine: sendWordExi
+#  description: sends one word over port B exi
+#  inputs: r3 word to send
+################################################################################
+sendWordExi:
+li r4, 0x35 #bit pattern to write to control register to write four bytes
+b handleExi
+
+################################################################################
+#                    subroutine: readWordExi
+#  description: reads one word over port B exi
+#  outputs: r3 received word
+################################################################################
+readWordExi:
+li r4, 0x31 #bit pattern to write to control register to read four bytes
 b handleExi
 
 ################################################################################
@@ -117,4 +184,6 @@ stw r10, 0x6814(r11) #write 0 to the parameter register
 blr
 
 GECKO_END:
-addi r28, r5, 0 #execute replaced code line
+li r0, 255 # this was the value in r0 for some reason from 80067ce4
+lfs f0, 0xc(sp) # previous code line, redo for safety and 20XX compatibility
+stfs f0, 0xb0(r27) # default code line at this injection point
