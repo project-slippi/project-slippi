@@ -74,7 +74,7 @@ export function playFile(file) {
     case "win32": // windows
       // When in development mode, use the build-specific dolphin version
       // In production mode, only the build from the correct platform should exist
-      dolphinPath = isDev ? "./app/dolphin/windows" : "./app/dolphin";
+      dolphinPath = isDev ? "./app/dolphin-dev/windows" : "./app/dolphin";
       meleeFile = "C:\\Dolphin\\Games\\ssbm-v1_02.iso";
       destinationFile = path.join(dolphinPath, 'Slippi', 'CurrentGame.slp');
 
