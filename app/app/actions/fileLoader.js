@@ -5,8 +5,6 @@ const {dialog} = require('electron').remote;
 import { exec } from 'child_process';
 
 export const LOAD_FOLDER = 'LOAD_FOLDER';
-export const PLAY_FILE_START = 'PLAY_FILE_START';
-export const PLAY_FILE_END = 'PLAY_FILE_END';
 
 export function browseFolder() {
   return (dispatch) => {
@@ -31,7 +29,7 @@ export function loadFolder(folderPath) {
 }
 
 export function playFile(file) {
-  return (dispatch) => {
+  return () => {
     const filePath = file.fullPath;
     if (!filePath) {
       // TODO: Maybe show error message
@@ -43,29 +41,31 @@ export function playFile(file) {
     //const meleeFile = "C:\\Dolphin\\Games\\ssbm-v1_02.iso";
     //const command = `D: & cd \"${dolphinPath}\" & Dolphin.exe /b /e \"${meleeFile}\"`;
 
-    // For osx
-    const dolphinPath = "$HOME/Documents/Slippi/Launcher";
-    const appName = "Dolphin Slippi.app";
-    const meleeFile = "$HOME/Documents/Games/melee.iso";
-    const commands = [
-      `cd \"${dolphinPath}\"`,
-      `open \"${appName}\" --args /b /e \"${meleeFile}\"`
-    ];
-    const command = commands.join(' & ');
+    // From user:
+    // 1) ISO Path
+    // 2) Root Path
 
-    // First copy the selected file over to the Slippi folder of the playback dolphin
+    // For osx
+    const dolphinPath = "./app/dist/dolphin";
+    const appName = "Dolphin.app";
+    const meleeFile = "$HOME/Documents/Games/melee.iso";
     const destinationFile = path.join(dolphinPath, 'Slippi', 'CurrentGame.slp');
-    fs.copyFileSync(filePath, destinationFile);
+    const commands = [
+      `cp \"${filePath}\" \"${destinationFile}\"`,
+      `cd \"${dolphinPath}\"`,
+      `open \"${appName}\" --args -b -e \"${meleeFile}\"`
+    ];
+    const command = commands.join(' && ');
+
+    //// First copy the selected file over to the Slippi folder of the playback dolphin
+    //const destinationFile = path.join(dolphinPath, 'Slippi', 'CurrentGame.slp');
+    //fs.copyFileSync(filePath, destinationFile);
 
     exec(command, (error, stdout, stderr) => {
+      // Apparently this callback happens before dolphin exits...
       if (error) {
         console.error(`exec error: ${error}`);
       }
-
-      dispatch({
-        type: PLAY_FILE_END,
-        path: path
-      });
     });
   };
 }
