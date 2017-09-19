@@ -33,9 +33,10 @@
   "build": {
     "productName": "SlippiLauncher",
     "appId": "org.develar.SlippiLauncher",
+    "asar": false,
     "files": [
       "dist/",
-      "dolphin//",
+      "dolphin/",
       "node_modules/",
       "app.html",
       "main.prod.js",
@@ -200,6 +201,8 @@
     "react-router-redux": "^5.0.0-alpha.6",
     "redux": "^3.7.1",
     "redux-thunk": "^2.2.0",
+    "semantic-ui-css": "^2.2.12",
+    "semantic-ui-react": "^0.73.1",
     "source-map-support": "^0.4.15"
   },
   "devEngines": {
