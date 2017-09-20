@@ -1,24 +1,28 @@
 const fs = require('fs');
 const path = require('path');
 
-import { LOAD_FOLDER, PLAY_FILE } from '../actions/fileLoader';
+import { LOAD_FOLDER, DISPLAY_ERROR, DISMISS_ERROR } from '../actions/fileLoader';
 import { generateGameInfo } from '../utils/slpReader';
 
 // Default state for this reducer
 const defaultState = {
   currentFolder: null,
   files: [],
-  playingFile: null
+  playingFile: null,
+  errorMessages: {},
+  errorDisplayFlags: {}
 };
 
 export default function fileLoader(state = defaultState, action) {
   switch (action.type) {
-    case LOAD_FOLDER:
-      return loadFolder(state, action);
-    case PLAY_FILE:
-      return playFile(state, action);
-    default:
-      return state;
+  case LOAD_FOLDER:
+    return loadFolder(state, action);
+  case DISPLAY_ERROR:
+    return displayError(state, action);
+  case DISMISS_ERROR:
+    return dismissError(state, action);
+  default:
+    return state;
   }
 }
 
@@ -47,6 +51,19 @@ function loadFolder(state, action) {
   }
 }
 
-function playFile(state, action) {
+function displayError(state, action) {
+  let newState = { ...state };
 
+  const key = action.key;
+  newState.errorMessages[key] = action.errorMessage;
+  newState.errorDisplayFlags[key] = true;
+  return newState;
+}
+
+function dismissError(state, action) {
+  let newState = { ...state };
+
+  const key = action.key;
+  newState.errorDisplayFlags[key] = false;
+  return newState;
 }

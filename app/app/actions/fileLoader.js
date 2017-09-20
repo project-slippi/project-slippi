@@ -1,10 +1,13 @@
 const path = require('path');
 const fs = require('fs');
 const {dialog} = require('electron').remote;
+const {app} = require('electron').remote;
 
 import { exec } from 'child_process';
 
 export const LOAD_FOLDER = 'LOAD_FOLDER';
+export const DISPLAY_ERROR = 'DISPLAY_ERROR';
+export const DISMISS_ERROR = 'DISMISS_ERROR';
 
 export function browseFolder() {
   return (dispatch) => {
@@ -28,8 +31,15 @@ export function loadFolder(folderPath) {
   };
 }
 
+export function dismissError(key) {
+  return {
+    type: DISMISS_ERROR,
+    key: key
+  };
+}
+
 export function playFile(file) {
-  return () => {
+  return (dispatch) => {
     const filePath = file.fullPath;
     if (!filePath) {
       // TODO: Maybe show error message
@@ -48,14 +58,19 @@ export function playFile(file) {
     // 1) ISO Path
     // 2) Root Path
 
+    const appPath = app.getAppPath();
+
+    // This is the path of dolphin after this app has been packaged
+    let dolphinPath = path.join(appPath, "../app.asar.unpacked/dolphin");
+
     // Here we are going to build the platform-specific commands required to launch
     // dolphin from the command line with the correct game
-    let commands, command, dolphinPath, destinationFile, meleeFile;
+    let commands, command, destinationFile, meleeFile;
     switch (platform) {
     case "darwin": // osx
       // When in development mode, use the build-specific dolphin version
       // In production mode, only the build from the correct platform should exist
-      dolphinPath = isDev ? "./app/dolphin/macOS" : "./app/dolphin";
+      dolphinPath = isDev ? "./wdad/app/dolphin-dev/osx" : dolphinPath;
       meleeFile = "$HOME/Documents/Games/melee.iso";
       destinationFile = path.join(dolphinPath, 'Slippi', 'CurrentGame.slp');
 
@@ -74,7 +89,7 @@ export function playFile(file) {
     case "win32": // windows
       // When in development mode, use the build-specific dolphin version
       // In production mode, only the build from the correct platform should exist
-      dolphinPath = isDev ? "./app/dolphin-dev/windows" : "./app/dolphin";
+      dolphinPath = isDev ? "./app/dolphin-dev/windows" : dolphinPath;
       meleeFile = "C:\\Dolphin\\Games\\ssbm-v1_02.iso";
       destinationFile = path.join(dolphinPath, 'Slippi', 'CurrentGame.slp');
 
@@ -88,14 +103,20 @@ export function playFile(file) {
       ];
 
       // Join the commands with && which will execute the commands in sequence
-      command = commands.join(' & ');
+      command = commands.join(' && ');
       break;
     }
 
     exec(command, (error, stdout, stderr) => {
       // Apparently this callback happens before dolphin exits...
       if (error) {
-        console.error(`exec error: ${error}`);
+        console.error(`exec error: ${error.message}`);
+
+        dispatch({
+          type: DISPLAY_ERROR,
+          key: 'global',
+          errorMessage: error.message
+        });
       }
     });
   };

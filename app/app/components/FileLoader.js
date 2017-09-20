@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Table, Statistic, Icon, Button } from 'semantic-ui-react'
+import { Table, Statistic, Icon, Button, Message, Transition } from 'semantic-ui-react'
 import styles from './FileLoader.scss';
 import FileRow from './FileRow';
+import DismissibleMessage from './common/DismissibleMessage';
 
 export default class FileLoader extends Component {
   props: {
     browseFolder: () => void,
     loadFolder: (path) => void,
+    dismissError: (key) => void,
     playFile: (file) => void,
     store: object
   };
@@ -34,6 +36,24 @@ export default class FileLoader extends Component {
       <div className={styles['sidebar']}>
         {this.generateEmptySidebarContent()}
       </div>
+    );
+  }
+
+  generateGlobalError() {
+    const store = this.props.store || {};
+
+    const showGlobalError = store.errorDisplayFlags.global || false;
+    const globalErrorMessage = store.errorMessages.global || "";
+    return (
+      <DismissibleMessage
+        error={true}
+        visible={showGlobalError}
+        icon="warning circle"
+        header="An error has occurred"
+        content={globalErrorMessage}
+        onDismiss={this.props.dismissError}
+        dismissParams={["global"]}
+      />
     );
   }
 
@@ -67,6 +87,7 @@ export default class FileLoader extends Component {
 
     return (
       <div className={styles['main']}>
+        {this.generateGlobalError()}
         <Table basic="very" celled={true} inverted={true} selectable={true}>
           <Table.Header>
             {headerRow}

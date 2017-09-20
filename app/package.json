@@ -33,7 +33,9 @@
   "build": {
     "productName": "SlippiLauncher",
     "appId": "org.develar.SlippiLauncher",
-    "asar": false,
+    "asarUnpack": [
+      "**/dolphin/**/*"
+    ],
     "files": [
       "dist/",
       "dolphin/",
