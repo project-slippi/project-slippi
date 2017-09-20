@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Table, Statistic, Icon, Button, Message, Transition } from 'semantic-ui-react'
+import { Table, Statistic, Icon, Button, Sticky } from 'semantic-ui-react'
 import styles from './FileLoader.scss';
 import FileRow from './FileRow';
 import DismissibleMessage from './common/DismissibleMessage';
@@ -13,6 +13,10 @@ export default class FileLoader extends Component {
     playFile: (file) => void,
     store: object
   };
+
+  refPrimary: {};
+
+  handleRefPrimary = element => this.refPrimary = element;
 
   generateEmptySidebarContent() {
     const browseFolder = this.props.browseFolder;
@@ -32,10 +36,14 @@ export default class FileLoader extends Component {
   }
 
   generateSidebar() {
+    const refPrimary = this.refPrimary;
+
     return (
-      <div className={styles['sidebar']}>
-        {this.generateEmptySidebarContent()}
-      </div>
+      <Sticky context={refPrimary}>
+        <div className={styles['sidebar']}>
+          {this.generateEmptySidebarContent()}
+        </div>
+      </Sticky>
     );
   }
 
@@ -102,7 +110,7 @@ export default class FileLoader extends Component {
 
   render() {
     return (
-      <div className={styles['layout']}>
+      <div ref={this.handleRefPrimary} className={styles['layout']}>
         {this.generateSidebar()}
         {this.generateFileSelection()}
       </div>
