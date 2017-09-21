@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Table, Statistic, Icon, Button, Sticky } from 'semantic-ui-react'
+import { Table, Statistic, Icon, Button, Sticky, Header } from 'semantic-ui-react'
 import styles from './FileLoader.scss';
 import FileRow from './FileRow';
 import DismissibleMessage from './common/DismissibleMessage';
+import PageHeader from './common/PageHeader';
 
 export default class FileLoader extends Component {
   props: {
@@ -65,9 +66,37 @@ export default class FileLoader extends Component {
     );
   }
 
+  generateEmptyLoader() {
+      return (
+        <div className={styles['empty-loader-content']}>
+          <Header as='h2' icon={true} inverted={true} textAlign="center">
+            <Icon name="search" />
+            <Header.Content>
+              No Replay Files Found
+              <Header.Subheader>
+                Please load a folder that contains .slp files
+              </Header.Subheader>
+            </Header.Content>
+          </Header>
+        </div>
+      )
+  }
+
   generateFileSelection() {
     const store = this.props.store || {};
-    const files = store.files || [];
+    let files = store.files || [];
+
+    // Filter out files that were shorter than 30 seconds
+    files = files.filter(function (file) {
+      const gameInfo = file.gameInfo || {};
+      const totalFrames = gameInfo.totalFrames || 0;
+      return totalFrames > 30 * 60;
+    });
+
+    // If we have no files to display, render an empty state
+    if (!files.length) {
+        return this.generateEmptyLoader();
+    }
 
     // Generate header row
     const headerRow = (
@@ -94,25 +123,32 @@ export default class FileLoader extends Component {
     }, this);
 
     return (
-      <div className={styles['main']}>
-        {this.generateGlobalError()}
-        <Table basic="very" celled={true} inverted={true} selectable={true}>
-          <Table.Header>
-            {headerRow}
-          </Table.Header>
-          <Table.Body>
-            {rows}
-          </Table.Body>
-        </Table>
-      </div>
+      <Table basic="very" celled={true} inverted={true} selectable={true}>
+        <Table.Header>
+          {headerRow}
+        </Table.Header>
+        <Table.Body>
+          {rows}
+        </Table.Body>
+      </Table>
     );
+  }
+
+  generateMain() {
+    return (
+      <div className={styles['main']}>
+        <PageHeader icon="disk outline" text="Load Replays" />
+        {this.generateGlobalError()}
+        {this.generateFileSelection()}
+      </div>
+    )
   }
 
   render() {
     return (
       <div ref={this.handleRefPrimary} className={styles['layout']}>
         {this.generateSidebar()}
-        {this.generateFileSelection()}
+        {this.generateMain()}
       </div>
     );
   }
