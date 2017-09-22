@@ -12,6 +12,7 @@ export default class FileLoader extends Component {
     loadFolder: (path) => void,
     dismissError: (key) => void,
     playFile: (file) => void,
+    history: object,
     store: object
   };
 
@@ -137,7 +138,7 @@ export default class FileLoader extends Component {
   generateMain() {
     return (
       <div className={styles['main']}>
-        <PageHeader icon="disk outline" text="Load Replays" />
+        <PageHeader icon="disk outline" text="Load Replays" history={this.props.history} />
         {this.generateGlobalError()}
         {this.generateFileSelection()}
       </div>
