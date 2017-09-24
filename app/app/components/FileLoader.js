@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Table, Statistic, Icon, Button, Sticky, Header } from 'semantic-ui-react'
@@ -5,11 +7,12 @@ import styles from './FileLoader.scss';
 import FileRow from './FileRow';
 import DismissibleMessage from './common/DismissibleMessage';
 import PageHeader from './common/PageHeader';
+import FolderBrowser from './common/FolderBrowser'
 
 export default class FileLoader extends Component {
   props: {
-    browseFolder: () => void,
-    loadFolder: (path) => void,
+    loadRootFolder: () => void,
+    changeFolderSelection: (path) => void,
     dismissError: (key) => void,
     playFile: (file) => void,
     history: object,
@@ -18,38 +21,30 @@ export default class FileLoader extends Component {
 
   refPrimary: {};
 
-  handleRefPrimary = element => this.refPrimary = element;
+  setRefPrimary = element => this.refPrimary = element;
 
-  generateEmptySidebarContent() {
-    const browseFolder = this.props.browseFolder;
-
-    return (
-      <div key="action" className={styles['empty-sidebar-content']}>
-        <Statistic inverted={true}>
-          <Statistic.Value>
-            <Icon name='folder open outline' />
-          </Statistic.Value>
-          <Button className="top-spacer" fluid={true} compact={true} inverted={true} onClick={browseFolder}>
-            Load Folder
-          </Button>
-        </Statistic>
-      </div>
-    );
+  componentDidMount() {
+    this.props.loadRootFolder();
   }
 
-  generateSidebar() {
+  componentWillUnmount() {
+    this.props.dismissError("fileLoaderGlobal");
+  }
+
+  renderSidebar() {
     const refPrimary = this.refPrimary;
+    const store = this.props.store || {};
 
     return (
       <Sticky context={refPrimary}>
         <div className={styles['sidebar']}>
-          {this.generateEmptySidebarContent()}
+          <FolderBrowser folders={store.folders} rootFolderName={store.rootFolderName} />
         </div>
       </Sticky>
     );
   }
 
-  generateGlobalError() {
+  renderGlobalError() {
     const store = this.props.store || {};
 
     const showGlobalError = store.errorDisplayFlags.global || false;
@@ -62,12 +57,12 @@ export default class FileLoader extends Component {
         header="An error has occurred"
         content={globalErrorMessage}
         onDismiss={this.props.dismissError}
-        dismissParams={["global"]}
+        dismissParams={["fileLoaderGlobal"]}
       />
     );
   }
 
-  generateEmptyLoader() {
+  renderEmptyLoader() {
       return (
         <div className={styles['empty-loader-content']}>
           <Header as='h2' icon={true} inverted={true} textAlign="center">
@@ -83,7 +78,7 @@ export default class FileLoader extends Component {
       )
   }
 
-  generateFileSelection() {
+  renderFileSelection() {
     const store = this.props.store || {};
     let files = store.files || [];
 
@@ -96,7 +91,7 @@ export default class FileLoader extends Component {
 
     // If we have no files to display, render an empty state
     if (!files.length) {
-        return this.generateEmptyLoader();
+        return this.renderEmptyLoader();
     }
 
     // Generate header row
@@ -135,21 +130,22 @@ export default class FileLoader extends Component {
     );
   }
 
-  generateMain() {
+  renderMain() {
     return (
-      <div className={styles['main']}>
-        <PageHeader icon="disk outline" text="Load Replays" history={this.props.history} />
-        {this.generateGlobalError()}
-        {this.generateFileSelection()}
+      <div className="main-padding">
+        <PageHeader icon="disk outline" text="Replay Loader" history={this.props.history} />
+        {this.renderGlobalError()}
+        {this.renderFileSelection()}
       </div>
     )
   }
 
   render() {
+    // TODO: On component unmount, clear all current settings
     return (
-      <div ref={this.handleRefPrimary} className={styles['layout']}>
-        {this.generateSidebar()}
-        {this.generateMain()}
+      <div ref={this.setRefPrimary} className={styles['layout']}>
+        {this.renderSidebar()}
+        {this.renderMain()}
       </div>
     );
   }

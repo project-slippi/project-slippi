@@ -1,33 +1,27 @@
 const path = require('path');
 const fs = require('fs');
-const {dialog} = require('electron').remote;
 const {app} = require('electron').remote;
 
 import { exec } from 'child_process';
 
-export const LOAD_FOLDER = 'LOAD_FOLDER';
+export const LOAD_ROOT_FOLDER = 'LOAD_ROOT_FOLDER';
+export const CHANGE_FOLDER_SELECTION = 'CHANGE_FOLDER_SELECTION';
 export const DISPLAY_ERROR = 'DISPLAY_ERROR';
 export const DISMISS_ERROR = 'DISMISS_ERROR';
 
-export function browseFolder() {
-  return (dispatch) => {
-    const paths = dialog.showOpenDialog({
-      properties: ['openDirectory']
-    }) || [];
-
-    const folderPath = paths[0];
-    if (!folderPath) {
-      return;
-    }
-
-    dispatch(loadFolder(folderPath));
+export function loadRootFolder() {
+  return {
+    type: LOAD_ROOT_FOLDER,
+    payload: {}
   };
 }
 
-export function loadFolder(folderPath) {
+export function changeFolderSelection(path) {
   return {
-    type: LOAD_FOLDER,
-    path: folderPath
+    type: CHANGE_FOLDER_SELECTION,
+    payload: {
+      folderPath: path
+    }
   };
 }
 
@@ -48,15 +42,6 @@ export function playFile(file) {
 
     const platform = process.platform;
     const isDev = process.env.NODE_ENV === "development";
-
-    // For windows
-    //const dolphinPath = "D:\\Users\\Fizzi\\Documents\\Github\\Ishiiruka\\Binary\\x64";
-    //const meleeFile = "C:\\Dolphin\\Games\\ssbm-v1_02.iso";
-    //const command = `D: & cd \"${dolphinPath}\" & Dolphin.exe /b /e \"${meleeFile}\"`;
-
-    // From user:
-    // 1) ISO Path
-    // 2) Root Path
 
     const appPath = app.getAppPath();
 
