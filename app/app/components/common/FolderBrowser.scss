@@ -1,0 +1,25 @@
+@import "../../colors.global.scss";
+
+.main {
+  z-index: 1;
+}
+
+.folder-selection {
+  &.selected {
+    background: #074E17;
+    z-index: -1; // Puts selection behind text. Unclickable
+  }
+
+  position: absolute;
+  left: 0;
+  height: 20px;
+  width: 100%;
+  z-index: 2; // This allows selection to happen
+}
+
+.folder-expand {
+  position: absolute;
+  margin-left: -45px;
+  height: 20px;
+  width: 20px;
+}
