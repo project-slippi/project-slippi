@@ -40,3 +40,8 @@ body {
 .full-width {
   width: 100%;
 }
+
+.unselectable {
+  cursor: default;
+  user-select: none;
+}

@@ -1,7 +1,7 @@
 // @flow
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Header, Icon, Container } from 'semantic-ui-react'
+import { Button, Header, Icon, Container, Segment } from 'semantic-ui-react'
 import styles from './Home.scss';
 
 export default class Home extends Component {
@@ -27,6 +27,7 @@ export default class Home extends Component {
 
   render() {
     let navigationElements = [];
+    let upcomingElements = [];
 
     navigationElements.push(this.generateNav(
       "disk outline",
@@ -36,7 +37,7 @@ export default class Home extends Component {
       false
     ));
 
-    navigationElements.push(this.generateNav(
+    upcomingElements.push(this.generateNav(
       "microchip",
       "Stream From Slippi Device",
       "Stream replay from Slippi device",
@@ -54,12 +55,18 @@ export default class Home extends Component {
 
     return (
       <Container text={true} className={styles['vertical-space']}>
-        <div className="grid-list">
+        <Segment basic={true} className="grid-list">
           <div className="grid-item-center">
-           <h2>Home - Navigation Page</h2>
+           <Header as="h2" color="green">Home - Navigation Page</Header>
           </div>
           {navigationElements}
-        </div>
+        </Segment>
+        <Segment basic={true} className="grid-list">
+          <div className="grid-item-center">
+            <Header as="h2" color="green">Upcoming Features</Header>
+          </div>
+          {upcomingElements}
+        </Segment>
       </Container>
     );
   }

@@ -55,7 +55,7 @@ export function playFile(file) {
     case "darwin": // osx
       // When in development mode, use the build-specific dolphin version
       // In production mode, only the build from the correct platform should exist
-      dolphinPath = isDev ? "./wdad/app/dolphin-dev/osx" : dolphinPath;
+      dolphinPath = isDev ? "./app/dolphin-dev/osx" : dolphinPath;
       meleeFile = "$HOME/Documents/Games/melee.iso";
       destinationFile = path.join(dolphinPath, 'Slippi', 'CurrentGame.slp');
 
@@ -63,9 +63,9 @@ export function playFile(file) {
       // 2) Navigate to dolphin build path
       // 3) Run dolphin with parameters to launch melee directly
       commands = [
-        `cp \"${filePath}\" \"${destinationFile}\"`,
-        `cd \"${dolphinPath}\"`,
-        `open \"Dolphin.app\" --args -b -e \"${meleeFile}\"`
+        `cp "${filePath}" "${destinationFile}"`,
+        `cd "${dolphinPath}"`,
+        `open "Dolphin.app" --args -b -e "${meleeFile}"`
       ];
 
       // Join the commands with && which will execute the commands in sequence
@@ -82,9 +82,9 @@ export function playFile(file) {
       // 2) Navigate to dolphin build path
       // 3) Run dolphin with parameters to launch melee directly
       commands = [
-        `copy \"${filePath}\" \"${destinationFile}\"`,
-        `cd \"${dolphinPath}\"`,
-        `Dolphin.exe /b /e \"${meleeFile}\"`
+        `copy "${filePath}" "${destinationFile}"`,
+        `cd "${dolphinPath}"`,
+        `Dolphin.exe /b /e "${meleeFile}"`
       ];
 
       // Join the commands with && which will execute the commands in sequence

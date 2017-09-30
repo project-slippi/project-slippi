@@ -38,7 +38,12 @@ export default class FileLoader extends Component {
     return (
       <Sticky context={refPrimary}>
         <div className={styles['sidebar']}>
-          <FolderBrowser folders={store.folders} rootFolderName={store.rootFolderName} />
+          <FolderBrowser
+            folders={store.folders}
+            rootFolderName={store.rootFolderName}
+            selectedFolderFullPath={store.selectedFolderFullPath}
+            changeFolderSelection={this.props.changeFolderSelection}
+          />
         </div>
       </Sticky>
     );

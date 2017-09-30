@@ -1,14 +1,20 @@
 const _ = require('lodash');
+const classNames = require('classnames');
 
-import React, { Component } from 'react';
-import { List, Segment } from 'semantic-ui-react'
+import React, { Component, Button } from 'react';
+import { List, Segment, Icon } from 'semantic-ui-react'
+import styles from './FolderBrowser.scss';
 
 export default class FolderBrowser extends Component {
   props: {
     folders: object,
     rootFolderName: string,
-    onSelect: () => void,
-    toggleExpand: () => void
+    selectedFolderFullPath: string,
+    changeFolderSelection: (path) => void
+  };
+
+  selectFolder = (folderFullPath) => {
+    this.props.changeFolderSelection(folderFullPath);
   };
 
   generateFolderItem(folderDetails) {
@@ -19,19 +25,38 @@ export default class FolderBrowser extends Component {
       return self.generateFolderItem(iFolderDetails);
     });
 
-    return (
+    // Generate directory listing if we have subdirectories
+    let subDirectoryList = null;
+    if (_.some(subFolderItems)) {
+      subDirectoryList = (
+        <List.List className="no-padding">
+          {subFolderItems}
+        </List.List>
+      );
+    }
+
+    // Generate styles for selection
+    const currentSelection = this.props.selectedFolderFullPath;
+    const selectorClasses = classNames({
+      [styles['selected']]: currentSelection === folderDetails.fullPath
+    }, styles['folder-selection']);
+
+    return [
+      <div
+        key="selector"
+        className={selectorClasses}
+        onClick={_.partial(this.selectFolder, folderDetails.fullPath)}
+      />,
       <List.Item key={folderDetails.fullPath}>
         <List.Icon name="folder" />
         <List.Content>
-          <List.Header>
+          <List.Header className="unselectable">
             {folderDetails.folderName}
           </List.Header>
-          <List.List>
-            {subFolderItems}
-          </List.List>
+          {subDirectoryList}
         </List.Content>
       </List.Item>
-    );
+    ];
   }
 
   renderEmpty() {
@@ -50,7 +75,7 @@ export default class FolderBrowser extends Component {
     }
 
     return (
-      <Segment basic={true}>
+      <Segment basic={true} className={styles['main']}>
         <List inverted={true}>
           {this.generateFolderItem(rootFolderDetails)}
         </List>

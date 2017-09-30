@@ -96,7 +96,7 @@ function changeFolderSelection(state, action) {
 
   return {
     ...state,
-    selectedFolder: folderPath,
+    selectedFolderFullPath: folderPath,
     files: files
   }
 }
