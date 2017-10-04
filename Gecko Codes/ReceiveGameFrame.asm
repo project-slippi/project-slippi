@@ -19,6 +19,9 @@ stw r3,0x1C(r1)
 stw r4,0x18(r1)
 
 #------ TEST
+#lis r3, 0x2c00
+#lis r4, 0x800D
+#stw r3, -0x64B4(r4)
 
 #------------- INITIALIZE -------------
 # here we want to initalize some variables we plan on using throughout
