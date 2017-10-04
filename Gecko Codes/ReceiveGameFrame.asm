@@ -18,6 +18,8 @@ stwu r1,-0x20(r1)
 stw r3,0x1C(r1)
 stw r4,0x18(r1)
 
+#------ TEST
+
 #------------- INITIALIZE -------------
 # here we want to initalize some variables we plan on using throughout
 lbz r7, 0xC(r31) #loads this player slot

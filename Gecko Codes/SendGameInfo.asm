@@ -7,7 +7,7 @@
 #replaced code line is executed at the end
 
 ################################################################################
-#                   subroutine: gameInfoLoad
+#                   subroutine: sendGameInfo
 # description: reads game info from slippi and loads those into memory
 # addresses that will be used
 ################################################################################
@@ -19,7 +19,38 @@ stwu r1,-0x20(r1)
 # initialize transfer with slippi device
 bl startExiTransfer
 
-# request game information from slippi
+#------------- WRITE OUT COMMAND SIZES -------------
+# start file sending and indicate the sizes of the output commands
+li r3,0x35
+bl sendByteExi
+
+# write out the payload size of the 0x35 command (includes this byte)
+# we can write this in only a byte because I doubt it will ever be larger
+# than 255. We write out the sizes of the other commands as half words for
+# consistent parsing
+li r3, 10
+bl sendByteExi
+
+# game info command
+li r3, 0x36
+bl sendByteExi
+li r3, 320
+bl sendHalfExi
+
+# frame update command
+li r3, 0x38
+bl sendByteExi
+li r3, 70
+bl sendHalfExi
+
+# game end command
+li r3, 0x39
+bl sendByteExi
+li r3, 1
+bl sendHalfExi
+
+#------------- BEGIN GAME INFO COMMAND -------------
+# game information message type
 li r3,0x36
 bl sendByteExi
 
@@ -80,6 +111,16 @@ blr
 sendByteExi:
 slwi r3, r3, 24 #the byte to send has to be left shifted
 li r4, 0x5 #bit pattern to write to control register to write one byte
+b handleExi
+
+################################################################################
+#                    subroutine: sendHalfExi
+#  description: sends two bytes over port B exi
+#  inputs: r3 bytes to send
+################################################################################
+sendHalfExi:
+slwi r3, r3, 16 #the bytes to send have to be left shifted
+li r4, 0x15 #bit pattern to write to control register to write two bytes
 b handleExi
 
 ################################################################################

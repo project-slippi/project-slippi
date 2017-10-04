@@ -47,7 +47,7 @@ bl sendWordExi
 mr r3, r7 #player slot
 bl sendByteExi
 
-REPLAY:
+# read positions and write back to proper locations
 bl readWordExi
 stw r3, 0x2c(sp) # x position
 bl readWordExi

@@ -40,49 +40,28 @@ add r8, r8, r3
 # check if we are playing ice climbers, if we are we need to check if this is nana
 lwz r3, 0x4(r8)
 cmpwi r3, 0xE
-bne+ SKIP_NANA_CHECK
+bne+ FRAME_UPDATE
 
 # we need to check if this is a follower (nana). should not save inputs for nana
 lwz r3, 0xB4(r8) # load pointer to follower for this port
 cmpw r3, r30 # compare follower pointer with current pointer
 beq- CLEANUP # if the two match, this is a follower
-SKIP_NANA_CHECK:
-
-# If this is the very first frame of the match, send game start info
-lis r4,0x8048
-lwz r4,-0x62A8(r4) # load scene controller frame count
-
-#check frame count, if zero it's the start of the match
-cmpwi r4,0
-bne FRAME_UPDATE #if scene controller is not zero, game has started
-
-#------------- ON_START_EVENT -------------
-bl startExiTransfer #indicate transfer start
-
-li r3, 0x37
-bl sendByteExi #send OnMatchStart event code
-
-lis r3, 0x8046
-lhz r3, -0x539A(r3) #stage ID half word
-bl sendHalfExi
-
-mr r3, r7 #player slot
-bl sendByteExi
-
-lwz r3, 0x4(r8) #character ID
-bl sendByteExi
-lwz r3, 0x8(r8) #player type
-bl sendByteExi
-lbz r3, 0x44(r8) #costume ID
-bl sendByteExi
-
-# TODO: Add timer, stocks, teams, etc
-
-bl endExiTransfer #stop transfer
 
 FRAME_UPDATE:
 #------------- FRAME_UPDATE -------------
 bl startExiTransfer #indicate transfer start
+
+# indicate we want to write out a byte array
+li r3,0x74
+bl sendByteExi
+
+# indicate byte array length
+li r3, 71
+bl sendHalfExi
+
+# simply continue writing if started
+li r3, 0
+bl sendByteExi
 
 li r3, 0x38
 bl sendByteExi #send OnFrameUpdate event code
