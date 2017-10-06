@@ -11,16 +11,21 @@ import FolderBrowser from './common/FolderBrowser'
 
 export default class FileLoader extends Component {
   props: {
+    // fileLoader actions
     loadRootFolder: () => void,
     changeFolderSelection: (path) => void,
-    dismissError: (key) => void,
     playFile: (file) => void,
+
+    // error actions
+    dismissError: (key) => void,
+
+    // store data
     history: object,
-    store: object
+    store: object,
+    errors: object
   };
 
   refPrimary: {};
-
   setRefPrimary = element => this.refPrimary = element;
 
   componentDidMount() {
@@ -28,7 +33,7 @@ export default class FileLoader extends Component {
   }
 
   componentWillUnmount() {
-    this.props.dismissError("fileLoaderGlobal");
+    this.props.dismissError("fileLoader-global");
   }
 
   renderSidebar() {
@@ -50,10 +55,11 @@ export default class FileLoader extends Component {
   }
 
   renderGlobalError() {
-    const store = this.props.store || {};
+    const errors = this.props.errors || {};
+    const errorKey = 'fileLoader-global';
 
-    const showGlobalError = store.errorDisplayFlags.global || false;
-    const globalErrorMessage = store.errorMessages.global || "";
+    const showGlobalError = errors.displayFlags[errorKey] || false;
+    const globalErrorMessage = errors.messages[errorKey] || "";
     return (
       <DismissibleMessage
         error={true}
@@ -62,7 +68,7 @@ export default class FileLoader extends Component {
         header="An error has occurred"
         content={globalErrorMessage}
         onDismiss={this.props.dismissError}
-        dismissParams={["fileLoaderGlobal"]}
+        dismissParams={[errorKey]}
       />
     );
   }

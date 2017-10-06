@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const electronSettings = require('electron-settings');
 
-import { LOAD_ROOT_FOLDER, CHANGE_FOLDER_SELECTION, DISPLAY_ERROR, DISMISS_ERROR } from '../actions/fileLoader';
+import { LOAD_ROOT_FOLDER, CHANGE_FOLDER_SELECTION } from '../actions/fileLoader';
 import { generateGameInfo } from '../utils/slpReader';
 
 // Default state for this reducer
@@ -11,9 +11,7 @@ const defaultState = {
   selectedFolderFullPath: "",
   folders: {},
   files: [],
-  playingFile: null,
-  errorMessages: {},
-  errorDisplayFlags: {}
+  playingFile: null
 };
 
 export default function fileLoader(state = defaultState, action) {
@@ -22,10 +20,6 @@ export default function fileLoader(state = defaultState, action) {
     return loadRootFolder(state, action);
   case CHANGE_FOLDER_SELECTION:
     return changeFolderSelection(state, action);
-  case DISPLAY_ERROR:
-    return displayError(state, action);
-  case DISMISS_ERROR:
-    return dismissError(state, action);
   default:
     return state;
   }
@@ -99,21 +93,4 @@ function changeFolderSelection(state, action) {
     selectedFolderFullPath: folderPath,
     files: files
   }
-}
-
-function displayError(state, action) {
-  let newState = { ...state };
-
-  const key = action.key;
-  newState.errorMessages[key] = action.errorMessage;
-  newState.errorDisplayFlags[key] = true;
-  return newState;
-}
-
-function dismissError(state, action) {
-  let newState = { ...state };
-
-  const key = action.key;
-  newState.errorDisplayFlags[key] = false;
-  return newState;
 }

@@ -4,10 +4,10 @@ const {app} = require('electron').remote;
 
 import { exec } from 'child_process';
 
+import { displayError } from './error'
+
 export const LOAD_ROOT_FOLDER = 'LOAD_ROOT_FOLDER';
 export const CHANGE_FOLDER_SELECTION = 'CHANGE_FOLDER_SELECTION';
-export const DISPLAY_ERROR = 'DISPLAY_ERROR';
-export const DISMISS_ERROR = 'DISMISS_ERROR';
 
 export function loadRootFolder() {
   return {
@@ -22,13 +22,6 @@ export function changeFolderSelection(path) {
     payload: {
       folderPath: path
     }
-  };
-}
-
-export function dismissError(key) {
-  return {
-    type: DISMISS_ERROR,
-    key: key
   };
 }
 
@@ -55,7 +48,7 @@ export function playFile(file) {
     case "darwin": // osx
       // When in development mode, use the build-specific dolphin version
       // In production mode, only the build from the correct platform should exist
-      dolphinPath = isDev ? "./app/dolphin-dev/osx" : dolphinPath;
+      dolphinPath = isDev ? "./wdadwa/app/dolphin-dev/osx" : dolphinPath;
       meleeFile = "$HOME/Documents/Games/melee.iso";
       destinationFile = path.join(dolphinPath, 'Slippi', 'CurrentGame.slp');
 
@@ -97,11 +90,7 @@ export function playFile(file) {
       if (error) {
         console.error(`exec error: ${error.message}`);
 
-        dispatch({
-          type: DISPLAY_ERROR,
-          key: 'global',
-          errorMessage: error.message
-        });
+        dispatch(displayError('fileLoader-global', error.message));
       }
     });
   };
