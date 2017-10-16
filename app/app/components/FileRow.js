@@ -9,7 +9,11 @@ import * as characterUtils from '../utils/characters';
 export default class FileRow extends Component {
   props: {
     file: object,
-    playFile: (file) => void
+    playFile: (file) => void,
+    gameProfileLoad: (path) => void,
+
+    // history
+    history: object
   };
 
   playFile = () => {
@@ -17,6 +21,14 @@ export default class FileRow extends Component {
 
     // Play the file
     this.props.playFile(file);
+  };
+
+  viewStats = () => {
+    const file = this.props.file || {};
+    const fileFullPath = file.fullPath;
+
+    this.props.gameProfileLoad(fileFullPath);
+    this.props.history.push('/game');
   };
 
   generatePlayCell() {
@@ -97,6 +109,21 @@ export default class FileRow extends Component {
     )
   }
 
+  generateOptionsCell() {
+    return (
+      <Table.Cell className={styles['play-cell']} textAlign="center">
+        <Button
+          circular={true}
+          inverted={true}
+          size="tiny"
+          basic={true}
+          icon="bar chart"
+          onClick={this.viewStats}
+        />
+      </Table.Cell>
+    );
+  }
+
   render() {
     return (
       <Table.Row>
@@ -105,6 +132,7 @@ export default class FileRow extends Component {
         {this.generateCharacterCell()}
         {this.generateStageCell()}
         {this.generateGameLengthCell()}
+        {this.generateOptionsCell()}
       </Table.Row>
     );
   }

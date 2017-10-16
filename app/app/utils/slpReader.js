@@ -68,3 +68,53 @@ function getCharacters(gameInfoBlock) {
     return characterId;
   });
 }
+
+export function extractGameContent(path) {
+  const fd = fs.openSync(path, "r");
+
+  const rawDataPosition = getRawDataPosition(fd);
+  const rawDataLength = getRawDataLength(fd);
+  const messageSizes = getMessageSizes(fd, rawDataPosition);
+
+  // Read entire raw data block. Perhaps if this ends up being
+  // a bad idea a stream could be used instead
+  let buffer = new Uint8Array(rawDataLength);
+  fs.readSync(fd, buffer, 0, buffer.length, rawDataPosition);
+
+
+}
+
+// This function gets the position where the raw data starts
+function getRawDataPosition(fd) {
+  let buffer = new Uint8Array(1);
+  fs.readSync(fd, buffer, 0, buffer.length, 0);
+
+  if (buffer[0] === 0x36) {
+    return 0;
+  }
+
+  throw "Not supported yet"
+}
+
+function getRawDataLength(fd, position) {
+  if (position === 0) {
+    const fileStats = fs.fstatSync(fd) || {};
+    return fileStats.size;
+  }
+
+  throw "Not supported yet"
+}
+
+function getMessageSizes(fd, position) {
+  // Support old file format
+  if (position === 0) {
+    return {
+      0x36: 0x140,
+      0x37: 0x6,
+      0x38: 0x46,
+      0x39: 0x1
+    };
+  }
+
+  throw "Not supported yet"
+}

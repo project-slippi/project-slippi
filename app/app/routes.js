@@ -4,6 +4,7 @@ import { Switch, Route } from 'react-router';
 import App from './containers/App';
 import HomePage from './containers/HomePage';
 import FileLoaderPage from './containers/FileLoaderPage';
+import GameProfilePage from './containers/GameProfilePage';
 import SettingsPage from './containers/SettingsPage';
 
 export default () => (
@@ -11,6 +12,7 @@ export default () => (
     <Switch>
       <Route path="/files" component={FileLoaderPage} />
       <Route path="/settings" component={SettingsPage} />
+      <Route path="/game" component={GameProfilePage} />
       <Route path="/" component={HomePage} />
     </Switch>
   </App>

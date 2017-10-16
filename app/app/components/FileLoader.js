@@ -16,6 +16,9 @@ export default class FileLoader extends Component {
     changeFolderSelection: (path) => void,
     playFile: (file) => void,
 
+    // game actions
+    gameProfileLoad: (path) => void,
+
     // error actions
     dismissError: (key) => void,
 
@@ -113,18 +116,19 @@ export default class FileLoader extends Component {
         <Table.HeaderCell>Characters</Table.HeaderCell>
         <Table.HeaderCell>Stage</Table.HeaderCell>
         <Table.HeaderCell>Duration</Table.HeaderCell>
+        <Table.HeaderCell />
       </Table.Row>
     );
 
     // Generate a row for every file in selected folder
     const rows = files.map(function (file) {
-      const fileName = file.fullPath;
-
       return (
         <FileRow
-          key={fileName}
+          key={file.fullPath}
           file={file}
           playFile={this.props.playFile}
+          gameProfileLoad={this.props.gameProfileLoad}
+          history={this.props.history}
         />
       );
     }, this);
@@ -152,7 +156,6 @@ export default class FileLoader extends Component {
   }
 
   render() {
-    // TODO: On component unmount, clear all current settings
     return (
       <div ref={this.setRefPrimary} className={styles['layout']}>
         {this.renderSidebar()}

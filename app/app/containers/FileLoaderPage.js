@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import FileLoader from '../components/FileLoader';
 import * as FileLoaderActions from '../actions/fileLoader';
+import * as GameActions from '../actions/game';
 import * as ErrorActions from '../actions/error';
 
 function mapStateToProps(state) {
@@ -14,7 +15,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  const allActions = _.extend({}, FileLoaderActions, ErrorActions);
+  const allActions = _.extend({}, FileLoaderActions, GameActions, ErrorActions);
   return bindActionCreators(allActions, dispatch);
 }
 

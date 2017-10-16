@@ -48,7 +48,7 @@ export function playFile(file) {
     case "darwin": // osx
       // When in development mode, use the build-specific dolphin version
       // In production mode, only the build from the correct platform should exist
-      dolphinPath = isDev ? "./wdadwa/app/dolphin-dev/osx" : dolphinPath;
+      dolphinPath = isDev ? "./app/dolphin-dev/osx" : dolphinPath;
       meleeFile = "$HOME/Documents/Games/melee.iso";
       destinationFile = path.join(dolphinPath, 'Slippi', 'CurrentGame.slp');
 
