@@ -40,7 +40,7 @@ bl sendHalfExi
 # frame update command
 li r3, 0x38
 bl sendByteExi
-li r3, 70
+li r3, 71
 bl sendHalfExi
 
 # game end command

@@ -33,17 +33,6 @@ ori r8, r8, 0x3080
 mulli r3, r7, 0xE90
 add r8, r8, r3
 
-# check if we are playing ice climbers, if we are we need to check if this is nana
-lwz r3, 0x4(r8)
-cmpwi r3, 0xE
-bne+ SKIP_NANA_CHECK
-
-# we need to check if this is a follower (nana). should not load inputs for nana
-lwz r3, 0xB4(r8) # load pointer to follower for this port
-cmpw r3, r30 # compare follower pointer with current pointer
-beq- CLEANUP # if the two match, this is a follower
-SKIP_NANA_CHECK:
-
 #------------- START MAIN -------------
 bl startExiTransfer
 
@@ -66,6 +55,24 @@ bl sendWordExi
 mr r3, r7 #player slot
 bl sendByteExi
 
+li r4, 0 # initialize isFollower to false
+
+# check if we are playing ice climbers, if we are we need to check if this is nana
+lwz r3, 0x4(r8)
+cmpwi r3, 0xE
+bne+ WRITE_IS_FOLLOWER
+
+# we need to check if this is a follower (nana). should not save inputs for nana
+lwz r3, 0xB4(r8) # load pointer to follower for this port
+cmpw r3, r30 # compare follower pointer with current pointer
+bne WRITE_IS_FOLLOWER # if the two  dont match, this is popo
+
+li r4, 1 # if we get here then we know this is nana
+
+WRITE_IS_FOLLOWER:
+mr r3, r4 # stage isFollower bool for writing
+bl sendByteExi
+
 REPLAY:
 bl readWordExi
 lis r4,0x804D
@@ -82,6 +89,12 @@ bl readWordExi
 stw r3,0x650(r31) #trigger
 bl readWordExi
 stw r3,0x65C(r31) #buttons
+bl readWordExi
+stw r3,0xB0(r31) #x position
+bl readWordExi
+stw r3,0xB4(r31) #y position
+bl readWordExi
+stw r3,0x2C(r31) #facing direction
 
 bl endExiTransfer
 
