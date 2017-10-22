@@ -1,9 +1,9 @@
-const _ = require('lodash');
-
 import React, { Component } from 'react';
-import { Header, Container, Input, Segment, Button } from 'semantic-ui-react'
+import { Container, Segment, Button } from 'semantic-ui-react';
 import PageHeader from './common/PageHeader';
-import ActionInput from './common/ActionInput'
+import ActionInput from './common/ActionInput';
+
+const _ = require('lodash');
 
 export default class Settings extends Component {
   props: {
@@ -22,7 +22,7 @@ export default class Settings extends Component {
   renderSave() {
     const store = this.props.store || {};
 
-    let extraProps = {};
+    const extraProps = {};
     if (_.isEqual(store.currentSettings, store.storedSettings)) {
       // This will disable the button if there's nothing to save
       extraProps.disabled = true;
@@ -61,7 +61,7 @@ export default class Settings extends Component {
         />
         {this.renderSave()}
       </Container>
-    )
+    );
   }
 
   render() {

@@ -18,7 +18,7 @@ export default function fileLoader(state = defaultState, action) {
 }
 
 function displayError(state, action) {
-  let newState = { ...state };
+  const newState = { ...state };
 
   const key = action.key;
   newState.messages[key] = action.errorMessage;
@@ -27,7 +27,7 @@ function displayError(state, action) {
 }
 
 function dismissError(state, action) {
-  let newState = { ...state };
+  const newState = { ...state };
 
   const key = action.key;
   newState.displayFlags[key] = false;

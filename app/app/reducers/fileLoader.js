@@ -1,9 +1,9 @@
+import { LOAD_ROOT_FOLDER, CHANGE_FOLDER_SELECTION } from '../actions/fileLoader';
+import { generateGameInfo } from '../utils/slpReader';
+
 const fs = require('fs');
 const path = require('path');
 const electronSettings = require('electron-settings');
-
-import { LOAD_ROOT_FOLDER, CHANGE_FOLDER_SELECTION } from '../actions/fileLoader';
-import { generateGameInfo } from '../utils/slpReader';
 
 // Default state for this reducer
 const defaultState = {
@@ -25,8 +25,12 @@ export default function fileLoader(state = defaultState, action) {
   }
 }
 
-function loadRootFolder(state, action) {
+function loadRootFolder(state) {
   const rootFolder = electronSettings.get('settings.rootSlpPath');
+  if (!rootFolder) {
+    return state;
+  }
+
   const files = fs.readdirSync(rootFolder);
 
   const rootFolderBasename = path.basename(rootFolder);
@@ -41,11 +45,11 @@ function loadRootFolder(state, action) {
       expanded: true,
       subDirectories: {}
     };
-  }).filter((folderDetails) => {
-    return fs.lstatSync(folderDetails.fullPath).isDirectory();
-  });
+  }).filter(folderDetails => (
+    fs.lstatSync(folderDetails.fullPath).isDirectory()
+  ));
 
-  let folders = {};
+  const folders = {};
   folders[rootFolderBasename] = {
     fullPath: rootFolder,
     folderName: rootFolderBasename,
@@ -66,7 +70,7 @@ function loadRootFolder(state, action) {
     ...newState,
     rootFolderName: rootFolderBasename,
     folders: folders
-  }
+  };
 }
 
 function changeFolderSelection(state, action) {
@@ -74,9 +78,9 @@ function changeFolderSelection(state, action) {
   let files = fs.readdirSync(folderPath) || [];
 
   // Filter for all .slp files
-  files = files.filter((file) => {
-    return path.extname(file) === ".slp";
-  });
+  files = files.filter(file => (
+    path.extname(file) === ".slp"
+  ));
 
   // Compute header information for display
   files = files.map((file) => {
@@ -85,12 +89,12 @@ function changeFolderSelection(state, action) {
       fullPath: fullPath,
       fileName: file,
       gameInfo: generateGameInfo(fullPath)
-    }
+    };
   });
 
   return {
     ...state,
     selectedFolderFullPath: folderPath,
     files: files
-  }
+  };
 }

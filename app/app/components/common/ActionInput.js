@@ -1,5 +1,6 @@
+import { Input, Button, Segment, Label } from 'semantic-ui-react';
+
 import React, { Component } from 'react';
-import { Header, Input, Icon, Button, Segment, Label } from 'semantic-ui-react'
 
 export default class ActionInput extends Component {
   props: {

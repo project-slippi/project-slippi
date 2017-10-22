@@ -6,7 +6,7 @@ export function displayError(key, message) {
     type: DISPLAY_ERROR,
     key: key,
     errorMessage: message
-  }
+  };
 }
 
 export function dismissError(key) {

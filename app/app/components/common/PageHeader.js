@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Header, Icon, Button } from 'semantic-ui-react'
+import { Header, Icon, Button } from 'semantic-ui-react';
 
 export default class PageHeader extends Component {
   props: {

@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import { Header, Icon, Container, Input, Segment, Button } from 'semantic-ui-react'
+import { Header, Icon } from 'semantic-ui-react';
 import PageHeader from './common/PageHeader';
-import ActionInput from './common/ActionInput'
 
 export default class GameProfile extends Component {
   props: {
-    history: object,
-    store: object
+    history: object
+    // store: object
   };
 
   renderContent() {

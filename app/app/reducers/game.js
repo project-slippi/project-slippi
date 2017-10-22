@@ -15,8 +15,8 @@ export default function game(state = defaultState, action) {
   }
 }
 
-function loadGame(state, action) {
-  let newState = { ...state };
+function loadGame(state) {
+  const newState = { ...state };
 
   return newState;
 }

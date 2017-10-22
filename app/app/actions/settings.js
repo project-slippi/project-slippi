@@ -1,6 +1,4 @@
-const path = require('path');
-const fs = require('fs');
-const {dialog} = require('electron').remote;
+const { dialog } = require('electron').remote;
 
 export const SELECT_FOLDER = 'SELECT_FOLDER';
 export const SELECT_FILE = 'SELECT_FILE';
@@ -35,8 +33,8 @@ export function selectFolder(field, path) {
 export function browseFile(field) {
   return (dispatch) => {
     const files = dialog.showOpenDialog({
-        properties: ['openFile']
-      }) || [];
+      properties: ['openFile']
+    }) || [];
 
     const filePath = files[0];
     if (!filePath) {
@@ -68,5 +66,5 @@ export function clearChanges() {
   return {
     type: CLEAR_CHANGES,
     payload: {}
-  }
+  };
 }

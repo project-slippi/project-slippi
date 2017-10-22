@@ -61,7 +61,7 @@ function getCharacters(gameInfoBlock) {
   const playerOffset = 36;
 
   // TODO: Figure out sheik
-  return [0, 1, 2, 3].map(function (playerIdx) {
+  return [0, 1, 2, 3].map(playerIdx => {
     const characterIndex = firstCharacterIndex + (playerIdx * playerOffset);
     const characterId = gameInfoBlock[characterIndex];
     const playerType = gameInfoBlock[characterIndex + 1];
@@ -80,14 +80,12 @@ export function extractGameContent(path) {
 
   const rawDataPosition = getRawDataPosition(fd);
   const rawDataLength = getRawDataLength(fd);
-  const messageSizes = getMessageSizes(fd, rawDataPosition);
+  // const messageSizes = getMessageSizes(fd, rawDataPosition);
 
   // Read entire raw data block. Perhaps if this ends up being
   // a bad idea a stream could be used instead
   const buffer = new Uint8Array(rawDataLength);
   fs.readSync(fd, buffer, 0, buffer.length, rawDataPosition);
-
-
 }
 
 // This function gets the position where the raw data starts

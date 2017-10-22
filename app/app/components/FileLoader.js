@@ -1,13 +1,10 @@
-const _ = require('lodash');
-
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import { Table, Statistic, Icon, Button, Sticky, Header } from 'semantic-ui-react'
+import { Table, Icon, Sticky, Header } from 'semantic-ui-react';
 import styles from './FileLoader.scss';
 import FileRow from './FileRow';
 import DismissibleMessage from './common/DismissibleMessage';
 import PageHeader from './common/PageHeader';
-import FolderBrowser from './common/FolderBrowser'
+import FolderBrowser from './common/FolderBrowser';
 
 export default class FileLoader extends Component {
   props: {
@@ -29,15 +26,18 @@ export default class FileLoader extends Component {
   };
 
   refPrimary: {};
-  setRefPrimary = element => this.refPrimary = element;
 
   componentDidMount() {
     this.props.loadRootFolder();
   }
 
   componentWillUnmount() {
-    this.props.dismissError("fileLoader-global");
+    this.props.dismissError('fileLoader-global');
   }
+
+  setRefPrimary = element => {
+    this.refPrimary = element;
+  };
 
   renderSidebar() {
     const refPrimary = this.refPrimary;
@@ -77,19 +77,19 @@ export default class FileLoader extends Component {
   }
 
   renderEmptyLoader() {
-      return (
-        <div className={styles['empty-loader-content']}>
-          <Header as='h2' icon={true} inverted={true} textAlign="center">
-            <Icon name="search" />
-            <Header.Content>
-              No Replay Files Found
-              <Header.Subheader>
-                Please load a folder that contains .slp files
-              </Header.Subheader>
-            </Header.Content>
-          </Header>
-        </div>
-      )
+    return (
+      <div className={styles['empty-loader-content']}>
+        <Header as="h2" icon={true} inverted={true} textAlign="center">
+          <Icon name="search" />
+          <Header.Content>
+            No Replay Files Found
+            <Header.Subheader>
+              Please load a folder that contains .slp files
+            </Header.Subheader>
+          </Header.Content>
+        </Header>
+      </div>
+    );
   }
 
   renderFileSelection() {
@@ -97,7 +97,7 @@ export default class FileLoader extends Component {
     let files = store.files || [];
 
     // Filter out files that were shorter than 30 seconds
-    files = files.filter(function (file) {
+    files = files.filter(file => {
       const gameInfo = file.gameInfo || {};
       const totalFrames = gameInfo.totalFrames || 0;
       return totalFrames > 30 * 60;
@@ -105,7 +105,7 @@ export default class FileLoader extends Component {
 
     // If we have no files to display, render an empty state
     if (!files.length) {
-        return this.renderEmptyLoader();
+      return this.renderEmptyLoader();
     }
 
     // Generate header row
@@ -121,17 +121,15 @@ export default class FileLoader extends Component {
     );
 
     // Generate a row for every file in selected folder
-    const rows = files.map(function (file) {
-      return (
-        <FileRow
-          key={file.fullPath}
-          file={file}
-          playFile={this.props.playFile}
-          gameProfileLoad={this.props.gameProfileLoad}
-          history={this.props.history}
-        />
-      );
-    }, this);
+    const rows = files.map(file => (
+      <FileRow
+        key={file.fullPath}
+        file={file}
+        playFile={this.props.playFile}
+        gameProfileLoad={this.props.gameProfileLoad}
+        history={this.props.history}
+      />
+    ), this);
 
     return (
       <Table basic="very" celled={true} inverted={true} selectable={true}>
@@ -152,7 +150,7 @@ export default class FileLoader extends Component {
         {this.renderGlobalError()}
         {this.renderFileSelection()}
       </div>
-    )
+    );
   }
 
   render() {

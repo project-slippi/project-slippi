@@ -1,12 +1,9 @@
-const path = require('path');
-const fs = require('fs');
-const {app} = require('electron').remote;
-const electronSettings = require('electron-settings');
-
 import { exec } from 'child_process';
+import { displayError } from './error';
 
-
-import { displayError } from './error'
+const path = require('path');
+const { app } = require('electron').remote;
+const electronSettings = require('electron-settings');
 
 export const LOAD_ROOT_FOLDER = 'LOAD_ROOT_FOLDER';
 export const CHANGE_FOLDER_SELECTION = 'CHANGE_FOLDER_SELECTION';
@@ -18,11 +15,11 @@ export function loadRootFolder() {
   };
 }
 
-export function changeFolderSelection(path) {
+export function changeFolderSelection(folder) {
   return {
     type: CHANGE_FOLDER_SELECTION,
     payload: {
-      folderPath: path
+      folderPath: folder
     }
   };
 }
@@ -86,9 +83,16 @@ export function playFile(file) {
       // Join the commands with && which will execute the commands in sequence
       command = commands.join(' && ');
       break;
+    default:
+      const error = displayError(
+        'fileLoader-global',
+        "The current platform is not supported"
+      );
+      dispatch(error);
+      break;
     }
 
-    exec(command, (error, stdout, stderr) => {
+    exec(command, (error) => {
       // Apparently this callback happens before dolphin exits...
       if (error) {
         console.error(`exec error: ${error.message}`);

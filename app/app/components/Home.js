@@ -1,7 +1,6 @@
-// @flow
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Header, Icon, Container, Segment } from 'semantic-ui-react'
+import { Button, Header, Icon, Container, Segment } from 'semantic-ui-react';
 import styles from './Home.scss';
 
 export default class Home extends Component {
@@ -26,8 +25,8 @@ export default class Home extends Component {
   }
 
   render() {
-    let navigationElements = [];
-    let upcomingElements = [];
+    const navigationElements = [];
+    const upcomingElements = [];
 
     navigationElements.push(this.generateNav(
       "disk outline",
@@ -57,7 +56,7 @@ export default class Home extends Component {
       <Container text={true} className={styles['vertical-space']}>
         <Segment basic={true} className="grid-list">
           <div className="grid-item-center">
-           <Header as="h2" color="green">Home - Navigation Page</Header>
+            <Header as="h2" color="green">Home - Navigation Page</Header>
           </div>
           {navigationElements}
         </Segment>

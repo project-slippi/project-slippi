@@ -1,10 +1,10 @@
-const path = require('path');
-
 import React, { Component } from 'react';
-import { Table, Button } from 'semantic-ui-react'
+import { Table, Button } from 'semantic-ui-react';
 import styles from './FileLoader.scss';
 import * as stageUtils from '../utils/stages';
 import * as characterUtils from '../utils/characters';
+
+const path = require('path');
 
 export default class FileRow extends Component {
   props: {
@@ -57,7 +57,7 @@ export default class FileRow extends Component {
       <Table.Cell singleLine={true}>
         {nameWithoutExt}
       </Table.Cell>
-    )
+    );
   }
 
   generateCharacterCell() {
@@ -67,11 +67,11 @@ export default class FileRow extends Component {
     const characterIds = gameInfo.characterIds || [];
 
     // Get character names from character IDs
-    const characterShortNames = characterIds.filter(function (characterId) {
-      return characterId === 0 || characterId;
-    }).map(function (characterId) {
-      return characterUtils.getCharacterShortName(characterId);
-    });
+    const characterShortNames = characterIds.filter(characterId => (
+      characterId === 0 || characterId
+    )).map(characterId => (
+      characterUtils.getCharacterShortName(characterId)
+    ));
 
     const characterString = characterShortNames.join(' / ');
 
@@ -79,7 +79,7 @@ export default class FileRow extends Component {
       <Table.Cell singleLine={true}>
         {characterString}
       </Table.Cell>
-    )
+    );
   }
 
   generateStageCell() {
@@ -93,7 +93,7 @@ export default class FileRow extends Component {
       <Table.Cell singleLine={true}>
         {stageName}
       </Table.Cell>
-    )
+    );
   }
 
   generateGameLengthCell() {
@@ -106,7 +106,7 @@ export default class FileRow extends Component {
       <Table.Cell singleLine={true}>
         {duration}
       </Table.Cell>
-    )
+    );
   }
 
   generateOptionsCell() {

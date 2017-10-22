@@ -1,7 +1,7 @@
+import { SELECT_FOLDER, SELECT_FILE, SAVE_SETTINGS, CLEAR_CHANGES } from '../actions/settings';
+
 const _ = require('lodash');
 const electronSettings = require('electron-settings');
-
-import { SELECT_FOLDER, SELECT_FILE, SAVE_SETTINGS, CLEAR_CHANGES } from '../actions/settings';
 
 const availableSettings = {
   isoPath: {
@@ -21,7 +21,7 @@ const defaultState = {
 };
 
 function getStoredSettings() {
-  return _.mapValues(availableSettings, function (settingConfig) {
+  return _.mapValues(availableSettings, settingConfig => {
     let value = electronSettings.get(settingConfig.location);
     if (!value) {
       // Ideally I would do this by using the default param of electronSettings.get
@@ -49,28 +49,28 @@ export default function settings(state = defaultState, action) {
 function selectFileOrFolder(state, action) {
   const payload = action.payload || {};
 
-  let newState = { ...state };
+  const newState = { ...state };
   newState.currentSettings[payload.field] = payload.path;
   return newState;
 }
 
-function saveSettings(state, action) {
+function saveSettings(state) {
   const currentSettings = state.currentSettings || {};
 
   // Commit new changes to electron-settings file
-  _.forEach(availableSettings, function (settingConfig, key) {
+  _.forEach(availableSettings, (settingConfig, key) => {
     const newValue = currentSettings[key];
     electronSettings.set(settingConfig.location, newValue);
   });
 
-  let newState = { ...state };
+  const newState = { ...state };
   newState.storedSettings = currentSettings;
 
   return newState;
 }
 
-function clearChanges(state, action) {
-  let newState = { ...state };
+function clearChanges(state) {
+  const newState = { ...state };
   newState.currentSettings = state.storedSettings;
 
   return newState;

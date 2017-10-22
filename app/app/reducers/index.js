@@ -6,11 +6,11 @@ import game from './game';
 import errors from './error';
 
 const rootReducer = combineReducers({
-  router,
-  fileLoader,
-  settings,
-  game,
-  errors
+  router: router,
+  fileLoader: fileLoader,
+  settings: settings,
+  game: game,
+  errors: errors
 });
 
 export default rootReducer;

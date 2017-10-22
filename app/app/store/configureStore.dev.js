@@ -37,7 +37,7 @@ const configureStore = (initialState?) => {
   const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
     ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
       // Options: http://zalmoxisus.github.io/redux-devtools-extension/API/Arguments.html
-      actionCreators,
+      actionCreators: actionCreators,
     })
     : compose;
   /* eslint-enable no-underscore-dangle */
@@ -58,4 +58,7 @@ const configureStore = (initialState?) => {
   return store;
 };
 
-export default { configureStore, history };
+export default {
+  configureStore: configureStore,
+  history: history
+};

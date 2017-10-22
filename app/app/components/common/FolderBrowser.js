@@ -1,9 +1,9 @@
+import React, { Component } from 'react';
+import { List, Segment } from 'semantic-ui-react';
+import styles from './FolderBrowser.scss';
+
 const _ = require('lodash');
 const classNames = require('classnames');
-
-import React, { Component, Button } from 'react';
-import { List, Segment, Icon } from 'semantic-ui-react'
-import styles from './FolderBrowser.scss';
 
 export default class FolderBrowser extends Component {
   props: {
@@ -21,9 +21,9 @@ export default class FolderBrowser extends Component {
     // Generate sub-directory folder items
     const subDirectories = folderDetails.subDirectories || {};
     const self = this; // I don't know how to pass context to map...
-    const subFolderItems = _.map(subDirectories, function (iFolderDetails) {
-      return self.generateFolderItem(iFolderDetails);
-    });
+    const subFolderItems = _.map(subDirectories, iFolderDetails => (
+      self.generateFolderItem(iFolderDetails)
+    ));
 
     // Generate directory listing if we have subdirectories
     let subDirectoryList = null;
@@ -44,6 +44,7 @@ export default class FolderBrowser extends Component {
     return [
       <div
         key="selector"
+        role="presentation"
         className={selectorClasses}
         onClick={_.partial(this.selectFolder, folderDetails.fullPath)}
       />,
@@ -60,12 +61,16 @@ export default class FolderBrowser extends Component {
   }
 
   renderEmpty() {
-    return <div>Hello</div>;
+    return (
+      <Segment basic={true} className={styles['main']}>
+        No root folder
+      </Segment>
+    );
   }
 
   render() {
     const folders = this.props.folders || {};
-    const rootFolderName = this.props.rootFolderName || "";
+    const rootFolderName = this.props.rootFolderName || '';
 
     const rootFolderDetails = folders[rootFolderName];
 
