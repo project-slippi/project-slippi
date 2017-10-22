@@ -15,6 +15,13 @@ mflr r0
 stw r0, 0x4(r1)
 stwu r1,-0x20(r1)
 
+# check scene controller to see if we are in game or in results screen
+# if in results screen, skip spawn loading
+lis r3, 0x8048
+lbz r3, -0x62CD(r3)
+cmpwi r3, 0x3
+beq- CLEANUP
+
 #------------- INITIALIZE -------------
 # here we want to initalize some variables we plan on using throughout
 lbz r7, 0xC(r27) #loads this player slot
@@ -47,6 +54,26 @@ bl sendWordExi
 mr r3, r7 #player slot
 bl sendByteExi
 
+li r4, 0 # initialize isFollower to false
+
+# check if we are playing ice climbers, if we are we need to check if this is nana
+lwz r3, 0x4(r8)
+cmpwi r3, 0xE
+bne+ WRITE_IS_FOLLOWER
+
+# we need to check if this is a follower (nana). if nana should modify position
+lwz r3, 0xB0(r8) # load pointer to main player for this port
+lwz r3, 0x8(r3) # load pointer to secondary player for this port
+addi r3, r3, 0x60 # add offset to turn into pointer to data
+cmpw r3, r27 # compare follower pointer with current pointer
+bne WRITE_IS_FOLLOWER # if the two match, this is a follower
+
+li r4, 1 # if we get here then we know this is nana
+
+WRITE_IS_FOLLOWER:
+mr r3, r4 # stage isFollower bool for writing
+bl sendByteExi
+
 # read positions and write back to proper locations
 bl readWordExi
 stw r3, 0x2c(sp) # x position
@@ -55,29 +82,6 @@ stw r3, 0x30(sp) # y position
 bl readWordExi
 stw r3, 0x2c(r27) # facing direction
 
-# check if we are playing ice climbers, if we are we need to check if this is nana
-lwz r3, 0x4(r8)
-cmpwi r3, 0xE
-bne+ SKIP_NANA_CHECK
-
-# we need to check if this is a follower (nana). if nana should modify position
-lwz r3, 0xB0(r8) # load pointer to main player for this port
-lwz r3, 0x8(r3) # load pointer to secondary player for this port
-addi r3, r3, 0x60 # add offset to turn into pointer to data
-cmpw r3, r27 # compare follower pointer with current pointer
-bne SKIP_NANA_CHECK # if the two match, this is a follower
-
-# here we have detected we are spawning nana, let's put her 10 distance away
-lfs f10, 0x2c(r27) # load facing direction into floating point register
-lfs f12, 0x2c(sp) # load the current x position into f11
-lis r3, 0x4120 # prepare to load the float 10 into f11
-stw r3, 0x2c(sp) # write to memory so we can read back as float
-lfs f11, 0x2c(sp) # read memory as float
-fmuls f10, f10, f11 # multiply facing direction by 10
-fsubs f10, f12, f10 # move x position by the nana offset
-stfs f10, 0x2c(sp)
-
-SKIP_NANA_CHECK:
 bl endExiTransfer
 
 CLEANUP:

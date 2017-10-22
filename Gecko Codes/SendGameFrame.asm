@@ -37,31 +37,8 @@ ori r8, r8, 0x3080
 mulli r3, r7, 0xE90
 add r8, r8, r3
 
-# check if we are playing ice climbers, if we are we need to check if this is nana
-lwz r3, 0x4(r8)
-cmpwi r3, 0xE
-bne+ FRAME_UPDATE
-
-# we need to check if this is a follower (nana). should not save inputs for nana
-lwz r3, 0xB4(r8) # load pointer to follower for this port
-cmpw r3, r30 # compare follower pointer with current pointer
-beq- CLEANUP # if the two match, this is a follower
-
-FRAME_UPDATE:
 #------------- FRAME_UPDATE -------------
 bl startExiTransfer #indicate transfer start
-
-# indicate we want to write out a byte array
-li r3,0x74
-bl sendByteExi
-
-# indicate byte array length
-li r3, 71
-bl sendHalfExi
-
-# simply continue writing if started
-li r3, 0
-bl sendByteExi
 
 li r3, 0x38
 bl sendByteExi #send OnFrameUpdate event code
@@ -86,13 +63,32 @@ bl sendWordExi
 
 mr r3, r7 #player slot
 bl sendByteExi
+
+li r4, 0 # initialize isFollower to false
+
+# check if we are playing ice climbers, if we are we need to check if this is nana
+lwz r3, 0x4(r8)
+cmpwi r3, 0xE
+bne+ WRITE_IS_FOLLOWER
+
+# we need to check if this is a follower (nana). should not save inputs for nana
+lwz r3, 0xB4(r8) # load pointer to follower for this port
+cmpw r3, r30 # compare follower pointer with current pointer
+bne WRITE_IS_FOLLOWER # if the two  dont match, this is popo
+
+li r4, 1 # if we get here then we know this is nana
+
+WRITE_IS_FOLLOWER:
+mr r3, r4 # stage isFollower bool for writing
+bl sendByteExi
+
 lwz r3, 0x64(r30) #load internal char ID
 bl sendByteExi
 lwz r3, 0x70(r30) #load action state ID
 bl sendHalfExi
-lwz r3, 0x110(r30) #load Top-N X coord
+lwz r3, 0x110(r30) #load x coord
 bl sendWordExi
-lwz r3, 0x114(r30) #load Top-N Y coord
+lwz r3, 0x114(r30) #load y coord
 bl sendWordExi
 lwz r3, 0x8C(r30) #load facing direction
 bl sendWordExi
