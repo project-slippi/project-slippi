@@ -1,8 +1,10 @@
 const path = require('path');
 const fs = require('fs');
 const {app} = require('electron').remote;
+const electronSettings = require('electron-settings');
 
 import { exec } from 'child_process';
+
 
 import { displayError } from './error'
 
@@ -41,15 +43,17 @@ export function playFile(file) {
     // This is the path of dolphin after this app has been packaged
     let dolphinPath = path.join(appPath, "../app.asar.unpacked/dolphin");
 
+    // Get melee file location from settings
+    const meleeFile = electronSettings.get('settings.isoPath');
+
     // Here we are going to build the platform-specific commands required to launch
     // dolphin from the command line with the correct game
-    let commands, command, destinationFile, meleeFile;
+    let commands, command, destinationFile;
     switch (platform) {
     case "darwin": // osx
       // When in development mode, use the build-specific dolphin version
       // In production mode, only the build from the correct platform should exist
       dolphinPath = isDev ? "./app/dolphin-dev/osx" : dolphinPath;
-      meleeFile = "$HOME/Documents/Games/melee.iso";
       destinationFile = path.join(dolphinPath, 'Slippi', 'CurrentGame.slp');
 
       // 1) Copy file to the playback dolphin build with the name CurrentGame.slp
@@ -68,7 +72,6 @@ export function playFile(file) {
       // When in development mode, use the build-specific dolphin version
       // In production mode, only the build from the correct platform should exist
       dolphinPath = isDev ? "./app/dolphin-dev/windows" : dolphinPath;
-      meleeFile = "C:\\Dolphin\\Games\\ssbm-v1_02.iso";
       destinationFile = path.join(dolphinPath, 'Slippi', 'CurrentGame.slp');
 
       // 1) Copy file to the playback dolphin build with the name CurrentGame.slp
@@ -89,7 +92,6 @@ export function playFile(file) {
       // Apparently this callback happens before dolphin exits...
       if (error) {
         console.error(`exec error: ${error.message}`);
-
         dispatch(displayError('fileLoader-global', error.message));
       }
     });

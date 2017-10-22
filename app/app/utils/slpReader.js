@@ -2,30 +2,36 @@ const fs = require('fs');
 
 const gameInfoBlockByteCount = 312;
 
+const messageSizesCommand = 0x35;
+
 // This function will extract only header info from an slp file. Should be rather efficient.
 export function generateGameInfo(path) {
   // TODO: Make this function backwards compatible and cleaner
 
   const fd = fs.openSync(path, "r");
 
+  const rawDataPosition = getRawDataPosition(fd);
+  const rawDataLength = getRawDataLength(fd, rawDataPosition);
+  const messageSizes = getMessageSizes(fd, rawDataPosition);
+
   // TODO: Handle case where file doesn't exist or permissions are insufficient
 
+  let messageSizesLength = messageSizes[messageSizesCommand];
+  messageSizesLength = messageSizesLength ? messageSizesLength + 1 : 0;
+  const startReadAt = rawDataPosition + 1 + messageSizesLength;
   let buffer = new Uint8Array(320);
-  fs.readSync(fd, buffer, 0, buffer.length, 1);
+  fs.readSync(fd, buffer, 0, buffer.length, startReadAt);
 
   // Get version number and game info block
   const version = buffer.slice(0, 4);
   const gameInfoBlock = buffer.slice(5, gameInfoBlockByteCount + 5);
 
-  // Get file stats
-  const fileStats = fs.fstatSync(fd) || {};
-  const fileSize = fileStats.size;
-
   // Get the last frame update to determine the duration of the game
   // Will read from the file at an offset from the end to remove the
   // game end message and start at the last frame update
-  buffer = new Uint8Array(70);
-  const readPos = fileSize - 2 - 70;
+  const frameUpdateSize = messageSizes[0x38];
+  buffer = new Uint8Array(frameUpdateSize);
+  const readPos = rawDataPosition + rawDataLength - 2 - frameUpdateSize;
   fs.readSync(fd, buffer, 0, buffer.length, readPos);
   const totalFrames = buffer[0] << 24 | buffer[1] << 16 | buffer[2] << 8 | buffer[3];
 
@@ -78,7 +84,7 @@ export function extractGameContent(path) {
 
   // Read entire raw data block. Perhaps if this ends up being
   // a bad idea a stream could be used instead
-  let buffer = new Uint8Array(rawDataLength);
+  const buffer = new Uint8Array(rawDataLength);
   fs.readSync(fd, buffer, 0, buffer.length, rawDataPosition);
 
 
@@ -86,14 +92,18 @@ export function extractGameContent(path) {
 
 // This function gets the position where the raw data starts
 function getRawDataPosition(fd) {
-  let buffer = new Uint8Array(1);
+  const buffer = new Uint8Array(1);
   fs.readSync(fd, buffer, 0, buffer.length, 0);
 
   if (buffer[0] === 0x36) {
     return 0;
   }
 
-  throw "Not supported yet"
+  if (buffer[0] !== '{'.charCodeAt(0)) {
+    return 0; // return error?
+  }
+
+  return 15;
 }
 
 function getRawDataLength(fd, position) {
@@ -102,7 +112,10 @@ function getRawDataLength(fd, position) {
     return fileStats.size;
   }
 
-  throw "Not supported yet"
+  const buffer = new Uint8Array(4);
+  fs.readSync(fd, buffer, 0, buffer.length, position - 4);
+
+  return buffer[0] << 24 | buffer[1] << 16 | buffer[2] << 8 | buffer[3];
 }
 
 function getMessageSizes(fd, position) {
@@ -116,5 +129,25 @@ function getMessageSizes(fd, position) {
     };
   }
 
-  throw "Not supported yet"
+  const buffer = new Uint8Array(2);
+  fs.readSync(fd, buffer, 0, buffer.length, position);
+  if (buffer[0] !== messageSizesCommand) {
+    return {};
+  }
+
+  const payloadLength = buffer[1];
+  const messageSizes = {
+    0x35: payloadLength
+  };
+
+  const messageSizesBuffer = new Uint8Array(payloadLength - 1);
+  fs.readSync(fd, messageSizesBuffer, 0, messageSizesBuffer.length, position + 2);
+  for (let i = 0; i < payloadLength - 1; i += 3) {
+    const command = messageSizesBuffer[i];
+
+    // Get size of command
+    messageSizes[command] = messageSizesBuffer[i + 1] << 8 | messageSizesBuffer[i + 2];
+  }
+
+  return messageSizes;
 }
