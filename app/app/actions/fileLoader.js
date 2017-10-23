@@ -45,13 +45,14 @@ export function playFile(file) {
 
     // Here we are going to build the platform-specific commands required to launch
     // dolphin from the command line with the correct game
-    let commands, command, destinationFile;
+    let commands, command, slippiPath, destinationFile;
     switch (platform) {
     case "darwin": // osx
       // When in development mode, use the build-specific dolphin version
       // In production mode, only the build from the correct platform should exist
       dolphinPath = isDev ? "./app/dolphin-dev/osx" : dolphinPath;
-      destinationFile = path.join(dolphinPath, 'Slippi', 'CurrentGame.slp');
+      slippiPath = path.join(dolphinPath, 'Slippi');
+      destinationFile = path.join(slippiPath, 'CurrentGame.slp');
 
       // 1) Copy file to the playback dolphin build with the name CurrentGame.slp
       // 2) Navigate to dolphin build path
@@ -69,7 +70,8 @@ export function playFile(file) {
       // When in development mode, use the build-specific dolphin version
       // In production mode, only the build from the correct platform should exist
       dolphinPath = isDev ? "./app/dolphin-dev/windows" : dolphinPath;
-      destinationFile = path.join(dolphinPath, 'Slippi', 'CurrentGame.slp');
+      slippiPath = path.join(dolphinPath, 'Slippi');
+      destinationFile = path.join(slippiPath, 'CurrentGame.slp');
 
       // 1) Copy file to the playback dolphin build with the name CurrentGame.slp
       // 2) Navigate to dolphin build path
