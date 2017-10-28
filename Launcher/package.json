@@ -1,6 +1,6 @@
 {
   "name": "slippi-launcher",
-  "productName": "SlippiLauncher",
+  "productName": "Slippi Launcher",
   "version": "0.1.0",
   "description": "Slippi Launcher program for browsing and playing replays.",
   "scripts": {
@@ -31,7 +31,7 @@
   },
   "browserslist": "electron 1.6",
   "build": {
-    "productName": "SlippiLauncher",
+    "productName": "Slippi Launcher",
     "appId": "org.develar.SlippiLauncher",
     "asarUnpack": [
       "**/dolphin/**/*"
