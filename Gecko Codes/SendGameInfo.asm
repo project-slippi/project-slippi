@@ -57,6 +57,10 @@ bl sendByteExi
 # build version number. Each byte is one digit
 # any change in command data should result in a minor version change
 # current version: 0.1.0.0
+# Version is of the form major.minor.build.revision. A change to major
+# indicates breaking changes/loss of backwards compatibility. A change
+# to minor indicates a pretty major change like added fields or new
+# events. Build/Revision can be incremented for smaller changes
 lis r3, 0x0001
 addi r3, r3, 0x0000
 bl sendWordExi
