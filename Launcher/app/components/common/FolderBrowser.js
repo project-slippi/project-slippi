@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { List, Segment } from 'semantic-ui-react';
+import { List, Segment, Header, Icon } from 'semantic-ui-react';
 import styles from './FolderBrowser.scss';
 
 const _ = require('lodash');
@@ -62,8 +62,13 @@ export default class FolderBrowser extends Component {
 
   renderEmpty() {
     return (
-      <Segment basic={true} className={styles['main']}>
-        No root folder
+      <Segment basic={true}>
+        <Header as="h3" className={styles['empty-state']} icon={true} color="grey" textAlign="center">
+          <Icon name="folder open outline" />
+          <Header.Content>
+            Folder Browser
+          </Header.Content>
+        </Header>
       </Segment>
     );
   }

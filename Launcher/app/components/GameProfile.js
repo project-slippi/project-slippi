@@ -10,7 +10,7 @@ export default class GameProfile extends Component {
 
   renderContent() {
     return (
-      <Header color="green" inverted="true" as="h1" textAlign="center" icon={true}>
+      <Header color="green" inverted={true} as="h1" textAlign="center" icon={true}>
         <Icon name="hand peace" />
         Coming Soon...
       </Header>

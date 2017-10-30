@@ -51,6 +51,9 @@ function selectFileOrFolder(state, action) {
 
   const newState = { ...state };
   newState.currentSettings[payload.field] = payload.path;
+
+  // electronSettings.deleteAll();
+
   return newState;
 }
 
@@ -71,7 +74,7 @@ function saveSettings(state) {
 
 function clearChanges(state) {
   const newState = { ...state };
-  newState.currentSettings = state.storedSettings;
+  newState.currentSettings = { ...state.storedSettings };
 
   return newState;
 }

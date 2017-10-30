@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Table, Icon, Sticky, Header } from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
+import { Table, Icon, Sticky, Header, Button, Segment } from 'semantic-ui-react';
 import styles from './FileLoader.scss';
 import FileRow from './FileRow';
 import DismissibleMessage from './common/DismissibleMessage';
@@ -77,17 +78,47 @@ export default class FileLoader extends Component {
   }
 
   renderEmptyLoader() {
+    const folders = this.props.store.folders || {};
+    const rootFolderName = this.props.store.rootFolderName || '';
+
+    if (!folders[rootFolderName]) {
+      return this.renderMissingRootFolder();
+    }
+
     return (
       <div className={styles['empty-loader-content']}>
-        <Header as="h2" icon={true} inverted={true} textAlign="center">
+        <Header as="h2" icon={true} color="grey" inverted={true} textAlign="center">
           <Icon name="search" />
           <Header.Content>
             No Replay Files Found
             <Header.Subheader>
-              Please load a folder that contains .slp files
+              Place slp files in the folder to browse
             </Header.Subheader>
           </Header.Content>
         </Header>
+      </div>
+    );
+  }
+
+  renderMissingRootFolder() {
+    return (
+      <div className={styles['empty-loader-content']}>
+        <Header as="h2" icon={true} color="grey" inverted={true} textAlign="center">
+          <Icon name="folder outline" />
+          <Header.Content>
+            Root Folder Missing
+            <Header.Subheader>
+              Go to the settings page to select a root slp folder
+            </Header.Subheader>
+          </Header.Content>
+        </Header>
+        <Segment basic={true} textAlign="center">
+          <Link to="/settings">
+            <Button color="blue" size="large">
+              Select Folder
+            </Button>
+          </Link>
+        </Segment>
       </div>
     );
   }

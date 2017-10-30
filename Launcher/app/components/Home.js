@@ -30,7 +30,7 @@ export default class Home extends Component {
 
     navigationElements.push(this.generateNav(
       "disk outline",
-      "From File System",
+      "Replay Loader",
       "Play replays from files on your computer",
       "/files",
       false
@@ -56,7 +56,7 @@ export default class Home extends Component {
       <Container text={true} className={styles['vertical-space']}>
         <Segment basic={true} className="grid-list">
           <div className="grid-item-center">
-            <Header as="h2" color="green">Home - Navigation Page</Header>
+            <Header as="h2" color="green">Navigation</Header>
           </div>
           {navigationElements}
         </Segment>
