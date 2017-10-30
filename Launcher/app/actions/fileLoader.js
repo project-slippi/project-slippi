@@ -42,6 +42,16 @@ export function playFile(file) {
 
     // Get melee file location from settings
     const meleeFile = electronSettings.get('settings.isoPath');
+    if (!meleeFile) {
+      const noIsoError = displayError(
+        'fileLoader-global',
+        `Files cannot be played without a melee iso selected. Please return to the
+          settings page and select a melee iso.`
+      );
+
+      dispatch(noIsoError);
+      return;
+    }
 
     // Here we are going to build the platform-specific commands required to launch
     // dolphin from the command line with the correct game
