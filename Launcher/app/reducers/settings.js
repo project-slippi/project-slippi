@@ -74,6 +74,8 @@ function saveSettings(state) {
 
 function clearChanges(state) {
   const newState = { ...state };
+
+  // Copy the stored settings back into current settings to reset local changes
   newState.currentSettings = { ...state.storedSettings };
 
   return newState;
