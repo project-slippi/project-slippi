@@ -1,0 +1,68 @@
+{
+  "outputFile": "CodeList.txt",
+  "codes": [
+    {
+      "name": "Slippi Recording",
+      "authors": [
+        "Fizzi",
+        "Achilles"
+      ],
+      "description": "My super awesome recording code",
+      "build": [
+        {
+          "type": "inject",
+          "address": "8006B0DC",
+          "sourceFile": "SendGameFrame.asm",
+          "description": "SendGameFrame [Fizzi, Achilles]"
+        },
+        {
+          "type": "inject",
+          "address": "8016E74C",
+          "sourceFile": "SendGameInfo.asm",
+          "description": "SendGameInfo [Fizzi]"
+        },
+        {
+          "type": "inject",
+          "address": "801A5B04",
+          "sourceFile": "SendGameEnd.asm",
+          "description": "SendGameEnd [Fizzi]"
+        }
+      ]
+    },
+    {
+      "name": "Slippi Playback",
+      "authors": [
+        "Fizzi",
+        "UnclePunch",
+        "Achilles"
+      ],
+      "description": "My super awesome playback code",
+      "build": [
+        {
+          "type": "replace",
+          "address": "801A45C0",
+          "value": "3860000E",
+          "description": "Boot into game [UnclePunch]"
+        },
+        {
+          "type": "inject",
+          "address": "8006B0DC",
+          "sourceFile": "ReceiveGameFrame.asm",
+          "description": "ReceiveGameFrame [Fizzi]"
+        },
+        {
+          "type": "inject",
+          "address": "8016E74C",
+          "sourceFile": "ReceiveGameInfo.asm",
+          "description": "ReceiveGameInfo [Fizzi]"
+        },
+        {
+          "type": "inject",
+          "address": "80067CF8",
+          "sourceFile": "ReceiveGameSpawn.asm",
+          "description": "ReceiveGameSpawn [Fizzi, Achilles]"
+        }
+      ]
+    }
+  ]
+}
