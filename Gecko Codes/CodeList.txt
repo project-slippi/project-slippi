@@ -1,6 +1,6 @@
 $Slippi Recording [Fizzi, Achilles]
-*Use in conjunction with Slippi in PortB to extract game data
-C206B0DC 00000041 # send game frame
+*Used in conjunction with Slippi plugged into PortB to extract game data
+C206B0DC 00000041 #SendGameFrame [Fizzi, Achilles]
 7C0802A6 90010004
 9421FFE0 9061001C
 90810018 3C60801A
@@ -66,7 +66,7 @@ A0640002 4800004D
 4E800020 39400000
 914B6814 4E800020
 881F2219 00000000
-C216E74C 00000025 # send game info
+C216E74C 00000025 #SendGameInfo [Fizzi]
 7C0802A6 90010004
 9421FFE0 48000095
 38600035 4800009D
@@ -104,7 +104,7 @@ C216E74C 00000025 # send game info
 39400000 914B6814
 4E800020 3C608017
 60000000 00000000
-C21A5B04 00000016 # send game end
+C21A5B04 00000016 #SendGameEnd [Fizzi]
 7C0802A6 90010004
 9421FFE0 9061001C
 48000031 38600039
@@ -128,11 +128,11 @@ C21A5B04 00000016 # send game end
 914B6814 4E800020
 3B850000 00000000
 
-$Slippi Playback [Fizzi, UnclePunch]
-*This code is for playing back replays from slp files. It plays whatever slp
-*file is named CurrentGame.slp
-041A45C0 3860000E # boot into game [UnclePunch]
-C206B0DC 00000030 # receive game frame
+$Slippi Playback [Fizzi, UnclePunch, Achilles]
+*Used to play back a .slp file
+*Will always play 'CurrentGame.slp' in the Slippi folder
+041A45C0 3860000E #Boot into game [UnclePunch]
+C206B0DC 00000030 #ReceiveGameFrame [Fizzi]
 7C0802A6 90010004
 9421FFE0 9061001C
 90810018 88FF000C
@@ -181,7 +181,7 @@ C206B0DC 00000030 # receive game frame
 39400000 914B6814
 4E800020 881F2219
 60000000 00000000
-C216E74C 0000001A # receive game info
+C216E74C 0000001A #ReceiveGameInfo [Fizzi]
 7C0802A6 90010004
 9421FFE0 48000049
 38600075 48000051
@@ -208,7 +208,7 @@ C216E74C 0000001A # receive game info
 39400000 914B6814
 4E800020 3C608017
 60000000 00000000
-C2067CF8 0000002A # receive game spawn
+C2067CF8 0000002A #ReceiveGameSpawn [Fizzi, Achilles]
 7C0802A6 90010004
 9421FFE0 3C608048
 88639D33 2C030003
