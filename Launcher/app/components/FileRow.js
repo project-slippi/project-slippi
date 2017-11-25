@@ -2,8 +2,8 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { Table, Button, Image } from 'semantic-ui-react';
 import styles from './FileLoader.scss';
+import getLocalImage from '../utils/image';
 import * as stageUtils from '../utils/stages';
-import * as characterUtils from '../utils/characters';
 
 const path = require('path');
 
@@ -67,13 +67,15 @@ export default class FileRow extends Component {
       settings.isTeams ? player.teamId : player.port
     )).toArray().value();
 
-    // This is an ugly way to do this...
+    // This is an ugly way to do this but the idea is to create spaced groups of
+    // character icons when those characters are on a team and each team should
+    // have an element indicating they are playing against each other in between
     const elements = [];
     teams.forEach((team, idx) => {
       const teamImages = team.map((player) => (
         <Image
           key={`player-port-${player.port}`}
-          src={`../resources/images/stock-icon-${player.characterId}-${player.characterColor}.png`}
+          src={getLocalImage(`stock-icon-${player.characterId}-${player.characterColor}.png`)}
           inline={true}
           height={24}
           width={24}

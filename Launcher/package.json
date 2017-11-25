@@ -34,11 +34,13 @@
     "productName": "Slippi Launcher",
     "appId": "org.develar.SlippiLauncher",
     "asarUnpack": [
-      "**/dolphin/**/*"
+      "**/dolphin/**/*",
+      "**/images/**/*"
     ],
     "files": [
       "dist/",
       "dolphin/",
+      "images/",
       "node_modules/",
       "app.html",
       "main.prod.js",
