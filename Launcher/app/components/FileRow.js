@@ -63,12 +63,11 @@ export default class FileRow extends Component {
 
   generateTeamElements(settings) {
     // If this is a teams game, group by teamId, otherwise group players individually
-    const teams = _.chain(settings.players).groupBy((player, idx) => (
+    const teams = _.chain(settings.players).groupBy((player) => (
       settings.isTeams ? player.teamId : player.port
-    )).toArray();
+    )).toArray().value();
 
     // This is an ugly way to do this...
-    let elIdx = 0;
     const elements = [];
     teams.forEach((team, idx) => {
       const teamImages = team.map((player) => (
@@ -82,16 +81,15 @@ export default class FileRow extends Component {
       ));
 
       elements.push(
-        <span className="horizontal-spaced-group-right-xs" key={elIdx++}>
+        <span className="horizontal-spaced-group-right-xs" key={`team-${idx}`}>
           {teamImages}
         </span>
       );
 
-      if (idx >= teams.length - 1) {
-        return;
+      if (idx < teams.length - 1) {
+        // If this is not the last team, add a "vs" element
+        elements.push(<span key={`vs-${idx}`}> vs </span>);
       }
-
-      elements.push(<span key={elIdx++}> vs </span>);
     });
 
     return elements;

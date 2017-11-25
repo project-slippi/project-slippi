@@ -42,6 +42,7 @@
     "react/jsx-boolean-value": ["error", "always"],
     "react/jsx-no-bind": "off",
     "react/jsx-filename-extension": ["error", { "extensions": [".js", ".jsx"] }],
+    "react/no-array-index-key": "off",
     "react/prefer-stateless-function": "off"
   },
   "plugins": [
