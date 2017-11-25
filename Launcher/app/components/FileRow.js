@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, { Component } from 'react';
 import { Table, Button } from 'semantic-ui-react';
 import styles from './FileLoader.scss';
@@ -10,7 +11,7 @@ export default class FileRow extends Component {
   props: {
     file: object,
     playFile: (file) => void,
-    gameProfileLoad: (path) => void,
+    gameProfileLoad: (game) => void,
 
     // history
     history: object
@@ -25,9 +26,9 @@ export default class FileRow extends Component {
 
   viewStats = () => {
     const file = this.props.file || {};
-    const fileFullPath = file.fullPath;
+    const fileGame = file.game;
 
-    this.props.gameProfileLoad(fileFullPath);
+    this.props.gameProfileLoad(fileGame);
     this.props.history.push('/game');
   };
 
@@ -60,24 +61,31 @@ export default class FileRow extends Component {
     );
   }
 
+  generateTeamElements(settings) {
+    // If this is a teams game, group by teamId, otherwise group players individually
+    const teams = _.groupBy(settings.players, (player, idx) => (
+      settings.isTeams ? player.teamId : idx
+    ));
+
+    const teamCharNames = _.map(teams, (team) => {
+      const teamNames = team.map((player) => (
+        characterUtils.getCharacterShortName(player.characterId)
+      ));
+
+      return teamNames.join(' / ');
+    });
+
+    return teamCharNames.join(' vs ');
+  }
+
   generateCharacterCell() {
     const file = this.props.file || {};
 
-    const gameInfo = file.gameInfo || {};
-    const characterIds = gameInfo.characterIds || [];
-
-    // Get character names from character IDs
-    const characterShortNames = characterIds.filter(characterId => (
-      characterId === 0 || characterId
-    )).map(characterId => (
-      characterUtils.getCharacterShortName(characterId)
-    ));
-
-    const characterString = characterShortNames.join(' / ');
+    const settings = file.gameSettings || {};
 
     return (
       <Table.Cell singleLine={true}>
-        {characterString}
+        {this.generateTeamElements(settings)}
       </Table.Cell>
     );
   }
@@ -85,8 +93,8 @@ export default class FileRow extends Component {
   generateStageCell() {
     const file = this.props.file || {};
 
-    const gameInfo = file.gameInfo || {};
-    const stageId = gameInfo.stageId;
+    const settings = file.gameSettings || {};
+    const stageId = settings.stageId;
     const stageName = stageUtils.getStageName(stageId) || "Unknown";
 
     return (

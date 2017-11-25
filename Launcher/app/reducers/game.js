@@ -15,8 +15,12 @@ export default function game(state = defaultState, action) {
   }
 }
 
-function loadGame(state) {
+function loadGame(state, action) {
   const newState = { ...state };
+
+  const slpGame = action.game;
+  const settings = slpGame.getSettings();
+  console.log(settings.stageId);
 
   return newState;
 }

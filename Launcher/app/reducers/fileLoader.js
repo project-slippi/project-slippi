@@ -1,5 +1,5 @@
+import SlippiGame from 'slp-parser-js';
 import { LOAD_ROOT_FOLDER, CHANGE_FOLDER_SELECTION } from '../actions/fileLoader';
-import { generateGameInfo } from '../utils/slpReader';
 
 const fs = require('fs');
 const path = require('path');
@@ -85,10 +85,13 @@ function changeFolderSelection(state, action) {
   // Compute header information for display
   files = files.map((file) => {
     const fullPath = path.join(folderPath, file);
+    const game = new SlippiGame(fullPath);
+    const settings = game.getSettings();
     return {
       fullPath: fullPath,
       fileName: file,
-      gameInfo: generateGameInfo(fullPath)
+      gameSettings: settings,
+      game: game
     };
   });
 
