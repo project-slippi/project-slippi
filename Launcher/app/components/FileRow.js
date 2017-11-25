@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
-import { Table, Button } from 'semantic-ui-react';
+import { Table, Button, Image } from 'semantic-ui-react';
 import styles from './FileLoader.scss';
 import * as stageUtils from '../utils/stages';
 import * as characterUtils from '../utils/characters';
@@ -63,19 +63,38 @@ export default class FileRow extends Component {
 
   generateTeamElements(settings) {
     // If this is a teams game, group by teamId, otherwise group players individually
-    const teams = _.groupBy(settings.players, (player, idx) => (
-      settings.isTeams ? player.teamId : idx
-    ));
+    const teams = _.chain(settings.players).groupBy((player, idx) => (
+      settings.isTeams ? player.teamId : player.port
+    )).toArray();
 
-    const teamCharNames = _.map(teams, (team) => {
-      const teamNames = team.map((player) => (
-        characterUtils.getCharacterShortName(player.characterId)
+    // This is an ugly way to do this...
+    let elIdx = 0;
+    const elements = [];
+    teams.forEach((team, idx) => {
+      const teamImages = team.map((player) => (
+        <Image
+          key={`player-port-${player.port}`}
+          src={`../resources/images/stock-icon-${player.characterId}-${player.characterColor}.png`}
+          inline={true}
+          height={24}
+          width={24}
+        />
       ));
 
-      return teamNames.join(' / ');
+      elements.push(
+        <span className="horizontal-spaced-group-right-xs" key={elIdx++}>
+          {teamImages}
+        </span>
+      );
+
+      if (idx >= teams.length - 1) {
+        return;
+      }
+
+      elements.push(<span key={elIdx++}> vs </span>);
     });
 
-    return teamCharNames.join(' vs ');
+    return elements;
   }
 
   generateCharacterCell() {

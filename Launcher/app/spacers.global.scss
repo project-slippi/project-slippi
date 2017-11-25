@@ -6,3 +6,9 @@
 .no-padding {
   padding: 0 !important;
 }
+
+.horizontal-spaced-group-right-xs {
+  *:not(:last-child) {
+    margin-right: 3px;
+  }
+}
