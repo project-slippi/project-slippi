@@ -1,3 +1,6 @@
+# Project Slippi
+Until I have time to write a proper readme for the project, the contents of the readme will be equivalent to the **slp file spec** found in the wiki.
+
 # Intro
 This document will outline the details of the Slippi replay file (.slp). This file is in many ways the heart of Project Slippi and hopefully after reading this document you will be excited to contribute to the future of Melee.
 
