@@ -1,96 +1,117 @@
 ################################################################################
-#                      Inject at address 8016e74c
-# Function is StartMelee and we are loading game information right before
-# it gets read to initialize the match
+#                      Inject at address 8006C0D8
+# Function is PlayerThink_Physics. Consider instead 8006c5d4 which is
+# PlayerThink_Collision and is the last update
 ################################################################################
 
 #replaced code line is executed at the end
 
 ################################################################################
-#                   subroutine: sendGameInfo
-# description: reads game info from slippi and loads those into memory
-# addresses that will be used
+#                   subroutine: writeStats
+#  description: writes stats to EXI port on each frame
 ################################################################################
 #create stack frame and store link register
 mflr r0
 stw r0, 0x4(r1)
 stwu r1,-0x20(r1)
 
-# initialize transfer with slippi device
-bl startExiTransfer
+#check if in single player mode, and ignore code if so
+lis r3,0x801A # load SinglePlayer_Check function
+ori r3,r3,0x4340
+mtlr r3
+lis r3,0x8048
+lbz r3,-0x62D0(r3) #load menu controller major
+blrl
+cmpwi r3,1 # is this single player mode?
+beq- CLEANUP # if in single player, ignore everything
 
-#------------- WRITE OUT COMMAND SIZES -------------
-# start file sending and indicate the sizes of the output commands
-li r3,0x35
-bl sendByteExi
+# check scene controller to see if we are in game or in results screen
+# if in results screen, skip
+lis r3, 0x8048
+lbz r3, -0x62CD(r3)
+cmpwi r3, 0x3
+beq- CLEANUP
 
-# write out the payload size of the 0x35 command (includes this byte)
-# we can write this in only a byte because I doubt it will ever be larger
-# than 255. We write out the sizes of the other commands as half words for
-# consistent parsing
-li r3, 10
-bl sendByteExi
+#------------- INITIALIZE -------------
+# here we want to initalize some variables we plan on using throughout
+lbz r7, 0x6C(r24) #loads this player slot
 
-# game info command
-li r3, 0x36
-bl sendByteExi
-li r3, 320
-bl sendHalfExi
+# generate address for static player block
+lis r8, 0x8045
+ori r8, r8, 0x3080
+mulli r3, r7, 0xE90
+add r8, r8, r3
 
-# pre-frame update command
-li r3, 0x37
-bl sendByteExi
-li r3, 54
-bl sendHalfExi
+#------------- FRAME_UPDATE -------------
+bl startExiTransfer #indicate transfer start
 
-# post-frame update command
 li r3, 0x38
-bl sendByteExi
-li r3, 71
-bl sendHalfExi
+bl sendByteExi #send OnPostFrameUpdate event code
 
-# game end command
-li r3, 0x39
-bl sendByteExi
-li r3, 1
-bl sendHalfExi
+# Compute and send frame count (supports negatives before timer starts)
+lis r4,0x8048
+lwz r4,-0x62A8(r4) # load scene controller frame count
+lis r3,0x8047
+lwz r3,-0x493C(r3) #load match frame count
+cmpwi r3, 0
+bne SKIP_FRAME_COUNT_ADJUST #this makes it so that if the timer hasn't started yet, we have a unique frame count still
+sub r3,r3,r4
+li r4,-0x7B
+sub r3,r4,r3
 
-#------------- BEGIN GAME INFO COMMAND -------------
-# game information message type
-li r3,0x36
-bl sendByteExi
-
-# build version number. Each byte is one digit
-# any change in command data should result in a minor version change
-# current version: 0.1.0.0
-# Version is of the form major.minor.build.revision. A change to major
-# indicates breaking changes/loss of backwards compatibility. A change
-# to minor indicates a pretty major change like added fields or new
-# events. Build/Revision can be incremented for smaller changes
-lis r3, 0x0001
-addi r3, r3, 0x0000
+SKIP_FRAME_COUNT_ADJUST:
 bl sendWordExi
 
-#------------- GAME INFO BLOCK -------------
-# this iterates through the static game info block that is used to pull data
-# from to initialize the game. it writes out the whole thing (0x138 long)
-li r7, 0
-START_LOOP:
-add r3, r31, r7
-lwz r3, 0x0(r3)
-bl sendWordExi
-
-addi r7, r7, 0x4
-cmpwi r7, 0x138
-blt+ START_LOOP
-
-#------------- OTHER INFO -------------
-# write out random seed
 lis r3, 0x804D
 lwz r3, 0x5F90(r3) #load random seed
 bl sendWordExi
 
-bl endExiTransfer
+mr r3, r7 #player slot
+bl sendByteExi
+
+li r4, 0 # initialize isFollower to false
+
+# check if we are playing ice climbers, if we are we need to check if this is nana
+lwz r3, 0x4(r8)
+cmpwi r3, 0xE
+bne+ WRITE_IS_FOLLOWER
+
+# we need to check if this is a follower (nana). should not save inputs for nana
+lwz r3, 0xB4(r8) # load pointer to follower for this port
+cmpw r3, r24 # compare follower pointer with current pointer
+bne WRITE_IS_FOLLOWER # if the two  dont match, this is popo
+
+li r4, 1 # if we get here then we know this is nana
+
+WRITE_IS_FOLLOWER:
+mr r3, r4 # stage isFollower bool for writing
+bl sendByteExi
+
+lwz r3, 0x64(r24) #load internal char ID
+bl sendByteExi
+lwz r3, 0x70(r24) #load action state ID
+bl sendHalfExi
+lwz r3, 0x110(r24) #load x coord
+bl sendWordExi
+lwz r3, 0x114(r24) #load y coord
+bl sendWordExi
+lwz r3, 0x8C(r24) #load facing direction
+bl sendWordExi
+lwz r3, 0x1890(r24) #load current damage
+bl sendWordExi
+lwz r3, 0x19f8(r24) #load shield size
+bl sendWordExi
+lwz r3, 0x20ec(r24) #load last attack landed
+bl sendByteExi
+lhz r3, 0x20f0(r24) #load combo count
+bl sendByteExi
+lwz r3, 0x1924(r24) #load player who last hit this player
+bl sendByteExi
+
+lbz r3, 0x8E(r8) # load stocks remaining
+bl sendByteExi
+
+bl endExiTransfer #stop transfer
 
 CLEANUP:
 #restore registers and sp
@@ -197,4 +218,4 @@ stw r10, 0x6814(r11) #write 0 to the parameter register
 blr
 
 GECKO_END:
-lis r3, 0x8017 #execute replaced code line
+lwz r0, 0x94(r1) #execute replaced code line

@@ -40,8 +40,8 @@ add r8, r8, r3
 #------------- FRAME_UPDATE -------------
 bl startExiTransfer #indicate transfer start
 
-li r3, 0x38
-bl sendByteExi #send OnFrameUpdate event code
+li r3, 0x37
+bl sendByteExi #send OnPreFrameUpdate event code
 
 # Compute and send frame count (supports negatives before timer starts)
 lis r4,0x8048
@@ -82,8 +82,6 @@ WRITE_IS_FOLLOWER:
 mr r3, r4 # stage isFollower bool for writing
 bl sendByteExi
 
-lwz r3, 0x64(r30) #load internal char ID
-bl sendByteExi
 lwz r3, 0x70(r30) #load action state ID
 bl sendHalfExi
 lwz r3, 0x110(r30) #load x coord
@@ -104,19 +102,6 @@ lwz r3, 0x6b0(r30) #load analog trigger input
 bl sendWordExi
 lwz r3, 0x6bc(r30) #load buttons pressed this frame
 bl sendWordExi
-lwz r3, 0x1890(r30) #load current damage
-bl sendWordExi
-lwz r3, 0x19f8(r30) #load shield size
-bl sendWordExi
-lwz r3, 0x20ec(r30) #load last attack landed
-bl sendByteExi
-lhz r3, 0x20f0(r30) #load combo count
-bl sendByteExi
-lwz r3, 0x1924(r30) #load player who last hit this player
-bl sendByteExi
-
-lbz r3, 0x8E(r8) # load stocks remaining
-bl sendByteExi
 
 #get raw controller inputs
 lis r4, 0x804C
