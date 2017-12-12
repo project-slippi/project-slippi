@@ -57,10 +57,6 @@ sub r3,r4,r3
 SKIP_FRAME_COUNT_ADJUST:
 bl sendWordExi
 
-lis r3, 0x804D
-lwz r3, 0x5F90(r3) #load random seed
-bl sendWordExi
-
 mr r3, r7 #player slot
 bl sendByteExi
 
@@ -81,6 +77,10 @@ li r4, 1 # if we get here then we know this is nana
 WRITE_IS_FOLLOWER:
 mr r3, r4 # stage isFollower bool for writing
 bl sendByteExi
+
+lis r3, 0x804D
+lwz r3, 0x5F90(r3) #load random seed
+bl sendWordExi
 
 lwz r3, 0x70(r30) #load action state ID
 bl sendHalfExi

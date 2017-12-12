@@ -40,13 +40,13 @@ bl sendHalfExi
 # pre-frame update command
 li r3, 0x37
 bl sendByteExi
-li r3, 54
+li r3, 58
 bl sendHalfExi
 
 # post-frame update command
 li r3, 0x38
 bl sendByteExi
-li r3, 71
+li r3, 33
 bl sendHalfExi
 
 # game end command

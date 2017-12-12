@@ -1,5 +1,5 @@
 ################################################################################
-#                      Inject at address 8006C0D8
+#                      Inject at address 8006c5d4 or 8006c0d8
 # Function is PlayerThink_Physics. Consider instead 8006c5d4 which is
 # PlayerThink_Collision and is the last update
 ################################################################################
@@ -34,7 +34,7 @@ beq- CLEANUP
 
 #------------- INITIALIZE -------------
 # here we want to initalize some variables we plan on using throughout
-lbz r7, 0x6C(r24) #loads this player slot
+lbz r7, 0x6C(r29) #loads this player slot
 
 # generate address for static player block
 lis r8, 0x8045
@@ -78,7 +78,7 @@ bne+ WRITE_IS_FOLLOWER
 
 # we need to check if this is a follower (nana). should not save inputs for nana
 lwz r3, 0xB4(r8) # load pointer to follower for this port
-cmpw r3, r24 # compare follower pointer with current pointer
+cmpw r3, r29 # compare follower pointer with current pointer
 bne WRITE_IS_FOLLOWER # if the two  dont match, this is popo
 
 li r4, 1 # if we get here then we know this is nana
@@ -87,25 +87,25 @@ WRITE_IS_FOLLOWER:
 mr r3, r4 # stage isFollower bool for writing
 bl sendByteExi
 
-lwz r3, 0x64(r24) #load internal char ID
+lwz r3, 0x64(r29) #load internal char ID
 bl sendByteExi
-lwz r3, 0x70(r24) #load action state ID
+lwz r3, 0x70(r29) #load action state ID
 bl sendHalfExi
-lwz r3, 0x110(r24) #load x coord
+lwz r3, 0x110(r29) #load x coord
 bl sendWordExi
-lwz r3, 0x114(r24) #load y coord
+lwz r3, 0x114(r29) #load y coord
 bl sendWordExi
-lwz r3, 0x8C(r24) #load facing direction
+lwz r3, 0x8C(r29) #load facing direction
 bl sendWordExi
-lwz r3, 0x1890(r24) #load current damage
+lwz r3, 0x1890(r29) #load current damage
 bl sendWordExi
-lwz r3, 0x19f8(r24) #load shield size
+lwz r3, 0x19f8(r29) #load shield size
 bl sendWordExi
-lwz r3, 0x20ec(r24) #load last attack landed
+lwz r3, 0x20ec(r29) #load last attack landed
 bl sendByteExi
-lhz r3, 0x20f0(r24) #load combo count
+lhz r3, 0x20f0(r29) #load combo count
 bl sendByteExi
-lwz r3, 0x1924(r24) #load player who last hit this player
+lwz r3, 0x1924(r29) #load player who last hit this player
 bl sendByteExi
 
 lbz r3, 0x8E(r8) # load stocks remaining
@@ -218,4 +218,4 @@ stw r10, 0x6814(r11) #write 0 to the parameter register
 blr
 
 GECKO_END:
-lwz r0, 0x94(r1) #execute replaced code line
+lwz r0, 0x3C(r1) #execute replaced code line

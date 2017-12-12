@@ -14,8 +14,14 @@
         {
           "type": "inject",
           "address": "8006B0DC",
-          "sourceFile": "SendGameFrame.asm",
-          "annotation": "SendGameFrame [Fizzi, Achilles]"
+          "sourceFile": "SendGamePreFrame.asm",
+          "annotation": "SendGamePreFrame [Fizzi, Achilles]"
+        },
+        {
+          "type": "inject",
+          "address": "8006C5D4",
+          "sourceFile": "SendGamePostFrame.asm",
+          "annotation": "SendGamePostFrame [Fizzi, Achilles]"
         },
         {
           "type": "inject",
