@@ -95,6 +95,8 @@ bl readWordExi
 stw r3,0xB4(r31) #y position
 bl readWordExi
 stw r3,0x2C(r31) #facing direction
+bl readWordExi
+stw r3,0x10(r31) #animation state ID
 
 bl endExiTransfer
 

@@ -13,25 +13,25 @@
       "build": [
         {
           "type": "inject",
-          "address": "8006B0DC",
+          "address": "8006b0dc",
           "sourceFile": "SendGamePreFrame.asm",
           "annotation": "SendGamePreFrame [Fizzi, Achilles]"
         },
         {
           "type": "inject",
-          "address": "8006C5D4",
+          "address": "8006c5d4",
           "sourceFile": "SendGamePostFrame.asm",
           "annotation": "SendGamePostFrame [Fizzi, Achilles]"
         },
         {
           "type": "inject",
-          "address": "8016E74C",
+          "address": "8016e74c",
           "sourceFile": "SendGameInfo.asm",
           "annotation": "SendGameInfo [Fizzi]"
         },
         {
           "type": "inject",
-          "address": "801A5B04",
+          "address": "801a5b04",
           "sourceFile": "SendGameEnd.asm",
           "annotation": "SendGameEnd [Fizzi]"
         }
