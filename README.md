@@ -27,7 +27,7 @@ The element is defined in optimized format, this is done such that the metadata 
 
 The lead up to the data will look like the following: `[U][3][r][a][w][[][$][U][#][l][X][X][X][X]`
 
-Each value in brackets is one byte. The first 5 bytes describe the length and name of the key - in this case "raw". The remaining bytes describe the value. In this case the value is an array of type uint8 of length XXXX. The l specifies that the length of the array is described by a long (32-bit number).
+Each value in brackets is one byte. The first 5 bytes describe the length and name of the key - in this case "raw". The remaining bytes describe the form and length of the value. In this case the value is an array ([) of type uint8 ($U) of length XXXX (lXXXX). The l specifies that the length of the array is described by a long (32-bit number).
 
 It is important to note that while the game is in progress and the data is being actively written, the length will be set to 0. This was done to make overwriting the size easier once all the data has been received.
 
@@ -40,7 +40,8 @@ Every event is defined by a one byte code followed by a payload. The following t
 | --- | :---: | --- |
 | Event Payloads | 0x35 | This event will be the very first event in the byte stream. It enumerates all possible events and their respective payload sizes that may be encountered in the byte stream. |
 | Game Start | 0x36 | Contains any information relevant to how the game is set up. Also includes the version of the extraction code. |
-| Frame Update | 0x38 | Contains all the information captured for a single character in a single frame. Ice Climbers will have two of these per frame. |
+| Pre-Frame Update | 0x37 | One event per frame per character (Ice Climbers are 2 characters). Contains information required to **reconstruct a replay**. Information is collected right before controller inputs are used to figure out the character's next action. |
+| Post-Frame Update | 0x38 | One event per frame per character (Ice Climbers are 2 characters). Contains information for **making decisions about game states**, such as computing stats. Information is collected at the end of the Collision detection which is the last consideration of the game engine. |
 | Game End | 0x39 | Indicates the end of the game. |
 
 ### Endianness
@@ -85,36 +86,50 @@ This is data that will be transferred as the game is starting. It includes all t
 | 0x6E + 0x24*i* | Team ID | uint8 | Value only relevant if `is teams` is true. 0 = red, 1 = blue, 2 = green |
 | 0x13D | Random Seed | uint32 | The random seed before the game start |
 
-### Frame Update
-This event will occur exactly once per frame per character. The only exception to this is Ice Climbers. Nana gets her own frame update so for every Ice Climbers character there will be two updates per frame.
+### Pre-Frame Update
+This event will occur exactly once per frame per character (Ice Climbers are 2 characters). Contains information required to **reconstruct a replay**. Information is collected right before controller inputs are used to figure out the character's next action.
 
 | Offset | Name | Type | Description |
 | --- | --- | --- | --- |
-| 0x0 | Command Byte | uint8 | (0x38) The command byte for the frame update event |
+| 0x0 | Command Byte | uint8 | (0x37) The command byte for the pre-frame update event |
 | 0x1 | Frame Number | int32 | The number of the frame. Starts at -123. Frame 0 is when the timer starts counting down |
-| 0x5 | Random Seed | uint32 | The random seed at this point |
-| 0x9 | Player Index | uint8 | Between 0 and 3. Port is index + 1 |
-| 0xA | Is Follower | bool | Value is 1 for Nana and 0 otherwise |
-| 0xB | Internal Character ID | uint8 | Internal character ID. Can only change throughout game for Zelda/Sheik. Check on first frame to determine if Zelda started as Sheik |
-| 0xC | Action State ID | uint16 | Indicates the state the character is in. Very useful for stats |
-| 0xE | X Position | float | X position of character |
-| 0x12 | Y Position | float | Y position of character |
-| 0x16 | Facing Direction | float | -1 if facing left, +1 if facing right |
-| 0x1A | Joystick X | float | Processed analog value of X axis of joystick |
-| 0x1E | Joystick Y | float | Processed analog value of Y axis of joystick |
-| 0x22 | C-Stick X | float | Processed analog value of X axis of c-stick |
-| 0x26 | C-Stick Y | float | Processed analog value of Y axis of c-stick |
-| 0x2A | Trigger | float | Processed analog value of trigger |
-| 0x2E | Buttons | uint32 | Processed buttons. Look at bits set to see processed buttons pressed |
-| 0x32 | Percent | float | Current damage percent |
-| 0x36 | Shield Size | float | Current size of shield |
-| 0x3A | Last Attack Landed | uint8 | ID of last attack that hit enemy |
-| 0x3B | Current Combo Count | uint8 | The combo count as defined by the game |
-| 0x3C | Last Hit By | uint8 | The player that last hit this player |
-| 0x3D | Stocks Remaining | uint8 | Number of stocks remaining |
-| 0x3E | Physical Buttons | uint16 | Use bits set to determine physical buttons pressed. Useful for APM |
-| 0x40 | Physical L Trigger | float | Physical analog value of L trigger. Useful for APM |
-| 0x44 | Physical R Trigger | float | Physical analog value of R trigger. Useful for APM |
+| 0x5 | Player Index | uint8 | Between 0 and 3. Port is index + 1 |
+| 0x6 | Is Follower | bool | Value is 1 for Nana and 0 otherwise |
+| 0x7 | Random Seed | uint32 | The random seed at this point |
+| 0xB | Action State ID | uint16 | Indicates the state the character is in. Very useful for stats |
+| 0xD | X Position | float | X position of character |
+| 0x11 | Y Position | float | Y position of character |
+| 0x15 | Facing Direction | float | -1 if facing left, +1 if facing right |
+| 0x19 | Joystick X | float | Processed analog value of X axis of joystick |
+| 0x1D | Joystick Y | float | Processed analog value of Y axis of joystick |
+| 0x21 | C-Stick X | float | Processed analog value of X axis of c-stick |
+| 0x25 | C-Stick Y | float | Processed analog value of Y axis of c-stick |
+| 0x29 | Trigger | float | Processed analog value of trigger |
+| 0x2D | Buttons | uint32 | Processed buttons. Look at bits set to see processed buttons pressed |
+| 0x31 | Physical Buttons | uint16 | Use bits set to determine physical buttons pressed. Useful for APM |
+| 0x33 | Physical L Trigger | float | Physical analog value of L trigger. Useful for APM |
+| 0x37 | Physical R Trigger | float | Physical analog value of R trigger. Useful for APM |
+
+### Post-Frame Update
+This event will occur exactly once per frame per character (Ice Climbers are 2 characters). Contains information for **making decisions about game states**, such as computing stats. Information is collected at the end of the Collision detection which is the last consideration of the game engine.
+
+| Offset | Name | Type | Description |
+| --- | --- | --- | --- |
+| 0x0 | Command Byte | uint8 | (0x38) The command byte for the post-frame update event |
+| 0x1 | Frame Number | int32 | The number of the frame. Starts at -123. Frame 0 is when the timer starts counting down |
+| 0x5 | Player Index | uint8 | Between 0 and 3. Port is index + 1 |
+| 0x6 | Is Follower | bool | Value is 1 for Nana and 0 otherwise |
+| 0x7 | Internal Character ID | uint8 | Internal character ID. Can only change throughout game for Zelda/Sheik. Check on first frame to determine if Zelda started as Sheik |
+| 0x8 | Action State ID | uint16 | Indicates the state the character is in. Very useful for stats |
+| 0xA | X Position | float | X position of character |
+| 0xE | Y Position | float | Y position of character |
+| 0x12 | Facing Direction | float | -1 if facing left, +1 if facing right |
+| 0x16 | Percent | float | Current damage percent |
+| 0x1A | Shield Size | float | Current size of shield |
+| 0x1E | Last Attack Landed | uint8 | ID of last attack that hit enemy |
+| 0x1F | Current Combo Count | uint8 | The combo count as defined by the game |
+| 0x20 | Last Hit By | uint8 | The player that last hit this player |
+| 0x21 | Stocks Remaining | uint8 | Number of stocks remaining |
 
 ### Game End
 This event indicates the end of the game has occurred.
