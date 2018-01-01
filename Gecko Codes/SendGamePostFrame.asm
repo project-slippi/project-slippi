@@ -1,7 +1,7 @@
 ################################################################################
-#                      Inject at address 8006c5d4 or 8006c0d8
-# Function is PlayerThink_Physics. Consider instead 8006c5d4 which is
-# PlayerThink_Collision and is the last update
+#                      Inject at address 8006c5d4
+# Function is PlayerThink_Collision. This is the last update by the game engine
+# per frame
 ################################################################################
 
 #replaced code line is executed at the end
@@ -30,6 +30,11 @@ beq- CLEANUP # if in single player, ignore everything
 lis r3, 0x8048
 lbz r3, -0x62CD(r3)
 cmpwi r3, 0x3
+beq- CLEANUP
+
+# check if this character is in the inactive state (sheikd/zelda)
+lwz r3, 0x70(r29) #load action state ID
+cmpwi r3, 0xB
 beq- CLEANUP
 
 #------------- INITIALIZE -------------
