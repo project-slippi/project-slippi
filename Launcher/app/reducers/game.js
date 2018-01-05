@@ -2,8 +2,7 @@ import { GAME_PROFILE_LOAD } from '../actions/game';
 
 // Default state for this reducer
 const defaultState = {
-  path: "",
-  stats: {}
+  game: null
 };
 
 export default function game(state = defaultState, action) {
@@ -18,9 +17,13 @@ export default function game(state = defaultState, action) {
 function loadGame(state, action) {
   const newState = { ...state };
 
-  const slpGame = action.game;
-  const settings = slpGame.getSettings();
-  console.log(settings.stageId);
+  const slpGame = action.game || {};
+
+  // Generate data here so that maybe we can add a loading state
+  slpGame.getSettings();
+
+  // Add slippi game to state
+  newState.game = slpGame;
 
   return newState;
 }
