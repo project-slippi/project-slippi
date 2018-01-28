@@ -7,18 +7,76 @@
   background: $background-dark !important;
   margin: 0 -34px 0 -34px !important;
   padding: 0 48px 0 48px !important;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr;
 
-  .player-col {
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
+  .matchup-display {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+
+    .player-display {
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+
+      justify-self: right;
+
+      &.second {
+        justify-content: flex-start;
+        align-items: center;
+        flex-direction: row-reverse;
+
+        justify-self: left;
+      }
+
+      h2 {
+        margin-bottom: 0;
+        margin-top: 0;
+      }
+    }
+  }
+
+  .game-details {
+    margin: 0;
+    padding-top: 0;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    div {
+      padding: 0 12px 0 12px;
+    }
+
+    div:not(:last-child) {
+      border-right-color: rgba(255, 255, 255, 0.5);
+      border-right-width: 1px;
+      border-right-style: solid;
+    }
+
+    .label {
+      font-weight: bold;
+      color: rgba(255, 255, 255, 0.5);
+      margin-right: 2px;
+    }
+
+    .content {
+      color: rgba(255, 255, 255, 0.8);
+    }
+    //span {
+    //  color: $background-dark;
+    //  background: rgba(255, 255, 255, 0.4);
+    //  border-radius: 4px;
+    //  font-weight: bold;
+    //  padding: 2px 4px 2px 4px;
+    //  font-size: 1em;
+    //}
   }
 
   .character-image {
-    height: 40px !important;
-    width: 40px !important;
+    height: 36px !important;
+    width: 36px !important;
   }
 }
 
@@ -29,6 +87,15 @@
 
 .stats-section {
   &.stuck {
-    margin-top: 69.58px !important;
+    margin-top: 99px !important;
   }
+}
+
+.vs-element {
+  color: $background-dark;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+  font-weight: bold;
+  padding: 0 4px 3px 4px;
+  font-size: 1.2em;
 }

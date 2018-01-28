@@ -95,7 +95,7 @@ export default class FileRow extends Component {
 
       if (idx < teams.length - 1) {
         // If this is not the last team, add a "vs" element
-        elements.push(<span key={`vs-${idx}`}> vs </span>);
+        elements.push(<span className={styles['vs-element']} key={`vs-${idx}`}> vs </span>);
       }
     });
 

@@ -5,6 +5,7 @@ import { Header, Segment, Statistic, Sticky, Image, Icon } from 'semantic-ui-rea
 import PageHeader from './common/PageHeader';
 import styles from './GameProfile.scss';
 import getLocalImage from '../utils/image';
+import * as stageUtils from '../utils/stages';
 
 export default class GameProfile extends Component {
   props: {
@@ -115,24 +116,86 @@ export default class GameProfile extends Component {
     return `${convertedValue}${unitDisplay}`;
   }
 
-  renderPlayerCol(index) {
+  renderMatchupDisplay() {
+    return (
+      <div className={styles['matchup-display']}>
+        {this.renderPlayerDisplay(0)}
+        <span className={styles['vs-element']}>vs</span>
+        {this.renderPlayerDisplay(1)}
+      </div>
+    );
+  }
+
+  renderPlayerDisplay(index) {
+    const isFirstPlayer = index === 0;
+
     const gameSettings = _.get(this.props.store, ['game', 'settings']) || {};
     const players = gameSettings.players || [];
-    const player = (index === 0 ? _.first(players) : _.last(players)) || {};
+    const player = (isFirstPlayer ? _.first(players) : _.last(players)) || {};
+
+    const segmentClasses = classNames({
+      [styles['player-display']]: true,
+      [styles['second']]: !isFirstPlayer,
+      'horizontal-spaced-group-right-sm': isFirstPlayer,
+      'horizontal-spaced-group-left-sm': !isFirstPlayer,
+    });
 
     return (
       <Segment
-        className={styles['player-col']}
+        className={segmentClasses}
         textAlign="center"
         basic={true}
       >
         <Header inverted={true} textAlign="center" as="h2">
-          <Image
-            className={styles['character-image']}
-            src={getLocalImage(`stock-icon-${player.characterId}-${player.characterColor}.png`)}
-          />
           Player {player.port}
         </Header>
+        <Image
+          className={styles['character-image']}
+          src={getLocalImage(`stock-icon-${player.characterId}-${player.characterColor}.png`)}
+        />
+      </Segment>
+    );
+  }
+
+  renderGameDetails() {
+    const gameSettings = _.get(this.props.store, ['game', 'settings']) || {};
+    const stageName = stageUtils.getStageName(gameSettings.stageId) || "Unknown";
+
+    const gameDetailsClasses = classNames({
+      [styles['game-details']]: true
+    });
+
+    const metadata = [
+      {
+        label: "Stage",
+        content: stageName
+      }, {
+        label: "Duration",
+        content: "2:34"
+      }, {
+        label: "Date",
+        content: "4/5/17 3:00 PM"
+      }, {
+        label: "Platform",
+        content: "Dolphin"
+      }
+    ];
+
+    const metadataElements = metadata.map((details) => (
+      <div key={details.label}>
+        <span className={styles['label']}>{details.label}</span>
+        &nbsp;
+        <span className={styles['content']}>{details.content}</span>
+      </div>
+    ));
+
+    return (
+      <Segment
+        className={gameDetailsClasses}
+        textAlign="center"
+        basic={true}
+      >
+        {metadataElements}
       </Segment>
     );
   }
@@ -163,8 +226,8 @@ export default class GameProfile extends Component {
           context={this.refStats}
         >
           <div className={styles['stats-player-header']}>
-            {this.renderPlayerCol(0)}
-            {this.renderPlayerCol(1)}
+            {this.renderMatchupDisplay()}
+            {this.renderGameDetails()}
           </div>
         </Sticky>
         <div ref={this.setRefStats} className={statsSectionClasses}>

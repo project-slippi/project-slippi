@@ -163,7 +163,13 @@ export default class FileLoader extends Component {
     ), this);
 
     return (
-      <Table basic="very" celled={true} inverted={true} selectable={true}>
+      <Table
+        className={styles['file-table']}
+        basic="very"
+        celled={true}
+        inverted={true}
+        selectable={true}
+      >
         <Table.Header>
           {headerRow}
         </Table.Header>

@@ -39,3 +39,17 @@
     }
   }
 }
+
+.file-table {
+  min-width: 600px;
+}
+
+.vs-element {
+  color: $background-focus;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+  font-weight: bold;
+  padding: 0 0 2px 0;
+  margin: 0 4px;
+  font-size: .8em;
+}

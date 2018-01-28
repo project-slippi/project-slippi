@@ -12,3 +12,21 @@
     margin-right: 3px;
   }
 }
+
+.horizontal-spaced-group-left-xs {
+  *:not(:last-child) {
+    margin-left: 3px;
+  }
+}
+
+.horizontal-spaced-group-right-sm {
+  *:not(:last-child) {
+    margin-right: 6px;
+  }
+}
+
+.horizontal-spaced-group-left-sm {
+  *:not(:last-child) {
+    margin-left: 6px;
+  }
+}
