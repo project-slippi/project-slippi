@@ -39,8 +39,9 @@
   }
 
   .game-details {
-    margin: 0;
-    padding-top: 0;
+    margin: 0 !important;
+    padding-top: 0 !important;
+
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
