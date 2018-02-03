@@ -146,7 +146,7 @@ export default class FileLoader extends Component {
         <Table.HeaderCell>File</Table.HeaderCell>
         <Table.HeaderCell>Characters</Table.HeaderCell>
         <Table.HeaderCell>Stage</Table.HeaderCell>
-        <Table.HeaderCell>Duration</Table.HeaderCell>
+        <Table.HeaderCell>Time</Table.HeaderCell>
         <Table.HeaderCell />
       </Table.Row>
     );

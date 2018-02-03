@@ -4,6 +4,7 @@ import { Table, Button, Image } from 'semantic-ui-react';
 import styles from './FileLoader.scss';
 import getLocalImage from '../utils/image';
 import * as stageUtils from '../utils/stages';
+import * as timeUtils from '../utils/time';
 
 const path = require('path');
 
@@ -128,15 +129,16 @@ export default class FileRow extends Component {
     );
   }
 
-  generateGameLengthCell() {
+  generateStartTimeCell() {
     const file = this.props.file || {};
 
-    const gameInfo = file.gameInfo || {};
-    const duration = gameInfo.duration || "Unknown";
+    const metadata = file.game.getMetadata();
+    const startAt = metadata.startAt;
+    const startAtDisplay = timeUtils.convertToDateAndTime(startAt) || "Unknown";
 
     return (
       <Table.Cell singleLine={true}>
-        {duration}
+        {startAtDisplay}
       </Table.Cell>
     );
   }
@@ -163,7 +165,7 @@ export default class FileRow extends Component {
         {this.generateFileNameCell()}
         {this.generateCharacterCell()}
         {this.generateStageCell()}
-        {this.generateGameLengthCell()}
+        {this.generateStartTimeCell()}
         {this.generateOptionsCell()}
       </Table.Row>
     );

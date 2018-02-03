@@ -6,6 +6,7 @@ import PageHeader from './common/PageHeader';
 import styles from './GameProfile.scss';
 import getLocalImage from '../utils/image';
 import * as stageUtils from '../utils/stages';
+import * as timeUtils from '../utils/time';
 
 export default class GameProfile extends Component {
   props: {
@@ -161,6 +162,14 @@ export default class GameProfile extends Component {
     const gameSettings = _.get(this.props.store, ['game', 'settings']) || {};
     const stageName = stageUtils.getStageName(gameSettings.stageId) || "Unknown";
 
+    const duration = _.get(this.props.store, ['game', 'stats', 'gameDuration']) || 0;
+    const durationDisplay = timeUtils.convertFrameCountToDurationString(duration);
+
+    const platform = _.get(this.props.store, ['game', 'metadata', 'playedOn']) || "Unknown";
+
+    const startAt = _.get(this.props.store, ['game', 'metadata', 'startAt']);
+    const startAtDisplay = timeUtils.convertToDateAndTime(startAt);
+
     const gameDetailsClasses = classNames({
       [styles['game-details']]: true
     });
@@ -171,13 +180,13 @@ export default class GameProfile extends Component {
         content: stageName
       }, {
         label: "Duration",
-        content: "2:34"
+        content: durationDisplay
       }, {
-        label: "Date",
-        content: "4/5/17 3:00 PM"
+        label: "Time",
+        content: startAtDisplay
       }, {
         label: "Platform",
-        content: "Dolphin"
+        content: platform
       }
     ];
 

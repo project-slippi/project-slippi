@@ -21,6 +21,8 @@ function loadGame(state, action) {
 
   // Generate data here so that maybe we can add a loading state
   slpGame.getSettings();
+  slpGame.getStats();
+  slpGame.getMetadata();
 
   // Add slippi game to state
   newState.game = slpGame;
