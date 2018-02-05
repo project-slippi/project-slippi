@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import GameProfile from '../components/GameProfile';
+import GameProfile from '../components/stats/GameProfile';
 
 function mapStateToProps(state) {
   return {

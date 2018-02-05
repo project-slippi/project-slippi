@@ -58,10 +58,13 @@ function loadRootFolder(state) {
     subDirectories: subDirectories
   };
 
+  // Maintain selection if it exists
+  const folderSelection = state.selectedFolderFullPath || rootFolder;
+
   // Select the root folder
   const newState = changeFolderSelection(state, {
     payload: {
-      folderPath: rootFolder
+      folderPath: folderSelection
     }
   });
 
