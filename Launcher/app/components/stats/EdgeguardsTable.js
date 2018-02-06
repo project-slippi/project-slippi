@@ -8,38 +8,25 @@ import * as moveUtils from '../../utils/moves';
 import * as animationUtils from '../../utils/animations';
 import * as timeUtils from '../../utils/time';
 
-export default class StocksTable extends Component {
+export default class EdgeguardsTable extends Component {
   props: {
     game: object,
     playerDisplay: object,
     playerIndex: number,
   };
 
-  generateStockRow = (stock) => {
-    let start = timeUtils.convertFrameCountToDurationString(stock.startFrame);
+  generateEdgeguardRow = (edgeguard) => {
+    const start = timeUtils.convertFrameCountToDurationString(edgeguard.startFrame);
     let end = <span className={styles['secondary-text']}>–</span>;
-    let death = <span className={styles['secondary-text']}>N/A</span>;
 
-    const isFirstFrame = stock.startFrame === timeUtils.frames.START_FRAME;
-    if (isFirstFrame) {
-      start = <span className={styles['secondary-text']}>–</span>;
-    }
-
-    if (stock.endFrame) {
-      end = timeUtils.convertFrameCountToDurationString(stock.endFrame);
-
-      const killedBy = moveUtils.getMoveName(stock.moveKilledBy) || `Unknown (${stock.moveKilledBy})`;
-      const deathDirection = animationUtils.getDeathDirection(stock.deathAnimation);
-      const deathPercent = `${Math.trunc(stock.endPercent)}%`;
-
-      death = `${killedBy} · ${deathDirection} · ${deathPercent}`;
+    if (edgeguard.endFrame) {
+      end = timeUtils.convertFrameCountToDurationString(edgeguard.endFrame);
     }
 
     return (
-      <Table.Row key={`${stock.playerIndex}-stock-${stock.startFrame}`}>
+      <Table.Row key={`${edgeguard.playerIndex}-edgeguard-${edgeguard.startFrame}`}>
         <Table.Cell>{start}</Table.Cell>
         <Table.Cell>{end}</Table.Cell>
-        <Table.Cell>{death}</Table.Cell>
       </Table.Row>
     );
   };
@@ -48,7 +35,7 @@ export default class StocksTable extends Component {
     // TODO: Make generating the player display better
     return (
       <Table.Row>
-        <Table.HeaderCell colSpan={3}>
+        <Table.HeaderCell colSpan={2}>
           {this.props.playerDisplay}
         </Table.HeaderCell>
       </Table.Row>
@@ -60,18 +47,17 @@ export default class StocksTable extends Component {
       <Table.Row>
         <Table.HeaderCell>Start</Table.HeaderCell>
         <Table.HeaderCell>End</Table.HeaderCell>
-        <Table.HeaderCell>Death</Table.HeaderCell>
       </Table.Row>
     );
   }
 
-  renderStocksRows() {
+  renderEdgeguardRows() {
     const stats = this.props.game.getStats() || {};
-    const stocks = _.get(stats, ['events', 'stocks']) || [];
-    const stocksByPlayer = _.groupBy(stocks, 'playerIndex');
-    const playerStocks = stocksByPlayer[this.props.playerIndex] || [];
+    const edgeguards = _.get(stats, ['events', 'edgeguards']) || [];
+    const edgeguardsByPlayer = _.groupBy(edgeguards, 'playerIndex');
+    const playerEdgeguards = edgeguardsByPlayer[this.props.playerIndex] || [];
 
-    return playerStocks.map(this.generateStockRow);
+    return playerEdgeguards.map(this.generateEdgeguardRow);
   }
 
   render() {
@@ -88,7 +74,7 @@ export default class StocksTable extends Component {
         </Table.Header>
 
         <Table.Body>
-          {this.renderStocksRows()}
+          {this.renderEdgeguardRows()}
         </Table.Body>
       </Table>
     );

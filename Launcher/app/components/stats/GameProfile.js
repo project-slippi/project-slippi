@@ -5,6 +5,7 @@ import { Header, Segment, Table, Sticky, Image, Icon } from 'semantic-ui-react';
 
 import PageHeader from '../common/PageHeader';
 import StocksTable from './StocksTable';
+import PunishesTable from './PunishesTable';
 
 import styles from './GameProfile.scss';
 
@@ -172,6 +173,7 @@ export default class GameProfile extends Component {
         <div ref={this.setRefStats} className={statsSectionClasses}>
           {this.renderHighlights()}
           {this.renderStocks()}
+          {this.renderPunishes()}
         </div>
       </Segment>
     );
@@ -280,6 +282,28 @@ export default class GameProfile extends Component {
             playerIndex={this.getPlayerIndex(true)}
           />
           <StocksTable
+            game={this.props.store.game}
+            playerDisplay={this.renderPlayerColHeader(false)}
+            playerIndex={this.getPlayerIndex(false)}
+          />
+        </div>
+      </Segment>
+    );
+  }
+
+  renderPunishes() {
+    return (
+      <Segment basic={true}>
+        <Header className={styles['section-header']} textAlign="center" inverted={true} as="h2">
+          Punishes
+        </Header>
+        <div className={styles['two-column-main']}>
+          <PunishesTable
+            game={this.props.store.game}
+            playerDisplay={this.renderPlayerColHeader(true)}
+            playerIndex={this.getPlayerIndex(true)}
+          />
+          <PunishesTable
             game={this.props.store.game}
             playerDisplay={this.renderPlayerColHeader(false)}
             playerIndex={this.getPlayerIndex(false)}

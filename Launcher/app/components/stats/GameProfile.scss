@@ -1,10 +1,8 @@
 @import "../../colors.global";
 
 .stats-player-header {
-  border-style: solid;
-  border-width: 1px 0 1px 0;
-  border-color: $separator;
   background: $background-dark !important;
+  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.4);
   margin: 0 -34px 0 -34px !important;
   padding: 0 48px 0 48px !important;
 
@@ -66,14 +64,6 @@
       color: rgba(255, 255, 255, 0.8);
       text-transform: capitalize;
     }
-    //span {
-    //  color: $background-dark;
-    //  background: rgba(255, 255, 255, 0.4);
-    //  border-radius: 4px;
-    //  font-weight: bold;
-    //  padding: 2px 4px 2px 4px;
-    //  font-size: 1em;
-    //}
   }
 
   .character-image {
@@ -89,7 +79,7 @@
 
 .stats-section {
   &.stuck {
-    margin-top: 99px !important;
+    margin-top: 97px !important;
   }
 }
 
@@ -104,6 +94,10 @@
 
 .section-header {
   color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.secondary-text {
+  color: rgba(255, 255, 255, 0.6) !important;
 }
 
 .stats-table {
@@ -124,6 +118,10 @@
       color: rgba(255, 255, 255, 0.6);
       background: $background-dark !important;
     }
+
+    &.info {
+      background: $background-dark !important;
+    }
   }
 }
 
@@ -136,4 +134,13 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-column-gap: 12px;
+}
+
+.stock-display {
+  display: flex;
+  align-items: center;
+
+  .lost-stock {
+    opacity: 0.4;
+  }
 }
