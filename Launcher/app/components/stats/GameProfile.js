@@ -182,8 +182,8 @@ export default class GameProfile extends Component {
   renderHighlights() {
     return (
       <Segment basic={true}>
-        <Header className={styles['section-header']} textAlign="center" inverted={true} as="h2">
-          Stat Highlights
+        <Header className={styles['section-header']} inverted={true} as="h2">
+          Overall
         </Header>
         <Table
           className={styles['stats-table']}
@@ -193,7 +193,7 @@ export default class GameProfile extends Component {
         >
           <Table.Header>
             <Table.Row>
-              <Table.HeaderCell>Stat</Table.HeaderCell>
+              <Table.HeaderCell />
               <Table.HeaderCell>{this.renderPlayerColHeader(true)}</Table.HeaderCell>
               <Table.HeaderCell>{this.renderPlayerColHeader(false)}</Table.HeaderCell>
             </Table.Row>
@@ -204,12 +204,12 @@ export default class GameProfile extends Component {
               <Table.Cell className={styles['category']} colSpan={3}>Offense</Table.Cell>
             </Table.Row>
             <Table.Row>
-              <Table.Cell>Openings / Kill</Table.Cell>
+              <Table.Cell className={styles['sub-header']}>Openings / Kill</Table.Cell>
               <Table.Cell>4.5</Table.Cell>
               <Table.Cell>5.6</Table.Cell>
             </Table.Row>
             <Table.Row>
-              <Table.Cell>Damage / Opening</Table.Cell>
+              <Table.Cell className={styles['sub-header']}>Damage / Opening</Table.Cell>
               <Table.Cell>12.3</Table.Cell>
               <Table.Cell>10.9</Table.Cell>
             </Table.Row>
@@ -217,12 +217,12 @@ export default class GameProfile extends Component {
               <Table.Cell className={styles['category']} colSpan={3}>Defense</Table.Cell>
             </Table.Row>
             <Table.Row>
-              <Table.Cell>Recovery Ratio</Table.Cell>
+              <Table.Cell className={styles['sub-header']}>Recovery Ratio</Table.Cell>
               <Table.Cell>5 / 10</Table.Cell>
               <Table.Cell>8 / 8</Table.Cell>
             </Table.Row>
             <Table.Row>
-              <Table.Cell>Counter-Attack Count</Table.Cell>
+              <Table.Cell className={styles['sub-header']}>Counter-Attack Count</Table.Cell>
               <Table.Cell>4</Table.Cell>
               <Table.Cell>0</Table.Cell>
             </Table.Row>
@@ -230,12 +230,12 @@ export default class GameProfile extends Component {
               <Table.Cell className={styles['category']} colSpan={3}>Neutral</Table.Cell>
             </Table.Row>
             <Table.Row>
-              <Table.Cell>Neutral Win %</Table.Cell>
+              <Table.Cell className={styles['sub-header']}>Neutral Win %</Table.Cell>
               <Table.Cell>42.4%</Table.Cell>
               <Table.Cell>57.6%</Table.Cell>
             </Table.Row>
             <Table.Row>
-              <Table.Cell>Center Stage Control</Table.Cell>
+              <Table.Cell className={styles['sub-header']}>Center Stage Control</Table.Cell>
               <Table.Cell>60.0%</Table.Cell>
               <Table.Cell>40.0%</Table.Cell>
             </Table.Row>
@@ -272,7 +272,7 @@ export default class GameProfile extends Component {
   renderStocks() {
     return (
       <Segment basic={true}>
-        <Header className={styles['section-header']} textAlign="center" inverted={true} as="h2">
+        <Header className={styles['section-header']} inverted={true} as="h2">
           Stocks
         </Header>
         <div className={styles['two-column-main']}>
@@ -294,7 +294,7 @@ export default class GameProfile extends Component {
   renderPunishes() {
     return (
       <Segment basic={true}>
-        <Header className={styles['section-header']} textAlign="center" inverted={true} as="h2">
+        <Header className={styles['section-header']} inverted={true} as="h2">
           Punishes
         </Header>
         <div className={styles['two-column-main']}>

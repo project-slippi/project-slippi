@@ -48,10 +48,10 @@ export default class FolderBrowser extends Component {
         className={selectorClasses}
         onClick={_.partial(this.selectFolder, folderDetails.fullPath)}
       />,
-      <List.Item key={folderDetails.fullPath}>
-        <List.Icon name="folder" />
+      <List.Item className={`${styles['folder-item']} no-padding`} key={folderDetails.fullPath}>
+        <List.Icon className={styles['folder-icon']} name="folder" />
         <List.Content>
-          <List.Header className="unselectable">
+          <List.Header className={`${styles['folder-name']} unselectable`}>
             {folderDetails.folderName}
           </List.Header>
           {subDirectoryList}

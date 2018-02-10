@@ -5,12 +5,12 @@ export function getDeathDirection(actionStateId) {
 
   switch (actionStateId) {
   case 0:
-    return "bottom";
+    return "down";
   case 1:
     return "left";
   case 2:
     return "right";
   default:
-    return "top";
+    return "up";
   }
 }

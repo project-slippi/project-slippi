@@ -7,6 +7,9 @@ import styles from './GameProfile.scss';
 
 import getLocalImage from '../../utils/image';
 import * as timeUtils from '../../utils/time';
+import * as numberUtils from '../../utils/number';
+
+const columnCount = 4;
 
 export default class PunishesTable extends Component {
   props: {
@@ -29,25 +32,35 @@ export default class PunishesTable extends Component {
       damage = `${Math.trunc(difference)}%`;
     }
 
+    const secondaryTextStyle = styles['secondary-text'];
+
     return (
       <Table.Row key={`${punish.playerIndex}-punish-${punish.startFrame}`}>
-        <Table.Cell>{start}</Table.Cell>
-        <Table.Cell>{end}</Table.Cell>
+        <Table.Cell className={secondaryTextStyle} collapsing={true}>{start}</Table.Cell>
+        <Table.Cell className={secondaryTextStyle} collapsing={true}>{end}</Table.Cell>
         <Table.Cell>{damage}</Table.Cell>
         <Table.Cell>{punish.hitCount}</Table.Cell>
       </Table.Row>
     );
   };
 
-  generateStockRow = (stock) => {
-    // TODO: Get this from game settings
-    const totalStocks = 4;
-    const currentStocks = stock.count - 1;
+  generateEmptyRow = (stock) => {
+    const player = this.getPlayer(stock.playerIndex);
+    const stockIndex = player.startStocks - stock.count + 1;
+    return (
+      <Table.Row key={`no-punishes-${stock.count}`}>
+        <Table.Cell className={styles['secondary-text']} colSpan={columnCount}>
+          No punishes on opponent&apos;s {numberUtils.toOrdinal(stockIndex)} stock
+        </Table.Cell>
+      </Table.Row>
+    );
+  };
 
-    const gameSettings = this.props.game.getSettings();
-    const players = gameSettings.players || [];
-    const playersByIndex = _.keyBy(players, 'playerIndex');
-    const player = playersByIndex[stock.playerIndex] || {};
+  generateStockRow = (stock) => {
+    const player = this.getPlayer(stock.playerIndex);
+
+    const totalStocks = player.startStocks;
+    const currentStocks = stock.count - 1;
 
     const stockIcons = _.range(1, totalStocks + 1).map((stockNum) => {
       const imgClasses = classNames({
@@ -73,7 +86,7 @@ export default class PunishesTable extends Component {
     const key = `${stock.playerIndex}-stock-lost-${currentStocks}`;
     return (
       <Table.Row key={key}>
-        <Table.Cell className={styles['info']} colSpan={4}>
+        <Table.Cell className={styles['info']} colSpan={columnCount}>
           <div className={containerClasses}>
             {stockIcons}
           </div>
@@ -82,11 +95,18 @@ export default class PunishesTable extends Component {
     );
   };
 
+  getPlayer(playerIndex: number) {
+    const gameSettings = this.props.game.getSettings();
+    const players = gameSettings.players || [];
+    const playersByIndex = _.keyBy(players, 'playerIndex');
+    return playersByIndex[playerIndex];
+  };
+
   renderHeaderPlayer() {
     // TODO: Make generating the player display better
     return (
       <Table.Row>
-        <Table.HeaderCell colSpan={4}>
+        <Table.HeaderCell colSpan={columnCount}>
           {this.props.playerDisplay}
         </Table.HeaderCell>
       </Table.Row>
@@ -115,24 +135,48 @@ export default class PunishesTable extends Component {
     const opponentStocks = stocksByOpponent[this.props.playerIndex] || [];
 
     const elements = [];
-    playerPunishes.forEach((punish) => {
-      // Add stock rows to indicate when the opponent died
-      while (opponentStocks[0] && opponentStocks[0].endFrame && opponentStocks[0].endFrame < punish.startFrame) {
+
+    const addStockRows = (punish) => {
+      const shouldDisplayStockLoss = () => {
+        // Calculates whether we should display a stock loss row in this position
+        const currentStock = _.first(opponentStocks);
+        const currentStockWasLost = currentStock && currentStock.endFrame;
+        const wasLostBeforeNextPunish = !punish || currentStock.endFrame < punish.startFrame;
+
+        return currentStockWasLost && wasLostBeforeNextPunish;
+      };
+
+      // stockLossAdded is used to decide whether to display a empty state row if
+      // there were no punishes for an entire stock (opponent SD'd immediately)
+      // Is normally initialized false and will only trigger if two stock rows are
+      // rendered one after another. but will initialize to true if we are considering
+      // the very first punish, this is the handle the case where someone SD's on first
+      // stock
+      let shouldAddEmptyState = punish === _.first(playerPunishes);
+      while (shouldDisplayStockLoss()) {
         const stock = opponentStocks.shift();
+
+        if (shouldAddEmptyState) {
+          const emptyPunishes = this.generateEmptyRow(stock);
+          elements.push(emptyPunishes);
+        }
+
         const stockRow = this.generateStockRow(stock);
         elements.push(stockRow);
+        shouldAddEmptyState = true;
       }
+    };
+
+    playerPunishes.forEach((punish) => {
+      // Add stock rows to indicate when the opponent died
+      addStockRows(punish);
 
       const punishRow = this.generatePunishRow(punish);
       elements.push(punishRow);
     });
 
     // This loop will add all remaining stocks to the end of all the punishes
-    while (opponentStocks[0] && opponentStocks[0].endFrame) {
-      const stock = opponentStocks.shift();
-      const stockRow = this.generateStockRow(stock);
-      elements.push(stockRow);
-    }
+    addStockRows();
 
     return elements;
   }

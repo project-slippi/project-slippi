@@ -11,7 +11,7 @@
   border-style: solid;
   border-width: 0 1px 0 0;
   border-color: $separator;
-  background: $background-dark;
+  background: $background-darkest;
   display: grid;
   height: 100vh;
   overflow-y: auto;
@@ -45,7 +45,7 @@
 }
 
 .vs-element {
-  color: $background-focus;
+  color: $background-dark;
   background: rgba(255, 255, 255, 0.4);
   border-radius: 4px;
   font-weight: bold;
