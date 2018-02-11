@@ -9,7 +9,7 @@ import getLocalImage from '../../utils/image';
 import * as timeUtils from '../../utils/time';
 import * as numberUtils from '../../utils/number';
 
-const columnCount = 5;
+const columnCount = 6;
 
 export default class PunishesTable extends Component {
   props: {
@@ -23,6 +23,7 @@ export default class PunishesTable extends Component {
     let end = <span className={styles['secondary-text']}>–</span>;
     const damage = this.renderDamageCell(punish);
     const damageRange = this.renderDamageRangeCell(punish);
+    const killed = this.renderKilledCell(punish);
 
     if (punish.endFrame) {
       end = timeUtils.convertFrameCountToDurationString(punish.endFrame);
@@ -37,6 +38,7 @@ export default class PunishesTable extends Component {
         <Table.Cell collapsing={true}>{damage}</Table.Cell>
         <Table.Cell className={styles['attach-to-left-cell']}>{damageRange}</Table.Cell>
         <Table.Cell>{punish.moveCount}</Table.Cell>
+        <Table.Cell collapsing={true} textAlign="center">{killed}</Table.Cell>
       </Table.Row>
     );
   };
@@ -69,8 +71,8 @@ export default class PunishesTable extends Component {
           key={`stock-image-${stock.playerIndex}-${stockNum}`}
           className={imgClasses}
           src={getLocalImage(`stock-icon-${player.characterId}-${player.characterColor}.png`)}
-          height={24}
-          width={24}
+          height={20}
+          width={20}
         />
       );
     });
@@ -121,9 +123,24 @@ export default class PunishesTable extends Component {
 
   renderDamageRangeCell(punish) {
     return (
-      <span className={styles['secondary-text']}>
+      <div className={styles['secondary-text']}>
         {`(${Math.trunc(punish.startPercent)}% - ${Math.trunc(punish.currentPercent)}%)`}
-      </span>
+      </div>
+    );
+  }
+
+  renderKilledCell(punish) {
+    if (!punish.didKill) {
+      return null;
+    }
+
+    return (
+      <Icon
+        name="theme"
+        color="red"
+        inverted={true}
+        size="large"
+      />
     );
   }
 
@@ -145,6 +162,7 @@ export default class PunishesTable extends Component {
         <Table.HeaderCell>End</Table.HeaderCell>
         <Table.HeaderCell colSpan={2}>Damage</Table.HeaderCell>
         <Table.HeaderCell>Move Count</Table.HeaderCell>
+        <Table.HeaderCell>Finisher</Table.HeaderCell>
       </Table.Row>
     );
   }
