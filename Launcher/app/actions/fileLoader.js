@@ -7,6 +7,7 @@ const electronSettings = require('electron-settings');
 
 export const LOAD_ROOT_FOLDER = 'LOAD_ROOT_FOLDER';
 export const CHANGE_FOLDER_SELECTION = 'CHANGE_FOLDER_SELECTION';
+export const STORE_SCROLL_POSITION = 'STORE_SCROLL_POSITION';
 
 export function loadRootFolder() {
   return {
@@ -20,6 +21,15 @@ export function changeFolderSelection(folder) {
     type: CHANGE_FOLDER_SELECTION,
     payload: {
       folderPath: folder
+    }
+  };
+}
+
+export function storeScrollPosition(position) {
+  return {
+    type: STORE_SCROLL_POSITION,
+    payload: {
+      position: position
     }
   };
 }

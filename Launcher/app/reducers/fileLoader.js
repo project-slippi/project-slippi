@@ -1,5 +1,7 @@
 import SlippiGame from 'slp-parser-js';
-import { LOAD_ROOT_FOLDER, CHANGE_FOLDER_SELECTION } from '../actions/fileLoader';
+import {
+  LOAD_ROOT_FOLDER, CHANGE_FOLDER_SELECTION, STORE_SCROLL_POSITION
+} from '../actions/fileLoader';
 
 const fs = require('fs');
 const path = require('path');
@@ -11,7 +13,11 @@ const defaultState = {
   selectedFolderFullPath: "",
   folders: {},
   files: [],
-  playingFile: null
+  playingFile: null,
+  scrollPosition: {
+    x: 0,
+    y: 0,
+  },
 };
 
 export default function fileLoader(state = defaultState, action) {
@@ -20,6 +26,8 @@ export default function fileLoader(state = defaultState, action) {
     return loadRootFolder(state, action);
   case CHANGE_FOLDER_SELECTION:
     return changeFolderSelection(state, action);
+  case STORE_SCROLL_POSITION:
+    return storeScrollPosition(state, action);
   default:
     return state;
   }
@@ -102,5 +110,12 @@ function changeFolderSelection(state, action) {
     ...state,
     selectedFolderFullPath: folderPath,
     files: files
+  };
+}
+
+function storeScrollPosition(state, action) {
+  return {
+    ...state,
+    scrollPosition: action.payload.position,
   };
 }

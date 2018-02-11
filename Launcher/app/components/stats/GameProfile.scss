@@ -120,6 +120,11 @@
       background: $background-lightest !important;
     }
 
+    &.attach-to-left-cell {
+      padding-left: 0;
+      border-left: 0 !important;
+    }
+
     &.sub-header {
       padding: 11px 11px 11px 17px;
       color: rgba(255, 255, 255, 0.7);
@@ -149,4 +154,9 @@
   .lost-stock {
     opacity: 0.4;
   }
+}
+
+.punish-damage-display {
+  display: flex;
+  align-items: center;
 }

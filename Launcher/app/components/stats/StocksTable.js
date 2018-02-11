@@ -22,7 +22,8 @@ export default class StocksTable extends Component {
 
     let killedBy = <span className={styles['secondary-text']}>-</span>;
     let killedDirection = <span className={styles['secondary-text']}>-</span>;
-    let killedPercent = <span className={styles['secondary-text']}>-</span>;
+
+    const percent = `${Math.trunc(stock.currentPercent)}%`;
 
     const isFirstFrame = stock.startFrame === timeUtils.frames.START_FRAME;
     if (isFirstFrame) {
@@ -32,9 +33,8 @@ export default class StocksTable extends Component {
     if (stock.endFrame) {
       end = timeUtils.convertFrameCountToDurationString(stock.endFrame);
 
-      killedBy = moveUtils.getMoveName(stock.moveKilledBy) || `Unknown (${stock.moveKilledBy})`;
+      killedBy = this.renderKilledBy(stock);
       killedDirection = this.renderKilledDirection(stock);
-      killedPercent = `${Math.trunc(stock.endPercent)} %`;
     }
 
     const secondaryTextStyle = styles['secondary-text'];
@@ -44,14 +44,41 @@ export default class StocksTable extends Component {
         <Table.Cell className={secondaryTextStyle} collapsing={true}>{end}</Table.Cell>
         <Table.Cell>{killedBy}</Table.Cell>
         <Table.Cell>{killedDirection}</Table.Cell>
-        <Table.Cell>{killedPercent}</Table.Cell>
+        <Table.Cell>{percent}</Table.Cell>
       </Table.Row>
     );
   };
 
+  renderKilledBy(stock) {
+    // Here we are going to grab the opponent's punishes and see if one of them was
+    // responsible for ending this stock, if so show the kill move, otherwise assume SD
+    const stats = this.props.game.getStats();
+    const punishes = _.get(stats, ['events', 'punishes']) || [];
+    const punishesByOpponent = _.groupBy(punishes, 'opponentIndex');
+    const opponentPunishes = punishesByOpponent[this.props.playerIndex] || [];
+
+    // Only get punishes that killed
+    const killingPunishes = _.filter(opponentPunishes, 'didKill');
+    const killingPunishesByEndFrame = _.keyBy(killingPunishes, 'endFrame');
+    const punishThatEndedStock = killingPunishesByEndFrame[stock.endFrame];
+
+    if (!punishThatEndedStock) {
+      return <span className={styles['secondary-text']}>SD</span>;
+    }
+
+    return moveUtils.getMoveName(punishThatEndedStock.lastMove);
+  }
+
   renderKilledDirection(stock) {
     const killedDirection = animationUtils.getDeathDirection(stock.deathAnimation);
-    return <Icon name={`arrow ${killedDirection}`} color="green" inverted={true} />;
+
+    return (
+      <Icon
+        name={`arrow ${killedDirection}`}
+        color="green"
+        inverted={true}
+      />
+    );
   }
 
   renderHeaderPlayer() {
@@ -72,7 +99,7 @@ export default class StocksTable extends Component {
         <Table.HeaderCell>End</Table.HeaderCell>
         <Table.HeaderCell>Killed By</Table.HeaderCell>
         <Table.HeaderCell>Killed Direction</Table.HeaderCell>
-        <Table.HeaderCell>Killed Percent</Table.HeaderCell>
+        <Table.HeaderCell>Percent</Table.HeaderCell>
       </Table.Row>
     );
   }

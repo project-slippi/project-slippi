@@ -31,11 +31,6 @@ export default class FileRow extends Component {
 
     this.props.gameProfileLoad(fileGame);
     this.props.history.push('/game');
-
-    // TODO: I added this because it was keeping the scroll position of the replay table
-    // TODO: Might be better to do something as shown here:
-    // TODO: https://github.com/ReactTraining/react-router/issues/2144#issuecomment-150939358
-    window.scrollTo(0, 0);
   };
 
   generatePlayCell() {

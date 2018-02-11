@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import classNames from 'classnames';
 import React, { Component } from 'react';
-import { Table, Image } from 'semantic-ui-react';
+import { Table, Image, Icon } from 'semantic-ui-react';
 
 import styles from './GameProfile.scss';
 
@@ -9,7 +9,7 @@ import getLocalImage from '../../utils/image';
 import * as timeUtils from '../../utils/time';
 import * as numberUtils from '../../utils/number';
 
-const columnCount = 4;
+const columnCount = 5;
 
 export default class PunishesTable extends Component {
   props: {
@@ -21,15 +21,11 @@ export default class PunishesTable extends Component {
   generatePunishRow = (punish) => {
     const start = timeUtils.convertFrameCountToDurationString(punish.startFrame);
     let end = <span className={styles['secondary-text']}>–</span>;
-    let damage = <span className={styles['secondary-text']}>–</span>;
+    const damage = this.renderDamageCell(punish);
+    const damageRange = this.renderDamageRangeCell(punish);
 
     if (punish.endFrame) {
       end = timeUtils.convertFrameCountToDurationString(punish.endFrame);
-    }
-
-    if (punish.endPercent) {
-      const difference = punish.endPercent - punish.startPercent;
-      damage = `${Math.trunc(difference)}%`;
     }
 
     const secondaryTextStyle = styles['secondary-text'];
@@ -38,8 +34,9 @@ export default class PunishesTable extends Component {
       <Table.Row key={`${punish.playerIndex}-punish-${punish.startFrame}`}>
         <Table.Cell className={secondaryTextStyle} collapsing={true}>{start}</Table.Cell>
         <Table.Cell className={secondaryTextStyle} collapsing={true}>{end}</Table.Cell>
-        <Table.Cell>{damage}</Table.Cell>
-        <Table.Cell>{punish.hitCount}</Table.Cell>
+        <Table.Cell collapsing={true}>{damage}</Table.Cell>
+        <Table.Cell className={styles['attach-to-left-cell']}>{damageRange}</Table.Cell>
+        <Table.Cell>{punish.moveCount}</Table.Cell>
       </Table.Row>
     );
   };
@@ -100,7 +97,35 @@ export default class PunishesTable extends Component {
     const players = gameSettings.players || [];
     const playersByIndex = _.keyBy(players, 'playerIndex');
     return playersByIndex[playerIndex];
-  };
+  }
+
+  renderDamageCell(punish) {
+    const difference = punish.currentPercent - punish.startPercent;
+
+    let heartColor = "green";
+    if (difference >= 70) {
+      heartColor = "red";
+    } else if (difference >= 35) {
+      heartColor = "yellow";
+    }
+
+    const diffDisplay = `${Math.trunc(difference)}%`;
+
+    return (
+      <div className={`${styles['punish-damage-display']} horizontal-spaced-group-right-sm`}>
+        <Icon inverted={true} color={heartColor} name="heartbeat" size="large" />
+        <div>{diffDisplay}</div>
+      </div>
+    );
+  }
+
+  renderDamageRangeCell(punish) {
+    return (
+      <span className={styles['secondary-text']}>
+        {`(${Math.trunc(punish.startPercent)}% - ${Math.trunc(punish.currentPercent)}%)`}
+      </span>
+    );
+  }
 
   renderHeaderPlayer() {
     // TODO: Make generating the player display better
@@ -118,8 +143,8 @@ export default class PunishesTable extends Component {
       <Table.Row>
         <Table.HeaderCell>Start</Table.HeaderCell>
         <Table.HeaderCell>End</Table.HeaderCell>
-        <Table.HeaderCell>Damage</Table.HeaderCell>
-        <Table.HeaderCell>Hit Count</Table.HeaderCell>
+        <Table.HeaderCell colSpan={2}>Damage</Table.HeaderCell>
+        <Table.HeaderCell>Move Count</Table.HeaderCell>
       </Table.Row>
     );
   }

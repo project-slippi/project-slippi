@@ -13,6 +13,7 @@ export default class FileLoader extends Component {
     loadRootFolder: () => void,
     changeFolderSelection: (path) => void,
     playFile: (file) => void,
+    storeScrollPosition: () => void,
 
     // game actions
     gameProfileLoad: (game) => void,
@@ -29,10 +30,25 @@ export default class FileLoader extends Component {
   refPrimary: {};
 
   componentDidMount() {
+    const xPos = _.get(this.props.store, ['scrollPosition', 'x']) || 0;
+    const yPos = _.get(this.props.store, ['scrollPosition', 'y']) || 0;
+    window.scrollTo(xPos, yPos);
+
     this.props.loadRootFolder();
   }
 
   componentWillUnmount() {
+    this.props.storeScrollPosition({
+      x: window.scrollX,
+      y: window.scrollY,
+    });
+
+    // TODO: I added this because switching to the stats view was maintaining the scroll
+    // TODO: position of this component
+    // TODO: Might be better to do something as shown here:
+    // TODO: https://github.com/ReactTraining/react-router/issues/2144#issuecomment-150939358
+    window.scrollTo(0, 0);
+
     this.props.dismissError('fileLoader-global');
   }
 
