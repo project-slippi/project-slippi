@@ -102,6 +102,17 @@
   color: rgba(255, 255, 255, 0.6) !important;
 }
 
+.highlight-text {
+  color: $primary-red;
+  font-weight: bolder;
+  font-size: 1.2em;
+}
+
+.stat-display {
+  display: flex;
+  align-items: center;
+}
+
 .stats-table {
   margin: 0 !important;
   box-shadow: 3px 3px 2px rgba(0, 0, 0, 0.1) !important;

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Table, Icon, Sticky, Header, Button, Segment } from 'semantic-ui-react';
@@ -24,7 +25,7 @@ export default class FileLoader extends Component {
     // store data
     history: object,
     store: object,
-    errors: object
+    errors: object,
   };
 
   refPrimary: {};
@@ -144,11 +145,12 @@ export default class FileLoader extends Component {
     let files = store.files || [];
 
     // Filter out files that were shorter than 30 seconds
-    //files = files.filter(file => {
-    //  const gameInfo = file.gameInfo || {};
-    //  const totalFrames = gameInfo.totalFrames || 0;
-    //  return totalFrames > 30 * 60;
-    //});
+    // TODO: Support filtering by duration
+    // files = files.filter(file => {
+    //   const gameInfo = file.gameInfo || {};
+    //   const totalFrames = gameInfo.totalFrames || 0;
+    //   return totalFrames > (30 * 60);
+    // });
 
     // If we have no files to display, render an empty state
     if (!files.length) {

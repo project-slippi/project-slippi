@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, { Component } from 'react';
 import { Table, Icon } from 'semantic-ui-react';
 
@@ -20,8 +21,8 @@ export default class StocksTable extends Component {
     let start = timeUtils.convertFrameCountToDurationString(stock.startFrame);
     let end = <span className={styles['secondary-text']}>–</span>;
 
-    let killedBy = <span className={styles['secondary-text']}>-</span>;
-    let killedDirection = <span className={styles['secondary-text']}>-</span>;
+    let killedBy = <span className={styles['secondary-text']}>–</span>;
+    let killedDirection = <span className={styles['secondary-text']}>–</span>;
 
     const percent = `${Math.trunc(stock.currentPercent)}%`;
 
@@ -63,7 +64,7 @@ export default class StocksTable extends Component {
     const punishThatEndedStock = killingPunishesByEndFrame[stock.endFrame];
 
     if (!punishThatEndedStock) {
-      return <span className={styles['secondary-text']}>SD</span>;
+      return <span className={styles['secondary-text']}>Self Destruct</span>;
     }
 
     return moveUtils.getMoveName(punishThatEndedStock.lastMove);
@@ -97,8 +98,8 @@ export default class StocksTable extends Component {
       <Table.Row>
         <Table.HeaderCell>Start</Table.HeaderCell>
         <Table.HeaderCell>End</Table.HeaderCell>
-        <Table.HeaderCell>Killed By</Table.HeaderCell>
-        <Table.HeaderCell>Killed Direction</Table.HeaderCell>
+        <Table.HeaderCell>Death By</Table.HeaderCell>
+        <Table.HeaderCell>Death Direction</Table.HeaderCell>
         <Table.HeaderCell>Percent</Table.HeaderCell>
       </Table.Row>
     );

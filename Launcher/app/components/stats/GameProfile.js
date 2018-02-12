@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import _ from 'lodash';
-import { Header, Segment, Table, Sticky, Image, Icon } from 'semantic-ui-react';
+import { Header, Segment, Sticky, Image, Icon } from 'semantic-ui-react';
 
 import PageHeader from '../common/PageHeader';
+import OverallTable from './OverallTable';
 import StocksTable from './StocksTable';
 import PunishesTable from './PunishesTable';
 
@@ -16,13 +17,13 @@ import * as timeUtils from '../../utils/time';
 export default class GameProfile extends Component {
   props: {
     history: object,
-    store: object
+    store: object,
   };
 
   refStats: {};
 
   state = {
-    isStatsStuck: false
+    isStatsStuck: false,
   };
 
   setRefStats = element => {
@@ -102,23 +103,23 @@ export default class GameProfile extends Component {
     const startAtDisplay = timeUtils.convertToDateAndTime(startAt);
 
     const gameDetailsClasses = classNames({
-      [styles['game-details']]: true
+      [styles['game-details']]: true,
     });
 
     const metadata = [
       {
         label: "Stage",
-        content: stageName
+        content: stageName,
       }, {
         label: "Duration",
-        content: durationDisplay
+        content: durationDisplay,
       }, {
         label: "Time",
-        content: startAtDisplay
+        content: startAtDisplay,
       }, {
         label: "Platform",
-        content: platform
-      }
+        content: platform,
+      },
     ];
 
     const metadataElements = metadata.map((details) => (
@@ -143,18 +144,18 @@ export default class GameProfile extends Component {
   renderStats() {
     const handleStick = () => {
       this.setState({
-        isStatsStuck: true
+        isStatsStuck: true,
       });
     };
 
     const handleUnstick = () => {
       this.setState({
-        isStatsStuck: false
+        isStatsStuck: false,
       });
     };
 
     const statsSectionClasses = classNames({
-      [styles['stuck']]: this.state.isStatsStuck
+      [styles['stuck']]: this.state.isStatsStuck,
     }, styles['stats-section']);
 
     return (
@@ -171,76 +172,10 @@ export default class GameProfile extends Component {
           </div>
         </Sticky>
         <div ref={this.setRefStats} className={statsSectionClasses}>
-          {this.renderHighlights()}
+          {this.renderOverall()}
           {this.renderStocks()}
           {this.renderPunishes()}
         </div>
-      </Segment>
-    );
-  }
-
-  renderHighlights() {
-    return (
-      <Segment basic={true}>
-        <Header className={styles['section-header']} inverted={true} as="h2">
-          Overall
-        </Header>
-        <Table
-          className={styles['stats-table']}
-          celled={true}
-          inverted={true}
-          selectable={true}
-        >
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell />
-              <Table.HeaderCell>{this.renderPlayerColHeader(true)}</Table.HeaderCell>
-              <Table.HeaderCell>{this.renderPlayerColHeader(false)}</Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-
-          <Table.Body>
-            <Table.Row>
-              <Table.Cell className={styles['category']} colSpan={3}>Offense</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell className={styles['sub-header']}>Openings / Kill</Table.Cell>
-              <Table.Cell>4.5</Table.Cell>
-              <Table.Cell>5.6</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell className={styles['sub-header']}>Damage / Opening</Table.Cell>
-              <Table.Cell>12.3</Table.Cell>
-              <Table.Cell>10.9</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell className={styles['category']} colSpan={3}>Defense</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell className={styles['sub-header']}>Recovery Ratio</Table.Cell>
-              <Table.Cell>5 / 10</Table.Cell>
-              <Table.Cell>8 / 8</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell className={styles['sub-header']}>Counter-Attack Count</Table.Cell>
-              <Table.Cell>4</Table.Cell>
-              <Table.Cell>0</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell className={styles['category']} colSpan={3}>Neutral</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell className={styles['sub-header']}>Neutral Win %</Table.Cell>
-              <Table.Cell>42.4%</Table.Cell>
-              <Table.Cell>57.6%</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell className={styles['sub-header']}>Center Stage Control</Table.Cell>
-              <Table.Cell>60.0%</Table.Cell>
-              <Table.Cell>40.0%</Table.Cell>
-            </Table.Row>
-          </Table.Body>
-        </Table>
       </Segment>
     );
   }
@@ -266,6 +201,23 @@ export default class GameProfile extends Component {
           Player {player.port}
         </div>
       </div>
+    );
+  }
+
+  renderOverall() {
+    return (
+      <Segment basic={true}>
+        <Header className={styles['section-header']} inverted={true} as="h2">
+          Overall
+        </Header>
+        <OverallTable
+          game={this.props.store.game}
+          player1Display={this.renderPlayerColHeader(true)}
+          player1Index={this.getPlayerIndex(true)}
+          player2Display={this.renderPlayerColHeader(false)}
+          player2Index={this.getPlayerIndex(false)}
+        />
+      </Segment>
     );
   }
 

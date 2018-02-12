@@ -4,8 +4,6 @@ import { Table } from 'semantic-ui-react';
 
 import styles from './GameProfile.scss';
 
-import * as moveUtils from '../../utils/moves';
-import * as animationUtils from '../../utils/animations';
 import * as timeUtils from '../../utils/time';
 
 export default class EdgeguardsTable extends Component {

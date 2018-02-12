@@ -38,6 +38,7 @@ export default class PunishesTable extends Component {
         <Table.Cell collapsing={true}>{damage}</Table.Cell>
         <Table.Cell className={styles['attach-to-left-cell']}>{damageRange}</Table.Cell>
         <Table.Cell>{punish.moveCount}</Table.Cell>
+        {/* <Table.Cell>{punish.openingType}</Table.Cell> */}
         <Table.Cell collapsing={true} textAlign="center">{killed}</Table.Cell>
       </Table.Row>
     );
@@ -63,7 +64,7 @@ export default class PunishesTable extends Component {
 
     const stockIcons = _.range(1, totalStocks + 1).map((stockNum) => {
       const imgClasses = classNames({
-        [styles['lost-stock']]: stockNum > currentStocks
+        [styles['lost-stock']]: stockNum > currentStocks,
       });
 
       return (

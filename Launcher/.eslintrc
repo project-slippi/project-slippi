@@ -14,7 +14,7 @@
     "class-methods-use-this": "off",
     "compat/compat": "error",
     "consistent-return": "off",
-    "comma-dangle": "off",
+    "comma-dangle": ["error", "always-multiline"],
     "dot-notation": "off",
     "flowtype-errors/show-errors": "error",
     "generator-star-spacing": "off",
