@@ -103,14 +103,35 @@
 }
 
 .highlight-text {
-  color: $primary-red;
+  color: $primary-yellow;
   font-weight: bolder;
   font-size: 1.2em;
 }
 
-.stat-display {
-  display: flex;
-  align-items: center;
+.stat-cell {
+  display: grid;
+  grid-auto-flow: column;
+  align-items: end;
+  justify-items: start;
+  justify-content: start;
+  grid-gap: 24px;
+
+  .stat-entry {
+    display: grid;
+    grid-template-rows: auto auto;
+    justify-items: center;
+
+    .content {
+      display: grid;
+      grid-auto-flow: column;
+      grid-gap: 6px;
+    }
+
+    .label {
+      color: rgba(255, 255, 255, 0.5) !important;
+      font-weight: bold;
+    }
+  }
 }
 
 .stats-table {
