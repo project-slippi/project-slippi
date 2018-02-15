@@ -38,37 +38,11 @@ export default class OverallTable extends Component {
         [styles['highlight-text']]: count > oppCount,
       });
 
-      const playerPunishes = firstPlayer ? player1Punishes : player2Punishes;
-      const mostCommonMove = _.chain(playerPunishes)
-        .groupBy((punish) => punish.openingMove)
-        .orderBy([(punishesByMove) => punishesByMove.length], ['desc'])
-        .flatten()
-        .map((punish) => punish.openingMove)
-        .first()
-        .value();
-
-      const moveName = moveUtils.getMoveName(mostCommonMove) || "N/A";
-
       return (
-        <div className={styles['stat-cell']}>
-          <div className={styles['stat-entry']}>
-            <div className={styles['content']}>
-              <div className={countClasses}>{count}</div>
-              <div className={styles['secondary-text']}>
-                ({numberUtils.formatPercent(ratio, 0)})
-              </div>
-            </div>
-            <div className={styles['label']}>
-              Count
-            </div>
-          </div>
-          <div className={styles['stat-entry']}>
-            <div className={styles['content']}>
-              {moveName}
-            </div>
-            <div className={styles['label']}>
-              Opener
-            </div>
+        <div className={styles['stat-with-sub-value']}>
+          <div className={countClasses}>{count}</div>
+          <div className={styles['secondary-text']}>
+            ({numberUtils.formatPercent(ratio, 0)})
           </div>
         </div>
       );

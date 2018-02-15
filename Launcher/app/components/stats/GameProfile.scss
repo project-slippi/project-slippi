@@ -108,30 +108,11 @@
   font-size: 1.2em;
 }
 
-.stat-cell {
+.stat-with-sub-value {
   display: grid;
-  grid-auto-flow: column;
-  align-items: end;
-  justify-items: start;
   justify-content: start;
-  grid-gap: 24px;
-
-  .stat-entry {
-    display: grid;
-    grid-template-rows: auto auto;
-    justify-items: center;
-
-    .content {
-      display: grid;
-      grid-auto-flow: column;
-      grid-gap: 6px;
-    }
-
-    .label {
-      color: rgba(255, 255, 255, 0.5) !important;
-      font-weight: bold;
-    }
-  }
+  grid-auto-flow: column;
+  grid-gap: 6px;
 }
 
 .stats-table {

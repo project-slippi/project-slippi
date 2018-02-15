@@ -23,7 +23,7 @@ export default class PunishesTable extends Component {
     let end = <span className={styles['secondary-text']}>–</span>;
     const damage = this.renderDamageCell(punish);
     const damageRange = this.renderDamageRangeCell(punish);
-    const killed = this.renderKilledCell(punish);
+    const openingType = this.renderOpeningTypeCell(punish);
 
     if (punish.endFrame) {
       end = timeUtils.convertFrameCountToDurationString(punish.endFrame);
@@ -38,8 +38,7 @@ export default class PunishesTable extends Component {
         <Table.Cell collapsing={true}>{damage}</Table.Cell>
         <Table.Cell className={styles['attach-to-left-cell']}>{damageRange}</Table.Cell>
         <Table.Cell>{punish.moveCount}</Table.Cell>
-        {/* <Table.Cell>{punish.openingType}</Table.Cell> */}
-        <Table.Cell collapsing={true} textAlign="center">{killed}</Table.Cell>
+        <Table.Cell collapsing={true}>{openingType}</Table.Cell>
       </Table.Row>
     );
   };
@@ -130,18 +129,17 @@ export default class PunishesTable extends Component {
     );
   }
 
-  renderKilledCell(punish) {
-    if (!punish.didKill) {
-      return null;
-    }
+  renderOpeningTypeCell(punish) {
+    const textTranslation = {
+      'counter-attack': "Reversal",
+      'neutral-win': "Neutral",
+      'trade': "Trade",
+    };
 
     return (
-      <Icon
-        name="theme"
-        color="red"
-        inverted={true}
-        size="large"
-      />
+      <div className={styles['secondary-text']}>
+        {textTranslation[punish.openingType]}
+      </div>
     );
   }
 
@@ -162,8 +160,8 @@ export default class PunishesTable extends Component {
         <Table.HeaderCell>Start</Table.HeaderCell>
         <Table.HeaderCell>End</Table.HeaderCell>
         <Table.HeaderCell colSpan={2}>Damage</Table.HeaderCell>
-        <Table.HeaderCell>Move Count</Table.HeaderCell>
-        <Table.HeaderCell>Finisher</Table.HeaderCell>
+        <Table.HeaderCell>Moves</Table.HeaderCell>
+        <Table.HeaderCell>Type</Table.HeaderCell>
       </Table.Row>
     );
   }
