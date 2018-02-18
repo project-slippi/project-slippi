@@ -5,7 +5,7 @@ import { Header, Segment, Sticky, Image, Icon } from 'semantic-ui-react';
 
 import PageHeader from '../common/PageHeader';
 import OverallTable from './OverallTable';
-import StocksTable from './StocksTable';
+import KillsTable from './KillsTable';
 import PunishesTable from './PunishesTable';
 
 import styles from './GameProfile.scss';
@@ -225,15 +225,15 @@ export default class GameProfile extends Component {
     return (
       <Segment basic={true}>
         <Header className={styles['section-header']} inverted={true} as="h2">
-          Stocks
+          Kills
         </Header>
         <div className={styles['two-column-main']}>
-          <StocksTable
+          <KillsTable
             game={this.props.store.game}
             playerDisplay={this.renderPlayerColHeader(true)}
             playerIndex={this.getPlayerIndex(true)}
           />
-          <StocksTable
+          <KillsTable
             game={this.props.store.game}
             playerDisplay={this.renderPlayerColHeader(false)}
             playerIndex={this.getPlayerIndex(false)}
