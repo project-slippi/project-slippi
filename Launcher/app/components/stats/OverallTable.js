@@ -167,6 +167,32 @@ export default class OverallTable extends Component {
     );
   }
 
+  renderStandardStatField(header, arrPath, fieldPath) {
+    const stats = this.props.game.getStats() || {};
+    const arr = _.get(stats, arrPath) || [];
+    const itemsByPlayer = _.groupBy(arr, 'playerIndex');
+
+    const player1Items = itemsByPlayer[this.props.player1Index] || [];
+    const player2Items = itemsByPlayer[this.props.player2Index] || [];
+
+    const player1Item = _.first(player1Items) || {};
+    const player2Item = _.first(player2Items) || {};
+
+    const displayRenderer = (firstPlayer) => {
+      const item = firstPlayer ? player1Item : player2Item;
+      return _.get(item, fieldPath);
+    };
+
+    const key = `standard-field-${header.toLowerCase()}`;
+    return (
+      <Table.Row key={key}>
+        <Table.Cell className={styles['sub-header']}>{header}</Table.Cell>
+        <Table.Cell>{displayRenderer(true)}</Table.Cell>
+        <Table.Cell>{displayRenderer(false)}</Table.Cell>
+      </Table.Row>
+    );
+  }
+
   renderOffenseSection() {
     return [
       <Table.Row key="offense-header">
@@ -183,6 +209,9 @@ export default class OverallTable extends Component {
         <Table.Cell className={styles['category']} colSpan={columnCount}>Defense</Table.Cell>
       </Table.Row>,
       this.renderCounterAttackWinsRow(),
+      this.renderStandardStatField("Roll Count", ['actionCounts'], ['rollCount']),
+      this.renderStandardStatField("Air Dodge Count", ['actionCounts'], ['airDodgeCount']),
+      this.renderStandardStatField("Spot Dodge Count", ['actionCounts'], ['spotDodgeCount']),
     ];
   }
 
@@ -192,6 +221,9 @@ export default class OverallTable extends Component {
         <Table.Cell className={styles['category']} colSpan={columnCount}>Neutral</Table.Cell>
       </Table.Row>,
       this.renderNeutralWinsRow(),
+      this.renderStandardStatField("Wavedash Count", ['actionCounts'], ['wavedashCount']),
+      this.renderStandardStatField("Waveland Count", ['actionCounts'], ['wavelandCount']),
+      this.renderStandardStatField("Dash Dance Count", ['actionCounts'], ['dashDanceCount']),
     ];
   }
 
