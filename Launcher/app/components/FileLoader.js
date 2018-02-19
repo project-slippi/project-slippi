@@ -145,12 +145,18 @@ export default class FileLoader extends Component {
     let files = store.files || [];
 
     // Filter out files that were shorter than 30 seconds
-    // TODO: Support filtering by duration
-    // files = files.filter(file => {
-    //   const gameInfo = file.gameInfo || {};
-    //   const totalFrames = gameInfo.totalFrames || 0;
-    //   return totalFrames > (30 * 60);
-    // });
+    files = files.filter(file => {
+      const settings = file.game.getSettings() || {};
+      if (!settings.stageId) {
+        // I know that right now if you play games from debug mode it make some
+        // weird replay files... this should filter those out
+        return false;
+      }
+
+      const metadata = file.game.getMetadata() || {};
+      const totalFrames = metadata.lastFrame || (30 * 60) + 1;
+      return totalFrames > (30 * 60);
+    });
 
     // If we have no files to display, render an empty state
     if (!files.length) {

@@ -97,19 +97,22 @@ function changeFolderSelection(state, action) {
   files = files.map((file) => {
     const fullPath = path.join(folderPath, file);
     const game = new SlippiGame(fullPath);
-    const settings = game.getSettings();
+
+    // Pre-load settings here
+    game.getSettings();
+    game.getMetadata();
+
     return {
       fullPath: fullPath,
       fileName: file,
-      gameSettings: settings,
-      game: game
+      game: game,
     };
   });
 
   return {
     ...state,
     selectedFolderFullPath: folderPath,
-    files: files
+    files: files,
   };
 }
 

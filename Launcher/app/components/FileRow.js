@@ -101,7 +101,7 @@ export default class FileRow extends Component {
   generateCharacterCell() {
     const file = this.props.file || {};
 
-    const settings = file.gameSettings || {};
+    const settings = file.game.getSettings() || {};
 
     return (
       <Table.Cell singleLine={true}>
@@ -113,7 +113,7 @@ export default class FileRow extends Component {
   generateStageCell() {
     const file = this.props.file || {};
 
-    const settings = file.gameSettings || {};
+    const settings = file.game.getSettings() || {};
     const stageId = settings.stageId;
     const stageName = stageUtils.getStageName(stageId) || "Unknown";
 
@@ -127,7 +127,7 @@ export default class FileRow extends Component {
   generateStartTimeCell() {
     const file = this.props.file || {};
 
-    const metadata = file.game.getMetadata();
+    const metadata = file.game.getMetadata() || {};
     const startAt = metadata.startAt;
     const startAtDisplay = timeUtils.convertToDateAndTime(startAt) || "Unknown";
 
