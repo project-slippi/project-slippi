@@ -180,7 +180,12 @@ export default class OverallTable extends Component {
 
     const displayRenderer = (firstPlayer) => {
       const item = firstPlayer ? player1Item : player2Item;
-      return _.get(item, fieldPath);
+      const value = _.get(item, fieldPath);
+      return (
+        <div className={styles['secondary-text']}>
+          {value}
+        </div>
+      );
     };
 
     const key = `standard-field-${header.toLowerCase()}`;

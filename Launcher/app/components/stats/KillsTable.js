@@ -99,7 +99,7 @@ export default class KillsTable extends Component {
         <Table.HeaderCell>Start</Table.HeaderCell>
         <Table.HeaderCell>End</Table.HeaderCell>
         <Table.HeaderCell>Kill Move</Table.HeaderCell>
-        <Table.HeaderCell>Kill Direction</Table.HeaderCell>
+        <Table.HeaderCell>Direction</Table.HeaderCell>
         <Table.HeaderCell>Percent</Table.HeaderCell>
       </Table.Row>
     );
