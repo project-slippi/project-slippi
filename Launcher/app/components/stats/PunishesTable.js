@@ -161,7 +161,7 @@ export default class PunishesTable extends Component {
         <Table.HeaderCell>End</Table.HeaderCell>
         <Table.HeaderCell colSpan={2}>Damage</Table.HeaderCell>
         <Table.HeaderCell>Moves</Table.HeaderCell>
-        <Table.HeaderCell>Type</Table.HeaderCell>
+        <Table.HeaderCell>Opening</Table.HeaderCell>
       </Table.Row>
     );
   }
