@@ -12,7 +12,7 @@ export const STORE_SCROLL_POSITION = 'STORE_SCROLL_POSITION';
 export function loadRootFolder() {
   return {
     type: LOAD_ROOT_FOLDER,
-    payload: {}
+    payload: {},
   };
 }
 
@@ -20,8 +20,8 @@ export function changeFolderSelection(folder) {
   return {
     type: CHANGE_FOLDER_SELECTION,
     payload: {
-      folderPath: folder
-    }
+      folderPath: folder,
+    },
   };
 }
 
@@ -29,8 +29,8 @@ export function storeScrollPosition(position) {
   return {
     type: STORE_SCROLL_POSITION,
     payload: {
-      position: position
-    }
+      position: position,
+    },
   };
 }
 
@@ -80,7 +80,7 @@ export function playFile(file) {
       commands = [
         `cp "${filePath}" "${destinationFile}"`,
         `cd "${dolphinPath}"`,
-        `open "Dolphin.app" --args -b -e "${meleeFile}"`
+        `open "Dolphin.app" --args -b -e "${meleeFile}"`,
       ];
 
       // Join the commands with && which will execute the commands in sequence
@@ -99,7 +99,7 @@ export function playFile(file) {
       commands = [
         `copy "${filePath}" "${destinationFile}"`,
         `cd "${dolphinPath}"`,
-        `Dolphin.exe /b /e "${meleeFile}"`
+        `Dolphin.exe /b /e "${meleeFile}"`,
       ];
 
       // Join the commands with && which will execute the commands in sequence
