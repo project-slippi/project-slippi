@@ -1,6 +1,6 @@
 @import "../../colors.global";
 
-$header-height: 142px;
+$header-height: 97px;
 
 .stats-player-header {
   background: $background-lightest !important;
@@ -10,7 +10,7 @@ $header-height: 142px;
 
   .matchup-display {
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: auto auto auto 1fr;
     align-items: center;
 
     .player-display {
@@ -21,14 +21,14 @@ $header-height: 142px;
       justify-content: flex-end;
       align-items: center;
 
-      justify-self: right;
+      justify-self: end;
 
       &.second {
         justify-content: flex-start;
         align-items: center;
         flex-direction: row-reverse;
 
-        justify-self: left;
+        justify-self: start;
       }
 
       h2 {
@@ -36,18 +36,23 @@ $header-height: 142px;
         margin-top: 0;
       }
     }
+
+    .play-button {
+      justify-self: end;
+      margin-right: 14px;
+    }
   }
 
   .game-details {
     margin: 0 !important;
-    padding-top: 0 !important;
+    padding: 0 0 14px 0 !important;
 
     display: flex;
-    justify-content: center;
+    justify-content: start;
     flex-wrap: wrap;
 
     div {
-      padding: 0 12px 0 12px;
+      padding: 0 14px 0 14px;
     }
 
     div:not(:last-child) {
@@ -66,11 +71,6 @@ $header-height: 142px;
       color: rgba(255, 255, 255, 0.8);
       text-transform: capitalize;
     }
-  }
-
-  .launch-replay-section {
-    margin: 0 !important;
-    padding-top: 0 !important;
   }
 
   .character-image {

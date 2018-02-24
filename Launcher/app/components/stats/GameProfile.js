@@ -65,6 +65,7 @@ export default class GameProfile extends Component {
         {this.renderPlayerDisplay(0)}
         <span className={styles['vs-element']}>vs</span>
         {this.renderPlayerDisplay(1)}
+        {this.renderPlayButton()}
       </div>
     );
   }
@@ -143,7 +144,6 @@ export default class GameProfile extends Component {
     return (
       <Segment
         className={gameDetailsClasses}
-        textAlign="center"
         basic={true}
       >
         {metadataElements}
@@ -153,22 +153,17 @@ export default class GameProfile extends Component {
 
   renderPlayButton() {
     return (
-      <Segment
-        className={styles['launch-replay-section']}
-        textAlign="center"
+      <Button
+        className={styles['play-button']}
+        content='Launch Replay'
+        circular={true}
+        color="grey"
         basic={true}
-      >
-        <Button
-          content='Launch Replay'
-          circular={true}
-          color="grey"
-          basic={true}
-          inverted={true}
-          size="tiny"
-          icon="play"
-          onClick={this.playFile}
-        />
-      </Segment>
+        inverted={true}
+        size="tiny"
+        icon="play"
+        onClick={this.playFile}
+      />
     );
   }
 
@@ -200,7 +195,6 @@ export default class GameProfile extends Component {
           <div className={styles['stats-player-header']}>
             {this.renderMatchupDisplay()}
             {this.renderGameDetails()}
-            {this.renderPlayButton()}
           </div>
         </Sticky>
         <div ref={this.setRefStats} className={statsSectionClasses}>
