@@ -1,5 +1,7 @@
 @import "../../colors.global";
 
+$header-height: 142px;
+
 .stats-player-header {
   background: $background-lightest !important;
   box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
@@ -66,6 +68,11 @@
     }
   }
 
+  .launch-replay-section {
+    margin: 0 !important;
+    padding-top: 0 !important;
+  }
+
   .character-image {
     height: 36px !important;
     width: 36px !important;
@@ -81,7 +88,7 @@
   padding-top: 28px;
 
   &.stuck {
-    margin-top: 97px !important;
+    margin-top: $header-height !important;
   }
 }
 

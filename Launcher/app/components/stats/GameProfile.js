@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import _ from 'lodash';
-import { Header, Segment, Sticky, Image, Icon } from 'semantic-ui-react';
+import { Header, Segment, Sticky, Image, Icon, Button } from 'semantic-ui-react';
 
 import PageHeader from '../common/PageHeader';
 import OverallTable from './OverallTable';
@@ -18,6 +18,7 @@ export default class GameProfile extends Component {
   props: {
     history: object,
     store: object,
+    playFile: (file) => void,
   };
 
   refStats: {};
@@ -28,6 +29,15 @@ export default class GameProfile extends Component {
 
   setRefStats = element => {
     this.refStats = element;
+  };
+
+  playFile = () => {
+    const filePath = _.get(this.props.store, ['game', 'filePath']);
+
+    // Play the file
+    this.props.playFile({
+      fullPath: filePath,
+    });
   };
 
   renderContent() {
@@ -141,6 +151,27 @@ export default class GameProfile extends Component {
     );
   }
 
+  renderPlayButton() {
+    return (
+      <Segment
+        className={styles['launch-replay-section']}
+        textAlign="center"
+        basic={true}
+      >
+        <Button
+          content='Launch Replay'
+          circular={true}
+          color="grey"
+          basic={true}
+          inverted={true}
+          size="tiny"
+          icon="play"
+          onClick={this.playFile}
+        />
+      </Segment>
+    );
+  }
+
   renderStats() {
     const handleStick = () => {
       this.setState({
@@ -169,6 +200,7 @@ export default class GameProfile extends Component {
           <div className={styles['stats-player-header']}>
             {this.renderMatchupDisplay()}
             {this.renderGameDetails()}
+            {this.renderPlayButton()}
           </div>
         </Sticky>
         <div ref={this.setRefStats} className={statsSectionClasses}>

@@ -10,7 +10,7 @@ const _ = require('lodash');
 function mapStateToProps(state) {
   return {
     store: state.fileLoader,
-    errors: state.errors
+    errors: state.errors,
   };
 }
 
