@@ -1,5 +1,5 @@
 const { execSync } = require('child_process');
-const { existsSync } = require('fs');
+const fs = require('fs-extra');
 const path = require('path');
 
 // Check if the renderer and main bundles are built
@@ -8,29 +8,25 @@ function CopyDolphin() {
 
   const targetFolder = "./app/dolphin";
 
-  // TODO: Create empty Slippi folder
-  // TODO: Clear out cache and overwrite user folder
-  let command;
   switch (platform) {
   case "darwin":
     console.log("Copying the mac build of dolphin to package");
-    command = getMacCommand(targetFolder);
+    copyForMac(targetFolder);
     break;
   case "win32":
     console.log("Copying the windows build of dolphin to package");
-    command = getWindowsCommand(targetFolder);
+    copyForWindows(targetFolder);
     break;
   default:
     throw new Error("Platform not yet supported.");
   }
 
-  execSync(command);
   console.log("Finished copying dolphin build!");
 }
 
-function getMacCommand(targetFolder) {
+function copyForMac(targetFolder) {
   const dolphinSource = "./app/dolphin-dev/osx/Dolphin.app";
-  if (!existsSync(dolphinSource)) {
+  if (!fs.existsSync(dolphinSource)) {
     throw new Error("Must have a Dolphin.app application in dolphin-dev/osx folder.");
   }
 
@@ -52,13 +48,14 @@ function getMacCommand(targetFolder) {
     `mkdir "${dolphinDestSlippiFolder}"`,
   ];
 
-  return commands.join(' && ');
+  const command = commands.join(' && ');
+  execSync(command);
 }
 
-function getWindowsCommand(targetFolder) {
+function copyForWindows(targetFolder) {
   const sourceFolder = "./app/dolphin-dev/windows";
   const dolphinSource = "./app/dolphin-dev/windows/Dolphin.exe";
-  if (!existsSync(dolphinSource)) {
+  if (!fs.existsSync(dolphinSource)) {
     throw new Error("Must have a Dolphin.exe file in dolphin-dev/windows folder.");
   }
 
@@ -69,16 +66,14 @@ function getWindowsCommand(targetFolder) {
   const overwriteUserFolder = "./app/dolphin-dev/overwrite/User";
   const overwriteSysFolder = "./app/dolphin-dev/overwrite/Sys";
 
-  const commands = [
-    `rmdir "${targetFolder}" /Q /S`,
-    `mkdir "${targetFolder}"`,
-    `robocopy "${sourceFolder}" "${targetFolder}"`,
-    `robocopy "${overwriteUserFolder}" "${dolphinDestUserFolder}" /E`,
-    `robocopy "${overwriteSysFolder}" "${dolphinDestSysFolder}" /E`,
-    `mkdir "${dolphinDestSlippiFolder}"`,
-  ];
-
-  return commands.join(' && ');
+  fs.removeSync(targetFolder);
+  fs.mkdirSync(targetFolder);
+  fs.copySync(sourceFolder, targetFolder);
+  fs.removeSync(dolphinDestUserFolder);
+  fs.copySync(overwriteUserFolder, dolphinDestUserFolder);
+  fs.copySync(overwriteSysFolder, dolphinDestSysFolder);
+  fs.removeSync(dolphinDestSlippiFolder);
+  fs.mkdirSync(dolphinDestSlippiFolder);
 }
 
 CopyDolphin();
