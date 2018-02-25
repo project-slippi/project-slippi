@@ -1,6 +1,7 @@
 import { exec } from 'child_process';
 import { displayError } from './error';
 
+const fs = require('fs-extra');
 const path = require('path');
 const { app } = require('electron').remote;
 const electronSettings = require('electron-settings');
@@ -113,6 +114,9 @@ export function playFile(file) {
       dispatch(error);
       break;
     }
+
+    // Ensure the target Slippi folder exists
+    fs.ensureDirSync(slippiPath);
 
     exec(command, (error) => {
       // Apparently this callback happens before dolphin exits...

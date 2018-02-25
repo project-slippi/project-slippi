@@ -30,8 +30,8 @@ export default class Home extends Component {
 
     navigationElements.push(this.generateNav(
       "disk outline",
-      "Replay Loader",
-      "Play replays from files on your computer",
+      "Replay Browser",
+      "Play and view replay files on your computer",
       "/files",
       false
     ));

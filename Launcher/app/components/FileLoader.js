@@ -207,7 +207,7 @@ export default class FileLoader extends Component {
   renderMain() {
     return (
       <div className="main-padding">
-        <PageHeader icon="disk outline" text="Replay Loader" history={this.props.history} />
+        <PageHeader icon="disk outline" text="Replay Browser" history={this.props.history} />
         {this.renderGlobalError()}
         {this.renderFileSelection()}
       </div>

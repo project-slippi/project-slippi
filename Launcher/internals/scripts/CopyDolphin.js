@@ -66,14 +66,12 @@ function copyForWindows(targetFolder) {
   const overwriteUserFolder = "./app/dolphin-dev/overwrite/User";
   const overwriteSysFolder = "./app/dolphin-dev/overwrite/Sys";
 
-  fs.removeSync(targetFolder);
-  fs.mkdirSync(targetFolder);
+  fs.emptyDirSync(targetFolder);
   fs.copySync(sourceFolder, targetFolder);
   fs.removeSync(dolphinDestUserFolder);
   fs.copySync(overwriteUserFolder, dolphinDestUserFolder);
   fs.copySync(overwriteSysFolder, dolphinDestSysFolder);
-  fs.removeSync(dolphinDestSlippiFolder);
-  fs.mkdirSync(dolphinDestSlippiFolder);
+  fs.emptyDirSync(dolphinDestSlippiFolder);
 }
 
 CopyDolphin();
