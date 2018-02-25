@@ -56,12 +56,12 @@ function getMacCommand(targetFolder) {
 }
 
 function getWindowsCommand(targetFolder) {
+  const sourceFolder = "./app/dolphin-dev/windows";
   const dolphinSource = "./app/dolphin-dev/windows/Dolphin.exe";
   if (!existsSync(dolphinSource)) {
     throw new Error("Must have a Dolphin.exe file in dolphin-dev/windows folder.");
   }
 
-  const dolphinDest = path.join(targetFolder, 'Dolphin.exe');
   const dolphinDestUserFolder = path.join(targetFolder, 'User');
   const dolphinDestSysFolder = path.join(targetFolder, 'Sys');
   const dolphinDestSlippiFolder = path.join(targetFolder, 'Slippi');
@@ -70,10 +70,9 @@ function getWindowsCommand(targetFolder) {
   const overwriteSysFolder = "./app/dolphin-dev/overwrite/Sys";
 
   const commands = [
-    `del "${targetFolder}"`,
+    `rmdir "${targetFolder}" /Q /S`,
     `mkdir "${targetFolder}"`,
-    `robocopy "${dolphinSource}" "${dolphinDest}"`,
-    `del "${dolphinDestUserFolder}"`,
+    `robocopy "${sourceFolder}" "${targetFolder}"`,
     `robocopy "${overwriteUserFolder}" "${dolphinDestUserFolder}" /E`,
     `robocopy "${overwriteSysFolder}" "${dolphinDestSysFolder}" /E`,
     `mkdir "${dolphinDestSlippiFolder}"`,
