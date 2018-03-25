@@ -112,6 +112,9 @@ bl sendByteExi
 lbz r3, 0x8E(r8) # load stocks remaining
 bl sendByteExi
 
+lwz r3, 0x8F4(r29) # load action state frame counter
+bl sendWordExi
+
 bl endExiTransfer #stop transfer
 
 CLEANUP:
