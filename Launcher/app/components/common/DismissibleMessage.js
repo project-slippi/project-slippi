@@ -24,7 +24,7 @@ export default class DismissibleMessage extends Component {
 
   setRefMessage = element => {
     this.refMessage = element;
-  }
+  };
 
   dismiss = () => {
     // This will take the dismiss params and pass them to the onDismiss function
