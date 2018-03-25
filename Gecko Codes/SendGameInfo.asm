@@ -46,7 +46,7 @@ bl sendHalfExi
 # post-frame update command
 li r3, 0x38
 bl sendByteExi
-li r3, 33
+li r3, 37
 bl sendHalfExi
 
 # game end command
@@ -67,7 +67,7 @@ bl sendByteExi
 # indicates breaking changes/loss of backwards compatibility. A change
 # to minor indicates a pretty major change like added fields or new
 # events. Build/Revision can be incremented for smaller changes
-lis r3, 0x0001
+lis r3, 0x0002
 addi r3, r3, 0x0000
 bl sendWordExi
 
