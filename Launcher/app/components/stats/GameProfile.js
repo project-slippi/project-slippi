@@ -105,7 +105,7 @@ export default class GameProfile extends Component {
     const gameSettings = _.get(this.props.store, ['game', 'settings']) || {};
     const stageName = stageUtils.getStageName(gameSettings.stageId) || "Unknown";
 
-    const duration = _.get(this.props.store, ['game', 'stats', 'gameDuration']) || 0;
+    const duration = _.get(this.props.store, ['game', 'stats', 'lastFrame']) || 0;
     const durationDisplay = timeUtils.convertFrameCountToDurationString(duration);
 
     const platform = _.get(this.props.store, ['game', 'metadata', 'playedOn']) || "Unknown";
@@ -273,7 +273,7 @@ export default class GameProfile extends Component {
     return (
       <Segment basic={true}>
         <Header className={styles['section-header']} inverted={true} as="h2">
-          Punishes
+          Openings & Conversions
         </Header>
         <div className={styles['two-column-main']}>
           <PunishesTable

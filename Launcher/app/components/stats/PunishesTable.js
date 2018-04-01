@@ -37,7 +37,7 @@ export default class PunishesTable extends Component {
         <Table.Cell className={secondaryTextStyle} collapsing={true}>{end}</Table.Cell>
         <Table.Cell collapsing={true}>{damage}</Table.Cell>
         <Table.Cell className={styles['attach-to-left-cell']}>{damageRange}</Table.Cell>
-        <Table.Cell>{punish.moveCount}</Table.Cell>
+        <Table.Cell>{punish.moves.length}</Table.Cell>
         <Table.Cell collapsing={true}>{openingType}</Table.Cell>
       </Table.Row>
     );
@@ -131,7 +131,7 @@ export default class PunishesTable extends Component {
 
   renderOpeningTypeCell(punish) {
     const textTranslation = {
-      'counter-attack': "Reversal",
+      'counter-attack': "Counter Hit",
       'neutral-win': "Neutral",
       'trade': "Trade",
     };
@@ -168,11 +168,11 @@ export default class PunishesTable extends Component {
 
   renderPunishRows() {
     const stats = this.props.game.getStats() || {};
-    const punishes = _.get(stats, ['events', 'punishes']) || [];
+    const punishes = _.get(stats, 'conversions') || [];
     const punishesByPlayer = _.groupBy(punishes, 'playerIndex');
     const playerPunishes = punishesByPlayer[this.props.playerIndex] || [];
 
-    const stocks = _.get(stats, ['events', 'stocks']) || [];
+    const stocks = _.get(stats, 'stocks') || [];
     const stocksByOpponent = _.groupBy(stocks, 'opponentIndex');
     const opponentStocks = stocksByOpponent[this.props.playerIndex] || [];
 
@@ -187,6 +187,8 @@ export default class PunishesTable extends Component {
 
         return currentStockWasLost && wasLostBeforeNextPunish;
       };
+
+      let addedStockRow = false;
 
       // stockLossAdded is used to decide whether to display a empty state row if
       // there were no punishes for an entire stock (opponent SD'd immediately)
@@ -205,7 +207,19 @@ export default class PunishesTable extends Component {
 
         const stockRow = this.generateStockRow(stock);
         elements.push(stockRow);
+
+        addedStockRow = true;
+
+        // If we show two stock loss rows back to back, add an empty state in between
         shouldAddEmptyState = true;
+      }
+
+      // Special case handling when a player finishes their opponent without getting hit
+      // on their last stock. Still want to show an empty state
+      const stock = _.first(opponentStocks);
+      if (stock && addedStockRow && !punish) {
+        const emptyPunishes = this.generateEmptyRow(stock);
+        elements.push(emptyPunishes);
       }
     };
 
