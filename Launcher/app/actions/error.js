@@ -5,13 +5,13 @@ export function displayError(key, message) {
   return {
     type: DISPLAY_ERROR,
     key: key,
-    errorMessage: message
+    errorMessage: message,
   };
 }
 
 export function dismissError(key) {
   return {
     type: DISMISS_ERROR,
-    key: key
+    key: key,
   };
 }

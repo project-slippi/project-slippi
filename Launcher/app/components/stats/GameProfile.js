@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import _ from 'lodash';
-import { Header, Segment, Sticky, Image, Icon, Button } from 'semantic-ui-react';
+import {
+  Header, Segment, Sticky, Image, Icon, Button, Modal, Message,
+} from 'semantic-ui-react';
 
 import PageHeader from '../common/PageHeader';
 import OverallTable from './OverallTable';
@@ -17,8 +19,16 @@ import * as timeUtils from '../../utils/time';
 export default class GameProfile extends Component {
   props: {
     history: object,
-    store: object,
+
+    // fileLoaderAction
     playFile: (file) => void,
+
+    // error actions
+    dismissError: (key) => void,
+
+    // store data
+    store: object,
+    errors: object,
   };
 
   refStats: {};
@@ -186,6 +196,7 @@ export default class GameProfile extends Component {
 
     return (
       <Segment basic={true}>
+        {this.renderErrorModal()}
         <Sticky
           className={styles['sticky-names']}
           onStick={handleStick}
@@ -203,6 +214,34 @@ export default class GameProfile extends Component {
           {this.renderPunishes()}
         </div>
       </Segment>
+    );
+  }
+
+  renderErrorModal() {
+    const errors = this.props.errors || {};
+    const errorKey = 'fileLoader-global';
+
+    const showGlobalError = errors.displayFlags[errorKey] || false;
+    const globalErrorMessage = errors.messages[errorKey] || "";
+
+    return (
+      <Modal
+        open={showGlobalError}
+        basic={true}
+        closeIcon={true}
+        onClose={_.partial(this.props.dismissError, errorKey)}
+      >
+        <Modal.Header>
+          Error Launching Replay
+        </Modal.Header>
+        <Modal.Content>
+          <Message
+            error={true}
+            icon="warning circle"
+            content={globalErrorMessage}
+          />
+        </Modal.Content>
+      </Modal>
     );
   }
 

@@ -5,7 +5,7 @@ import * as SettingsActions from '../actions/settings';
 
 function mapStateToProps(state) {
   return {
-    store: state.settings
+    store: state.settings,
   };
 }
 
