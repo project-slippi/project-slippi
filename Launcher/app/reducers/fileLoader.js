@@ -66,8 +66,14 @@ function loadRootFolder(state) {
     subDirectories: subDirectories,
   };
 
-  // Maintain selection if it exists
-  const folderSelection = state.selectedFolderFullPath || rootFolder;
+  // Maintain selection if there is one and it is for a loaded sub-directory
+  const subDirectoriesByFullPath = _.keyBy(subDirectories, 'fullPath') || {};
+  let previouslySelectedFolderFullPath = null;
+  if (subDirectoriesByFullPath[state.selectedFolderFullPath]) {
+    previouslySelectedFolderFullPath = state.selectedFolderFullPath;
+  }
+
+  const folderSelection = previouslySelectedFolderFullPath || rootFolder;
 
   // Select the root folder
   const newState = changeFolderSelection(state, {
