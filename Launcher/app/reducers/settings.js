@@ -6,18 +6,18 @@ const electronSettings = require('electron-settings');
 const availableSettings = {
   isoPath: {
     location: 'settings.isoPath',
-    defaultValue: ""
+    defaultValue: "",
   },
   rootSlpPath: {
     location: 'settings.rootSlpPath',
-    defaultValue: ""
-  }
+    defaultValue: "",
+  },
 };
 
 // Default state for this reducer
 const defaultState = {
   storedSettings: getStoredSettings(),
-  currentSettings: getStoredSettings()
+  currentSettings: getStoredSettings(),
 };
 
 function getStoredSettings() {

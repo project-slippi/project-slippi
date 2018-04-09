@@ -54,7 +54,7 @@ export default class KillsTable extends Component {
     // Here we are going to grab the opponent's punishes and see if one of them was
     // responsible for ending this stock, if so show the kill move, otherwise assume SD
     const stats = this.props.game.getStats();
-    const punishes = _.get(stats, ['events', 'punishes']) || [];
+    const punishes = _.get(stats, 'conversions') || [];
     const punishesByPlayer = _.groupBy(punishes, 'playerIndex');
     const playerPunishes = punishesByPlayer[this.props.playerIndex] || [];
 
@@ -67,7 +67,8 @@ export default class KillsTable extends Component {
       return <span className={styles['secondary-text']}>Self Destruct</span>;
     }
 
-    return moveUtils.getMoveName(punishThatEndedStock.lastMove);
+    const lastMove = _.last(punishThatEndedStock.moves);
+    return moveUtils.getMoveName(lastMove.moveId);
   }
 
   renderKilledDirection(stock) {
@@ -107,7 +108,7 @@ export default class KillsTable extends Component {
 
   renderStocksRows() {
     const stats = this.props.game.getStats() || {};
-    const stocks = _.get(stats, ['events', 'stocks']) || [];
+    const stocks = _.get(stats, 'stocks') || [];
     const stocksByOpponent = _.groupBy(stocks, 'opponentIndex');
     const opponentStocks = stocksByOpponent[this.props.playerIndex] || [];
 

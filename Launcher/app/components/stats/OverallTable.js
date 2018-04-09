@@ -18,239 +18,198 @@ export default class OverallTable extends Component {
     player2Index: number,
   };
 
-  getPunishCountComparisonRenderer(player1Punishes, player2Punishes, totalCount) {
-    return (firstPlayer) => {
-      const count = firstPlayer ? player1Punishes.length : player2Punishes.length;
-      const oppCount = firstPlayer ? player2Punishes.length : player1Punishes.length;
-      const ratio = totalCount ? count / totalCount : 0;
-
-      const countClasses = classNames({
-        [styles['highlight-text']]: count > oppCount,
-      });
-
-      return (
-        <div className={styles['stat-with-sub-value']}>
-          <div className={countClasses}>{count}</div>
-          <div className={styles['secondary-text']}>
-            ({numberUtils.formatPercent(ratio, 0)})
-          </div>
-        </div>
-      );
-    };
-  }
-
-  getSimplePunishCountComparisonRenderer(condition) {
-    const stats = this.props.game.getStats() || {};
-    const punishes = _.get(stats, ['events', 'punishes']) || [];
-
-    const openingPunishes = _.filter(punishes, condition);
-    const openingPunishesByPlayer = _.groupBy(openingPunishes, 'playerIndex');
-
-    const player1Punishes = openingPunishesByPlayer[this.props.player1Index] || [];
-    const player2Punishes = openingPunishesByPlayer[this.props.player2Index] || [];
-
-    const totalCount = openingPunishes.length;
-
-    return this.getPunishCountComparisonRenderer(
-      player1Punishes, player2Punishes, totalCount
-    );
-  }
-
-  renderNeutralWinsRow() {
-    const displayRenderer = this.getSimplePunishCountComparisonRenderer((punish) => (
-      punish.openingType === "neutral-win"
-    ));
-
-    return (
-      <Table.Row key="neutral-wins">
-        <Table.Cell className={styles['sub-header']}>Neutral Wins</Table.Cell>
-        <Table.Cell>{displayRenderer(true)}</Table.Cell>
-        <Table.Cell>{displayRenderer(false)}</Table.Cell>
-      </Table.Row>
-    );
-  }
-
-  renderReversalsRow() {
-    const displayRenderer = this.getSimplePunishCountComparisonRenderer((punish) => (
-      punish.openingType === "counter-attack"
-    ));
-
-    return (
-      <Table.Row key="reversals">
-        <Table.Cell className={styles['sub-header']}>Reversals</Table.Cell>
-        <Table.Cell>{displayRenderer(true)}</Table.Cell>
-        <Table.Cell>{displayRenderer(false)}</Table.Cell>
-      </Table.Row>
-    );
-  }
-
-  renderBeneficialTradesRow() {
-    const stats = this.props.game.getStats() || {};
-    const punishes = _.get(stats, ['events', 'punishes']) || [];
-
-    const tradePunishes = _.filter(punishes, (punish) => (
-      punish.openingType === "trade"
-    ));
-    const tradePunishesByPlayer = _.groupBy(tradePunishes, 'playerIndex');
-
-    const player1Punishes = tradePunishesByPlayer[this.props.player1Index] || [];
-    const player2Punishes = tradePunishesByPlayer[this.props.player2Index] || [];
-
-    const benefitsPlayer1 = [];
-    const benefitsPlayer2 = [];
-
-    // Figure out who the trades benefited
-    const zippedPunishes = _.zip(player1Punishes, player2Punishes);
-    zippedPunishes.forEach((punishPair) => {
-      const player1Punish = _.first(punishPair);
-      const player2Punish = _.last(punishPair);
-      const player1Damage = player1Punish.currentPercent - player1Punish.startPercent;
-      const player2Damage = player2Punish.currentPercent - player2Punish.startPercent;
-
-      if (player1Punish.didKill && !player2Punish.didKill) {
-        benefitsPlayer1.push(player1Punish);
-      } else if (player2Punish.didKill && !player1Punish.didKill) {
-        benefitsPlayer2.push(player2Punish);
-      } else if (player1Damage > player2Damage) {
-        benefitsPlayer1.push(player1Punish);
-      } else if (player2Damage > player1Damage) {
-        benefitsPlayer2.push(player2Punish);
-      }
-    });
-
-    const displayRenderer = this.getPunishCountComparisonRenderer(
-      benefitsPlayer1, benefitsPlayer2, player1Punishes.length
-    );
-
-    return (
-      <Table.Row key="beneficial-trades">
-        <Table.Cell className={styles['sub-header']}>Beneficial Trades</Table.Cell>
-        <Table.Cell>{displayRenderer(true)}</Table.Cell>
-        <Table.Cell>{displayRenderer(false)}</Table.Cell>
-      </Table.Row>
-    );
-  }
-
-  renderOpeningsPerKillRow() {
-    const stats = this.props.game.getStats() || {};
-    const punishes = _.get(stats, ['events', 'punishes']) || [];
-    const stocks = _.get(stats, ['events', 'stocks']) || [];
-    const finishedStocks = _.filter(stocks, 'endFrame');
-
-    const punishesByPlayer = _.groupBy(punishes, 'playerIndex');
-    const stocksByPlayer = _.groupBy(finishedStocks, 'playerIndex');
-
-    const player1Punishes = punishesByPlayer[this.props.player1Index] || [];
-    const player2Punishes = punishesByPlayer[this.props.player2Index] || [];
-
-    const player1Stocks = stocksByPlayer[this.props.player1Index] || [];
-    const player2Stocks = stocksByPlayer[this.props.player2Index] || [];
-
-    const p1Stat = player2Stocks.length ? player1Punishes.length / player2Stocks.length : null;
-    const p2Stat = player1Stocks.length ? player2Punishes.length / player1Stocks.length : null;
-
-    const displayRenderer = (firstPlayer) => {
-      const stat = firstPlayer ? p1Stat : p2Stat;
-      const oppStat = firstPlayer ? p2Stat : p1Stat;
-
-      const classes = classNames({
-        [styles['highlight-text']]: stat !== null && (oppStat === null || stat < oppStat),
-        [styles['secondary-text']]: stat === null,
-      });
-
-      return (
-        <div className={classes}>
-          {stat === null ? "N/A" : stat.toFixed(1)}
-        </div>
-      );
-    };
-
-    return (
-      <Table.Row key="openings-per-kill">
-        <Table.Cell className={styles['sub-header']}>Openings / Kill</Table.Cell>
-        <Table.Cell>{displayRenderer(true)}</Table.Cell>
-        <Table.Cell>{displayRenderer(false)}</Table.Cell>
-      </Table.Row>
-    );
-  }
-
-  renderDamagePerOpeningRow() {
-    const stats = this.props.game.getStats() || {};
-    const punishes = _.get(stats, ['events', 'punishes']) || [];
-
-    const punishesByPlayer = _.groupBy(punishes, 'playerIndex');
-
-    const player1Punishes = punishesByPlayer[this.props.player1Index] || [];
-    const player2Punishes = punishesByPlayer[this.props.player2Index] || [];
-
-    const getAverage = (playerPunishes) => {
-      if (!playerPunishes.length) {
-        return null;
-      }
-
-      return _.meanBy(playerPunishes, (punish) => (
-        punish.currentPercent - punish.startPercent
-      ));
-    };
-
-    const p1Stat = getAverage(player1Punishes);
-    const p2Stat = getAverage(player2Punishes);
-
-    const displayRenderer = (firstPlayer) => {
-      const stat = firstPlayer ? p1Stat : p2Stat;
-      const oppStat = firstPlayer ? p2Stat : p1Stat;
-
-      const classes = classNames({
-        [styles['highlight-text']]: stat !== null && (oppStat === null || stat > oppStat),
-        [styles['secondary-text']]: stat === null,
-      });
-
-      return (
-        <div className={classes}>
-          {stat === null ? "N/A" : stat.toFixed(1)}
-        </div>
-      );
-    };
-
-    return (
-      <Table.Row key="damage-per-opening">
-        <Table.Cell className={styles['sub-header']}>Damage / Opening</Table.Cell>
-        <Table.Cell>{displayRenderer(true)}</Table.Cell>
-        <Table.Cell>{displayRenderer(false)}</Table.Cell>
-      </Table.Row>
-    );
-  }
-
-  renderStandardStatField(header, subHeader, arrPath, fieldPaths) {
+  renderMultiStatField(header, arrPath, fieldPaths, valueMapper, highlight) {
     const stats = this.props.game.getStats() || {};
     const arr = _.get(stats, arrPath) || [];
-    const itemsByPlayer = _.groupBy(arr, 'playerIndex');
+    const itemsByPlayer = _.keyBy(arr, 'playerIndex');
 
-    const player1Items = itemsByPlayer[this.props.player1Index] || [];
-    const player2Items = itemsByPlayer[this.props.player2Index] || [];
+    const player1Item = itemsByPlayer[this.props.player1Index] || {};
+    const player2Item = itemsByPlayer[this.props.player2Index] || {};
 
-    const player1Item = _.first(player1Items) || {};
-    const player2Item = _.first(player2Items) || {};
+    const generateValues = (item) => (
+      _.chain(item)
+        .pick(fieldPaths)
+        .toArray()
+        .map((v) => (valueMapper ? valueMapper(v) : v))
+        .value()
+    );
 
     const displayRenderer = (firstPlayer) => {
       const item = firstPlayer ? player1Item : player2Item;
-      const display = _.chain(item).pick(fieldPaths).toArray().join(' / ').value();
+      const oppItem = firstPlayer ? player2Item : player1Item;
+
+      const values = generateValues(item);
+      const oppValues = generateValues(oppItem);
+
+      const classes = classNames({
+        [styles['highlight-text']]: highlight && highlight(values, oppValues),
+      });
+
       return (
-        <div>
-          {display}
+        <div className={classes}>
+          {values.join(' / ')}
         </div>
       );
     };
 
-    const key = `standard-field-${header.toLowerCase()}-${subHeader.toLowerCase()}`;
+    const key = `standard-field-${header}`;
     return (
       <Table.Row key={key}>
         <Table.Cell className={styles['sub-header']}>
-          {header} <span className={"secondary-text"}>{subHeader}</span>
+          {header}
         </Table.Cell>
         <Table.Cell>{displayRenderer(true)}</Table.Cell>
         <Table.Cell>{displayRenderer(false)}</Table.Cell>
       </Table.Row>
+    );
+  }
+
+  renderRatioStatField(header, arrPath, fieldPath, ratioRenderer) {
+    const stats = this.props.game.getStats() || {};
+    const arr = _.get(stats, arrPath) || [];
+    const itemsByPlayer = _.keyBy(arr, 'playerIndex');
+
+    const player1Item = itemsByPlayer[this.props.player1Index] || {};
+    const player2Item = itemsByPlayer[this.props.player2Index] || {};
+
+    const displayRenderer = (firstPlayer) => {
+      const item = firstPlayer ? player1Item : player2Item;
+      const oppItem = firstPlayer ? player2Item : player1Item;
+
+      const ratio = _.get(item, fieldPath);
+      const oppRatio = _.get(oppItem, fieldPath);
+
+      return ratioRenderer(ratio, oppRatio);
+    };
+
+    const key = `standard-field-${header.toLowerCase()}`;
+    return (
+      <Table.Row key={key}>
+        <Table.Cell className={styles['sub-header']}>
+          {header}
+        </Table.Cell>
+        <Table.Cell>{displayRenderer(true)}</Table.Cell>
+        <Table.Cell>{displayRenderer(false)}</Table.Cell>
+      </Table.Row>
+    );
+  }
+
+  renderSimpleRatioField(header, arrPath, fieldPath, highlightCondition) {
+    return this.renderRatioStatField(header, arrPath, fieldPath, (ratio, oppRatio) => {
+      const playerRatio = _.get(ratio, 'ratio');
+      if (playerRatio === null) {
+        return <div className={styles['secondary-text']}>N/A</div>;
+      }
+
+      const oppRatioField = _.get(oppRatio, 'ratio');
+
+      const fixedPlayerRatio = playerRatio !== null ? playerRatio.toFixed(1) : null;
+      const fixedOppRatio = oppRatioField !== null ? oppRatioField.toFixed(1) : null;
+
+      const classes = classNames({
+        [styles['highlight-text']]: highlightCondition(fixedPlayerRatio, fixedOppRatio),
+      });
+
+      return (
+        <div className={classes}>
+          {fixedPlayerRatio}
+        </div>
+      );
+    });
+  }
+
+  renderCountPercentField(header, arrPath, fieldPath, highlightCondition) {
+    return this.renderRatioStatField(header, arrPath, fieldPath, (ratio, oppRatio) => {
+      const playerCount = _.get(ratio, 'count') || 0;
+      const playerRatio = _.get(ratio, 'ratio');
+
+      const oppCount = _.get(oppRatio, 'count') || 0;
+
+      const classes = classNames({
+        [styles['highlight-text']]: highlightCondition(playerCount, oppCount),
+      });
+
+      let secondaryDisplay = null;
+      if (playerRatio !== null) {
+        secondaryDisplay = (
+          <div className={styles['secondary-text']}>
+            ({numberUtils.formatPercent(playerRatio, 0)})
+          </div>
+        );
+      }
+
+      return (
+        <div className={styles['stat-with-sub-value']}>
+          <div className={classes}>{playerCount}</div>
+          {secondaryDisplay}
+        </div>
+      );
+    });
+  }
+
+  renderPercentFractionField(header, arrPath, fieldPath, highlightCondition) {
+    return this.renderRatioStatField(header, arrPath, fieldPath, (ratio, oppRatio) => {
+      const playerRatio = _.get(ratio, 'ratio');
+      if (playerRatio === null) {
+        return <div className={styles['secondary-text']}>N/A</div>;
+      }
+
+      const oppRatioField = _.get(oppRatio, 'ratio');
+
+      const fixedPlayerRatio = playerRatio !== null ? playerRatio.toFixed(3) : null;
+      const fixedOppRatio = oppRatioField !== null ? oppRatioField.toFixed(3) : null;
+
+      const classes = classNames({
+        [styles['highlight-text']]: highlightCondition(fixedPlayerRatio, fixedOppRatio),
+      });
+
+      const playerCount = _.get(ratio, 'count');
+      const playerTotal = _.get(ratio, 'total');
+
+      return (
+        <div className={styles['stat-with-sub-value']}>
+          <div className={classes}>{numberUtils.formatPercent(playerRatio, 1)}</div>
+          <div className={styles['secondary-text']}>
+            ({playerCount} / {playerTotal})
+          </div>
+        </div>
+      );
+    });
+  }
+
+  renderOpeningField(header, field) {
+    return this.renderCountPercentField(header, "overall", field, (playerCount, oppCount) => (
+      playerCount > oppCount
+    ));
+  }
+
+  renderHigherSimpleRatioField(header, field) {
+    return this.renderSimpleRatioField(
+      header, "overall", field, (fixedPlayerRatio, fixedOppRatio) => {
+        const oppIsNull = fixedPlayerRatio && fixedOppRatio === null;
+        const isHigher = fixedPlayerRatio > fixedOppRatio;
+        return oppIsNull || isHigher;
+      }
+    );
+  }
+
+  renderLowerSimpleRatioField(header, field) {
+    return this.renderSimpleRatioField(
+      header, "overall", field, (fixedPlayerRatio, fixedOppRatio) => {
+        const oppIsNull = fixedPlayerRatio && fixedOppRatio === null;
+        const isLower = fixedPlayerRatio < fixedOppRatio;
+        return oppIsNull || isLower;
+      }
+    );
+  }
+
+  renderHigherPercentFractionField(header, field) {
+    return this.renderPercentFractionField(
+      header, "overall", field, (fixedPlayerRatio, fixedOppRatio) => {
+        const oppIsNull = fixedPlayerRatio && fixedOppRatio === null;
+        const isHigher = fixedPlayerRatio > fixedOppRatio;
+        return oppIsNull || isHigher;
+      }
     );
   }
 
@@ -259,8 +218,17 @@ export default class OverallTable extends Component {
       <Table.Row key="offense-header">
         <Table.Cell className={styles['category']} colSpan={columnCount}>Offense</Table.Cell>
       </Table.Row>,
-      this.renderOpeningsPerKillRow(),
-      this.renderDamagePerOpeningRow(),
+      this.renderMultiStatField(
+        "Kills", "overall", "killCount", null, (v, ov) => v[0] > ov[0]
+      ),
+      this.renderMultiStatField(
+        "Damage Done", "overall", "totalDamage", v => v.toFixed(1), (v, ov) => v[0] > ov[0]
+      ),
+      this.renderHigherPercentFractionField(
+        "Opening Conversion Rate", "successfulConversions"
+      ),
+      this.renderLowerSimpleRatioField("Openings / Kill", "openingsPerKill"),
+      this.renderHigherSimpleRatioField("Damage / Opening", "damagePerOpening"),
     ];
   }
 
@@ -269,8 +237,8 @@ export default class OverallTable extends Component {
       <Table.Row key="defense-header">
         <Table.Cell className={styles['category']} colSpan={columnCount}>Defense</Table.Cell>
       </Table.Row>,
-      this.renderStandardStatField(
-        "Actions", "(Roll / Air Dodge / Spot Dodge)", ['actionCounts'],
+      this.renderMultiStatField(
+        "Actions (Roll / Air Dodge / Spot Dodge)", ['actionCounts'],
         ['rollCount', 'airDodgeCount', 'spotDodgeCount']
       ),
     ];
@@ -281,13 +249,22 @@ export default class OverallTable extends Component {
       <Table.Row key="neutral-header">
         <Table.Cell className={styles['category']} colSpan={columnCount}>Neutral</Table.Cell>
       </Table.Row>,
-      this.renderNeutralWinsRow(),
-      this.renderReversalsRow(),
-      this.renderBeneficialTradesRow(),
-      this.renderStandardStatField(
-        "Actions", "(Wavedash / Waveland / Dash Dance)", ['actionCounts'],
+      this.renderOpeningField("Neutral Wins", "neutralWinRatio"),
+      this.renderOpeningField("Counter Hits", "counterHitRatio"),
+      this.renderOpeningField("Beneficial Trades", "beneficialTradeRatio"),
+      this.renderMultiStatField(
+        "Actions (Wavedash / Waveland / Dash Dance)", ['actionCounts'],
         ['wavedashCount', 'wavelandCount', 'dashDanceCount']
       ),
+    ];
+  }
+
+  renderGeneralSection() {
+    return [
+      <Table.Row key="general-header">
+        <Table.Cell className={styles['category']} colSpan={columnCount}>General</Table.Cell>
+      </Table.Row>,
+      this.renderHigherSimpleRatioField("Inputs / Minute", "inputsPerMinute"),
     ];
   }
 
@@ -311,6 +288,7 @@ export default class OverallTable extends Component {
           {this.renderOffenseSection()}
           {this.renderDefenseSection()}
           {this.renderNeutralSection()}
+          {this.renderGeneralSection()}
         </Table.Body>
       </Table>
     );

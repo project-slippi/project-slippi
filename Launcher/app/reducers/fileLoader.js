@@ -51,7 +51,7 @@ function loadRootFolder(state) {
       folderName: file,
       pathArr: [rootFolderBasename, file],
       expanded: true,
-      subDirectories: {}
+      subDirectories: {},
     };
   }).filter(folderDetails => (
     fs.lstatSync(folderDetails.fullPath).isDirectory()
@@ -63,24 +63,30 @@ function loadRootFolder(state) {
     folderName: rootFolderBasename,
     pathArr: [rootFolderBasename],
     expanded: false,
-    subDirectories: subDirectories
+    subDirectories: subDirectories,
   };
 
-  // Maintain selection if it exists
-  const folderSelection = state.selectedFolderFullPath || rootFolder;
+  // Maintain selection if there is one and it is for a loaded sub-directory
+  const subDirectoriesByFullPath = _.keyBy(subDirectories, 'fullPath') || {};
+  let previouslySelectedFolderFullPath = null;
+  if (subDirectoriesByFullPath[state.selectedFolderFullPath]) {
+    previouslySelectedFolderFullPath = state.selectedFolderFullPath;
+  }
+
+  const folderSelection = previouslySelectedFolderFullPath || rootFolder;
 
   // Select the root folder
   const newState = changeFolderSelection(state, {
     payload: {
-      folderPath: folderSelection
-    }
+      folderPath: folderSelection,
+    },
   });
 
   // Combine the state we got from selecting a folder
   return {
     ...newState,
     rootFolderName: rootFolderBasename,
-    folders: folders
+    folders: folders,
   };
 }
 

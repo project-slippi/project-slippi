@@ -8,7 +8,7 @@ export const CLEAR_CHANGES = 'CLEAR_CHANGES';
 export function browseFolder(field) {
   return (dispatch) => {
     const paths = dialog.showOpenDialog({
-      properties: ['openDirectory']
+      properties: ['openDirectory'],
     }) || [];
 
     const folderPath = paths[0];
@@ -25,15 +25,15 @@ export function selectFolder(field, path) {
     type: SELECT_FOLDER,
     payload: {
       field: field,
-      path: path
-    }
+      path: path,
+    },
   };
 }
 
 export function browseFile(field) {
   return (dispatch) => {
     const files = dialog.showOpenDialog({
-      properties: ['openFile']
+      properties: ['openFile'],
     }) || [];
 
     const filePath = files[0];
@@ -50,21 +50,21 @@ export function selectFile(field, path) {
     type: SELECT_FILE,
     payload: {
       field: field,
-      path: path
-    }
+      path: path,
+    },
   };
 }
 
 export function saveSettings() {
   return {
     type: SAVE_SETTINGS,
-    payload: {}
+    payload: {},
   };
 }
 
 export function clearChanges() {
   return {
     type: CLEAR_CHANGES,
-    payload: {}
+    payload: {},
   };
 }
