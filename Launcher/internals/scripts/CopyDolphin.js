@@ -34,6 +34,7 @@ function copyForMac(targetFolder) {
   const dolphinDestUserFolder = path.join(dolphinDest, 'Contents/Resources/User');
   const dolphinDestSysFolder = path.join(dolphinDest, 'Contents/Resources/Sys');
   const dolphinDestSlippiFolder = path.join(targetFolder, 'Slippi');
+  const gitIgnoreDest = path.join(targetFolder, ".gitignore");
 
   const overwriteUserFolder = "./app/dolphin-dev/overwrite/User";
   const overwriteSysFolder = "./app/dolphin-dev/overwrite/Sys";
@@ -45,6 +46,7 @@ function copyForMac(targetFolder) {
     `rm -rf "${dolphinDestUserFolder}"`,
     `ditto "${overwriteUserFolder}" "${dolphinDestUserFolder}"`,
     `ditto "${overwriteSysFolder}" "${dolphinDestSysFolder}"`,
+    `rm -rf "${gitIgnoreDest}"`,
     `mkdir "${dolphinDestSlippiFolder}"`,
   ];
 
@@ -62,6 +64,7 @@ function copyForWindows(targetFolder) {
   const dolphinDestUserFolder = path.join(targetFolder, 'User');
   const dolphinDestSysFolder = path.join(targetFolder, 'Sys');
   const dolphinDestSlippiFolder = path.join(targetFolder, 'Slippi');
+  const gitIgnoreDest = path.join(targetFolder, ".gitignore");
 
   const overwriteUserFolder = "./app/dolphin-dev/overwrite/User";
   const overwriteSysFolder = "./app/dolphin-dev/overwrite/Sys";
@@ -71,6 +74,7 @@ function copyForWindows(targetFolder) {
   fs.removeSync(dolphinDestUserFolder);
   fs.copySync(overwriteUserFolder, dolphinDestUserFolder);
   fs.copySync(overwriteSysFolder, dolphinDestSysFolder);
+  fs.removeSync(gitIgnoreDest);
   fs.emptyDirSync(dolphinDestSlippiFolder);
 }
 
