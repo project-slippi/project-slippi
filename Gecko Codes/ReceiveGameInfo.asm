@@ -32,7 +32,7 @@ stw r3, 0x5F90(r4) #load random seed
 # from to initialize the game. it reads the whole thing from slippi and writes
 # it back to memory. (0x138 bytes long)
 li r7, 0
-START_LOOP:
+START_GAME_INFO_LOOP:
 add r8, r31, r7
 
 bl readWordExi
@@ -40,7 +40,19 @@ stw r3, 0x0(r8)
 
 addi r7, r7, 0x4
 cmpwi r7, 0x138
-blt+ START_LOOP
+blt+ START_GAME_INFO_LOOP
+
+#------------- OTHER INFO -------------
+# write UCF toggle bytes
+lis r7, 0x804D
+START_UCF_LOOP:
+bl readWordExi
+stw r3, 0x1FB0(r7) #save UCF toggle
+
+addi r7, r7, 0x4
+andi. r3, r7, 0xFFFF
+cmpwi r3, 0x20
+blt+ START_UCF_LOOP
 
 bl endExiTransfer
 

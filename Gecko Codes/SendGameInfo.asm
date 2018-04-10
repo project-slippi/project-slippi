@@ -34,7 +34,7 @@ bl sendByteExi
 # game info command
 li r3, 0x36
 bl sendByteExi
-li r3, 320
+li r3, 352
 bl sendHalfExi
 
 # pre-frame update command
@@ -67,7 +67,7 @@ bl sendByteExi
 # indicates breaking changes/loss of backwards compatibility. A change
 # to minor indicates a pretty major change like added fields or new
 # events. Build/Revision can be incremented for smaller changes
-lis r3, 0x0002
+lis r3, 0x0100
 addi r3, r3, 0x0000
 bl sendWordExi
 
@@ -75,20 +75,31 @@ bl sendWordExi
 # this iterates through the static game info block that is used to pull data
 # from to initialize the game. it writes out the whole thing (0x138 long)
 li r7, 0
-START_LOOP:
+START_GAME_INFO_LOOP:
 add r3, r31, r7
 lwz r3, 0x0(r3)
 bl sendWordExi
 
 addi r7, r7, 0x4
 cmpwi r7, 0x138
-blt+ START_LOOP
+blt+ START_GAME_INFO_LOOP
 
 #------------- OTHER INFO -------------
 # write out random seed
 lis r3, 0x804D
 lwz r3, 0x5F90(r3) #load random seed
 bl sendWordExi
+
+# write UCF toggle bytes
+lis r7, 0x804D
+START_UCF_LOOP:
+lwz r3, 0x1FB0(r7) #load UCF toggle
+bl sendWordExi
+
+addi r7, r7, 0x4
+andi. r3, r7, 0xFFFF
+cmpwi r3, 0x20
+blt+ START_UCF_LOOP
 
 bl endExiTransfer
 
