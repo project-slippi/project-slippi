@@ -9,6 +9,16 @@ export default class PageHeader extends Component {
   };
 
   handleBack = () => {
+    // TODO: This is an ultra hack because on the windows production build
+    // TODO: pressing back from the game screen goes all the way back to the
+    // TODO: main navigation screen. This... prevents that
+    const isWindows = process.platform === "win32";
+    const isProd = process.env.NODE_ENV === "production";
+    if (this.props.text === "Game" && isWindows && isProd) {
+      this.props.history.replace("/files");
+      return;
+    }
+
     this.props.history.goBack();
   };
 
