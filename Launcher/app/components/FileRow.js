@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import { Table, Button, Image } from 'semantic-ui-react';
 import styles from './FileLoader.scss';
 import getLocalImage from '../utils/image';
@@ -13,9 +14,6 @@ export default class FileRow extends Component {
     file: object,
     playFile: (file) => void,
     gameProfileLoad: (game) => void,
-
-    // history
-    history: object
   };
 
   playFile = () => {
@@ -30,7 +28,6 @@ export default class FileRow extends Component {
     const fileGame = file.game;
 
     this.props.gameProfileLoad(fileGame);
-    this.props.history.push('/game');
   };
 
   generatePlayCell() {
@@ -141,14 +138,16 @@ export default class FileRow extends Component {
   generateOptionsCell() {
     return (
       <Table.Cell className={styles['play-cell']} textAlign="center">
-        <Button
-          circular={true}
-          inverted={true}
-          size="tiny"
-          basic={true}
-          icon="bar chart"
-          onClick={this.viewStats}
-        />
+        <Link to="/game" replace={false}>
+          <Button
+            circular={true}
+            inverted={true}
+            size="tiny"
+            basic={true}
+            icon="bar chart"
+            onClick={this.viewStats}
+          />
+        </Link>
       </Table.Cell>
     );
   }

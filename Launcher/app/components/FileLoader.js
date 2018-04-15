@@ -182,7 +182,6 @@ export default class FileLoader extends Component {
         file={file}
         playFile={this.props.playFile}
         gameProfileLoad={this.props.gameProfileLoad}
-        history={this.props.history}
       />
     ), this);
 
