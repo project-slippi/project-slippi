@@ -10,6 +10,16 @@ const moves = {
     name: "Jab",
     shortName: "jab",
   },
+  3: {
+    id: 3,
+    name: "Jab",
+    shortName: "jab",
+  },
+  4: {
+    id: 4,
+    name: "Jab",
+    shortName: "jab",
+  },
   6: {
     id: 6,
     name: "Dash Attack",
@@ -143,10 +153,10 @@ export function getMoveInfo(moveId) {
 
 export function getMoveShortName(moveId) {
   const move = getMoveInfo(moveId) || {};
-  return move.shortName;
+  return move.shortName || "unknown";
 }
 
 export function getMoveName(moveId) {
   const move = getMoveInfo(moveId) || {};
-  return move.name;
+  return move.name || "Unknown Move";
 }
