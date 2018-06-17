@@ -1,7 +1,7 @@
 {
   "name": "slippi-launcher",
   "productName": "Slippi Launcher",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Slippi Launcher program for browsing and playing replays.",
   "main": "./main.prod.js",
   "author": {
