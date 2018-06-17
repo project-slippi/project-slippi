@@ -222,7 +222,9 @@ export default class OverallTable extends Component {
         "Kills", "overall", "killCount", null, (v, ov) => v[0] > ov[0]
       ),
       this.renderMultiStatField(
-        "Damage Done", "overall", "totalDamage", v => v.toFixed(1), (v, ov) => v[0] > ov[0]
+        "Damage Done", "overall", "totalDamage",
+        v => v.toFixed(1),
+        (v, ov) => parseInt(v[0], 10) > parseInt(ov[0], 10)
       ),
       this.renderHigherPercentFractionField(
         "Opening Conversion Rate", "successfulConversions"
