@@ -4,6 +4,7 @@ The focus of this project is around the sport of Super Smash Bros Melee. There a
 
 ## More Information
 Release Blog Post: https://medium.com/project-slippi/project-public-release-4080c81d7205
+
 Release Demo Video: https://discord.gg/XpHZex6
 
 ## Project Structure
