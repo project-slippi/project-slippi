@@ -1,14 +1,19 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 import { Table, Icon, Sticky, Header, Button, Segment } from 'semantic-ui-react';
 import styles from './FileLoader.scss';
 import FileRow from './FileRow';
 import DismissibleMessage from './common/DismissibleMessage';
 import PageHeader from './common/PageHeader';
 import FolderBrowser from './common/FolderBrowser';
+import { loadRootFolder, changeFolderSelection, storeScrollPosition, playFile } from '../actions/fileLoader';
+import { displayError, dismissError } from '../actions/error';
+import { gameProfileLoad } from '../actions/game';
 
-export default class FileLoader extends Component {
+
+class FileLoader extends Component {
   props: {
     // fileLoader actions
     loadRootFolder: () => void,
@@ -202,11 +207,16 @@ export default class FileLoader extends Component {
       </Table>
     );
   }
-
+  renderSearchBar() {
+    return (
+      <input placeholder='Search for a file' />
+    );
+  }
   renderMain() {
     return (
       <div className="main-padding">
         <PageHeader icon="disk outline" text="Replay Browser" history={this.props.history} />
+        {this.renderSearchBar()}
         {this.renderGlobalError()}
         {this.renderFileSelection()}
       </div>
@@ -222,3 +232,21 @@ export default class FileLoader extends Component {
     );
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    store: state.fileLoader,
+    errors: state.errors,
+  };
+}
+
+export default connect(mapStateToProps, {
+  loadRootFolder,
+  changeFolderSelection,
+  storeScrollPosition,
+  playFile,
+  displayError,
+  dismissError,
+  gameProfileLoad,
+})(FileLoader);
+
