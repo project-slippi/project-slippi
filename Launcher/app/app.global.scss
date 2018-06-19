@@ -10,10 +10,6 @@ body {
   background-color: $background-dark;
 }
 
-::-webkit-scrollbar { 
-  display: none; 
-}
-
 .grid-list {
   display: grid;
   grid-gap: 1em 1em;
