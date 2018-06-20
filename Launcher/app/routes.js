@@ -3,9 +3,9 @@ import React from 'react';
 import { Switch, Route } from 'react-router';
 import App from './containers/App';
 import HomePage from './containers/HomePage';
-import FileLoaderPage from './containers/FileLoaderPage';
-import GameProfilePage from './containers/GameProfilePage';
-import SettingsPage from './containers/SettingsPage';
+import FileLoaderPage from './containers/FileLoader';
+import GameProfilePage from './containers/GameProfile';
+import SettingsPage from './containers/Settings';
 
 export default () => (
   <App>

@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
 import { Container, Segment, Button } from 'semantic-ui-react';
-import PageHeader from './common/PageHeader';
-import ActionInput from './common/ActionInput';
+import { connect } from 'react-redux';
+
+import { browseFolder, selectFolder, browseFile, selectFile, saveSettings, clearChanges } from '../actions/settings';
+import PageHeader from '../components/common/PageHeader';
+import ActionInput from '../components/common/ActionInput';
 
 const _ = require('lodash');
 
-export default class Settings extends Component {
+class Settings extends Component {
   props: {
     browseFolder: () => void,
     browseFile: () => void,
@@ -73,3 +76,19 @@ export default class Settings extends Component {
     );
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    store: state.settings,
+  };
+}
+
+export default connect(mapStateToProps, {
+  browseFolder,
+  selectFolder,
+  browseFile,
+  selectFile,
+  saveSettings,
+  clearChanges
+})(Settings);
+

@@ -1,14 +1,22 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import ReactPaginate from 'react-paginate';
 import { Table, Icon, Sticky, Header, Button, Segment } from 'semantic-ui-react';
-import styles from './FileLoader.scss';
-import FileRow from './FileRow';
-import DismissibleMessage from './common/DismissibleMessage';
-import PageHeader from './common/PageHeader';
-import FolderBrowser from './common/FolderBrowser';
+import styles from '../styles/pages/FileLoader.scss';
+import paginationStyles from '../styles/components/Pagination.scss';
+import FileRow from '../components/FileRow';
+import DismissibleMessage from '../components/common/DismissibleMessage';
+import PageHeader from '../components/common/PageHeader';
+import FolderBrowser from '../components/common/FolderBrowser';
+import { loadRootFolder, changeFolderSelection, storeScrollPosition, playFile } from '../actions/fileLoader';
+import { displayError, dismissError } from '../actions/error';
+import { gameProfileLoad } from '../actions/game';
 
-export default class FileLoader extends Component {
+
+class FileLoader extends Component {
+  
   props: {
     // fileLoader actions
     loadRootFolder: () => void,
@@ -29,27 +37,40 @@ export default class FileLoader extends Component {
   };
 
   refPrimary: {};
-
+  constructor(props) {
+    super(props);
+    this.state = {
+      totalPages: 0,
+      initialPage: 0,
+      totalPerPage: 10,
+    };
+  }
   componentDidMount() {
     const xPos = _.get(this.props.store, ['scrollPosition', 'x']) || 0;
     const yPos = _.get(this.props.store, ['scrollPosition', 'y']) || 0;
     window.scrollTo(xPos, yPos);
-
     this.props.loadRootFolder();
   }
 
+  componentWillReceiveProps(nextProps){
+    const { store } = nextProps;
+    const { totalPerPage } = this.state;
+    this.setState({
+      totalPages: store.files.length / totalPerPage,
+    });
+  }
   componentWillUnmount() {
     this.props.storeScrollPosition({
       x: window.scrollX,
       y: window.scrollY,
     });
 
+
     // TODO: I added this because switching to the stats view was maintaining the scroll
     // TODO: position of this component
     // TODO: Might be better to do something as shown here:
     // TODO: https://github.com/ReactTraining/react-router/issues/2144#issuecomment-150939358
     window.scrollTo(0, 0);
-
     this.props.dismissError('fileLoader-global');
   }
 
@@ -202,13 +223,32 @@ export default class FileLoader extends Component {
       </Table>
     );
   }
-
+  renderSearchBar() {
+    return (
+      <input placeholder='Search for a file' />
+    );
+  }
+  renderPagination() {
+    const { totalPages, initialPage } = this.state;
+    return (
+      <ReactPaginate
+        pageCount={totalPages}
+        initialPage={initialPage}
+        previousLabel={'<'}
+        nextLabel={'>'}
+        containerClassName={paginationStyles['pagination__container']}
+        pageLinkClassName={paginationStyles['pagination__page--link']}
+        pageClassName={paginationStyles['pagination__page--page']}
+      />
+    );
+  }
   renderMain() {
     return (
       <div className="main-padding">
         <PageHeader icon="disk outline" text="Replay Browser" history={this.props.history} />
         {this.renderGlobalError()}
         {this.renderFileSelection()}
+        {this.renderPagination()}
       </div>
     );
   }
@@ -222,3 +262,21 @@ export default class FileLoader extends Component {
     );
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    store: state.fileLoader,
+    errors: state.errors,
+  };
+}
+
+export default connect(mapStateToProps, {
+  loadRootFolder,
+  changeFolderSelection,
+  storeScrollPosition,
+  playFile,
+  displayError,
+  dismissError,
+  gameProfileLoad,
+})(FileLoader);
+

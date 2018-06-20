@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Table, Button, Image } from 'semantic-ui-react';
-import styles from './FileLoader.scss';
+import styles from '../styles/pages/FileLoader.scss';
 import getLocalImage from '../utils/image';
 import * as stageUtils from '../utils/stages';
 import * as timeUtils from '../utils/time';
