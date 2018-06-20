@@ -5,7 +5,7 @@ export function gameProfileLoad(game) {
     // Load game information asynchronously
     dispatch({
       type: GAME_PROFILE_LOAD,
-      game: game
+      game: game,
     });
   };
 }

@@ -10,7 +10,7 @@ const rootReducer = combineReducers({
   fileLoader: fileLoader,
   settings: settings,
   game: game,
-  errors: errors
+  errors: errors,
 });
 
 export default rootReducer;
