@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { Table, Icon } from 'semantic-ui-react';
 
-import styles from './GameProfile.scss';
+import styles from '../../styles/pages/GameProfile.scss';
 
 import * as moveUtils from '../../utils/moves';
 import * as animationUtils from '../../utils/animations';

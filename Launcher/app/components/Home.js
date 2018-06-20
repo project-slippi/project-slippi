@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Header, Icon, Container, Segment } from 'semantic-ui-react';
-import styles from './Home.scss';
+import styles from '../styles/pages/Home.scss';
 
 export default class Home extends Component {
   generateNav(iconName, header, subHeader, target, disabled) {

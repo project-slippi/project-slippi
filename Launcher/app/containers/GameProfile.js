@@ -1,22 +1,26 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
 import _ from 'lodash';
 import {
   Header, Segment, Sticky, Image, Icon, Button, Modal, Message,
 } from 'semantic-ui-react';
 
-import PageHeader from '../common/PageHeader';
-import OverallTable from './OverallTable';
-import KillsTable from './KillsTable';
-import PunishesTable from './PunishesTable';
+import { playFile } from '../actions/fileLoader';
+import { dismissError } from '../actions/error';
 
-import styles from './GameProfile.scss';
+import PageHeader from '../components/common/PageHeader';
+import OverallTable from '../components/stats/OverallTable';
+import KillsTable from '../components/stats/KillsTable';
+import PunishesTable from '../components/stats/PunishesTable';
 
-import getLocalImage from '../../utils/image';
-import * as stageUtils from '../../utils/stages';
-import * as timeUtils from '../../utils/time';
+import styles from '../styles/pages/GameProfile.scss';
 
-export default class GameProfile extends Component {
+import getLocalImage from '../utils/image';
+import * as stageUtils from '../utils/stages';
+import * as timeUtils from '../utils/time';
+
+class GameProfile extends Component {
   props: {
     history: object,
 
@@ -346,3 +350,11 @@ export default class GameProfile extends Component {
     );
   }
 }
+function mapStateToProps(state) {
+  return {
+    store: state.game,
+    errors: state.errors,
+  };
+}
+
+export default connect(mapStateToProps, { playFile, dismissError })(GameProfile);

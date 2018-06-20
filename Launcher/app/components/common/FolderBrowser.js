@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { List, Segment, Header, Icon } from 'semantic-ui-react';
-import styles from './FolderBrowser.scss';
+import styles from '../../styles/pages/FolderBrowser.scss';
 
 const _ = require('lodash');
 const classNames = require('classnames');
