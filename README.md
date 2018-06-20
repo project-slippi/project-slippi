@@ -18,7 +18,7 @@ Follow these steps to contribute:
 3. Make changes
 4. Commit and push your changes
 5. Submit a pull request into the upstream project
-6. I will review the pull request and decide if it's worth merging. Please not that there's no guarantee what you work on will get merged into the main branch. That said, you can increase your chances by talking about it in the discord!
+6. I will review the pull request and decide if it's worth merging. Please note that there's no guarantee what you work on will get merged into the main branch. That said, you can increase your chances by talking about it in the discord!
 
 ## Project Structure
 The project is composed of many different parts and projects that work together. This section will detail what those parts are, where they are, and how they can be contributed to.
