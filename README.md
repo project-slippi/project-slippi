@@ -5,7 +5,20 @@ The focus of this project is around the sport of Super Smash Bros Melee. There a
 ## More Information
 Release Blog Post: https://medium.com/project-slippi/project-public-release-4080c81d7205
 
-Release Demo Video: https://discord.gg/XpHZex6
+Release Demo Video: https://www.youtube.com/watch?v=1OYS5JSZepQ
+
+Discord Server: https://discord.gg/XpHZex6
+
+## How to Contribute
+If you're interested in making Melee better than it already is, you should consider contributing!
+
+Follow these steps to contribute:
+1. Fork the repository you're interested in contributing to (see Project Structure section below for the breakdown of the project)
+2. Checkout your fork
+3. Make changes
+4. Commit and push your changes
+5. Submit a pull request into the upstream project
+6. I will review the pull request and decide if it's worth merging. Please not that there's no guarantee what you work on will get merged into the main branch. That said, you can increase your chances by talking about it in the discord!
 
 ## Project Structure
 The project is composed of many different parts and projects that work together. This section will detail what those parts are, where they are, and how they can be contributed to.
