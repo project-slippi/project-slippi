@@ -72,8 +72,8 @@ startExiTransfer:
 lis r11, 0xCC00 #top bytes of address of EXI registers
 
 #set up EXI
-li r10, 0xB0 #bit pattern to set clock to 8 MHz and enable CS for device 0
-stw r10, 0x6814(r11) #start transfer, write to parameter register
+li r10, 0xD0 #bit pattern to set clock to 8 MHz and enable CS for device 0
+stw r10, 0x6800(r11) #start transfer, write to parameter register
 
 blr
 
@@ -107,7 +107,7 @@ b handleExi
 ################################################################################
 handleExi:
 #write value in r3 to EXI
-stw r3, 0x6824(r11) #store data into transfer register
+stw r3, 0x6810(r11) #store data into transfer register
 b handleExiStart
 
 handleExiRetry:
@@ -118,12 +118,12 @@ handleExiRetry:
 # to not soft-lock the game (the receive_wait loop would loop forever) was
 # to do this
 li r10, 0
-stw r10, 0x6814(r11) #write 0 to the parameter register
-li r10, 0xB0 #bit pattern to set clock to 8 MHz and enable CS for device 0
-stw r10, 0x6814(r11) #start transfer, write to parameter register
+stw r10, 0x6800(r11) #write 0 to the parameter register
+li r10, 0xD0 #bit pattern to set clock to 8 MHz and enable CS for device 0
+stw r10, 0x6800(r11) #start transfer, write to parameter register
 
 handleExiStart:
-stw r4, 0x6820(r11) #write to control register to begin transfer
+stw r4, 0x680C(r11) #write to control register to begin transfer
 
 li r9, 0
 #wait until byte has been transferred
@@ -131,12 +131,12 @@ handleExiWait:
 addi r9, r9, 1
 cmpwi r9, 15
 bge- handleExiRetry
-lwz r10, 0x6820(r11)
+lwz r10, 0x680C(r11)
 andi. r10, r10, 1
 bne handleExiWait
 
 #read values from transfer register to r3 for output
-lwz r3, 0x6824(r11) #read from transfer register
+lwz r3, 0x6810(r11) #read from transfer register
 
 blr
 
@@ -146,7 +146,7 @@ blr
 ################################################################################
 endExiTransfer:
 li r10, 0
-stw r10, 0x6814(r11) #write 0 to the parameter register
+stw r10, 0x6800(r11) #write 0 to the parameter register
 
 blr
 
