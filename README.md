@@ -11,7 +11,7 @@ Discord Server: https://discord.gg/XpHZex6
 
 ## .slp Parsing Libraries
 ### Javascript
-slp-parser-js (official): https://github.com/JLaferri/slp-parser-js
+slp-parser-js: https://github.com/JLaferri/slp-parser-js
 
 ### Python
 py-slippi: https://github.com/hohav/py-slippi
