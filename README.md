@@ -9,6 +9,13 @@ Release Demo Video: https://www.youtube.com/watch?v=1OYS5JSZepQ
 
 Discord Server: https://discord.gg/XpHZex6
 
+## .slp Parsing Libraries
+### Javascript
+slp-parser-js (official): https://github.com/JLaferri/slp-parser-js
+
+### Python
+py-slippi: https://github.com/hohav/py-slippi
+
 ## How to Contribute
 If you're interested in making Melee better than it already is, you should consider contributing!
 
