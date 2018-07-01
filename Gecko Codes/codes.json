@@ -12,28 +12,34 @@
       ],
       "build": [
         {
-          "type": "inject",
-          "address": "8006b0dc",
-          "sourceFile": "SendGamePreFrame.asm",
-          "annotation": "SendGamePreFrame [Fizzi, Achilles]"
-        },
-        {
-          "type": "inject",
-          "address": "8006c5d4",
-          "sourceFile": "SendGamePostFrame.asm",
-          "annotation": "SendGamePostFrame [Fizzi, Achilles]"
-        },
-        {
-          "type": "inject",
+          "type": "replace",
           "address": "8016e74c",
-          "sourceFile": "SendGameInfo.asm",
+          "value": "4829BDF5",
           "annotation": "SendGameInfo [Fizzi]"
         },
         {
-          "type": "inject",
+          "type": "replace",
+          "address": "8006b0dc",
+          "value": "4839F465",
+          "annotation": "SendGamePreFrame [Fizzi, Achilles]"
+        },
+        {
+          "type": "replace",
+          "address": "8006c5d4",
+          "value": "4839DF6D",
+          "annotation": "SendGamePostFrame [Fizzi, Achilles]"
+        },
+        {
+          "type": "replace",
           "address": "801a5b04",
-          "sourceFile": "SendGameEnd.asm",
+          "value": "48264A3D",
           "annotation": "SendGameEnd [Fizzi]"
+        },
+        {
+          "type": "replaceCodeBlock",
+          "address": "8040a540",
+          "sourceFile": "Recording.asm",
+          "annotation": "SlippiRecording [Fizzi, Achilles]"
         }
       ]
     },
