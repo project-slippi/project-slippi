@@ -122,6 +122,48 @@ startExiTransfer:
 #li r10, 0xB0 #bit pattern to set clock to 8 MHz and enable CS for device 0
 #stw r10, 0x6814(r11) #start transfer, write to parameter register
 
+mflr r0
+stw r0, 0x4(r1)
+stwu r1,-0x20(r1)
+
+# Prepare to call EXIAttach (803464c0) r3: 0, r4: 803522a8
+lis r3, 0x8034
+ori r3, r3, 0x64c0
+mtlr r3
+
+# Load input params
+li r3, 0
+li r4, 0
+
+blrl
+
+# Prepare to call EXILock (80346d80) r3: 0
+lis r3, 0x8034
+ori r3, r3, 0x6d80
+mtlr r3
+
+# Load input params
+li r3, 0
+
+blrl
+
+# Prepare to call EXISelect (80346688) r3: 0, r4: 0, r5: 4
+lis r3, 0x8034
+ori r3, r3, 0x6688
+mtlr r3
+
+# Load input params
+li r3, 0
+li r4, 0
+li r5, 4 # freq
+
+blrl
+
+#restore registers and sp
+lwz r0, 0x24(r1)
+addi r1, r1, 0x20
+mtlr r0
+
 blr
 
 ################################################################################
@@ -130,11 +172,9 @@ blr
 #  inputs: r3 byte to send
 ################################################################################
 sendByteExi:
-#slwi r3, r3, 24 #the byte to send has to be left shifted
 #li r4, 0x5 #bit pattern to write to control register to write one byte
-mr r4, r3
-li r3, 0
-li r5, 0
+slwi r3, r3, 24 #the byte to send has to be left shifted
+li r5, 1
 b handleExi
 
 ################################################################################
@@ -143,11 +183,9 @@ b handleExi
 #  inputs: r3 bytes to send
 ################################################################################
 sendHalfExi:
-#slwi r3, r3, 16 #the bytes to send have to be left shifted
 #li r4, 0x15 #bit pattern to write to control register to write two bytes
-mr r4, r3
-li r3, 0
-li r5, 1
+slwi r3, r3, 16 #the bytes to send have to be left shifted
+li r5, 2
 b handleExi
 
 ################################################################################
@@ -157,9 +195,7 @@ b handleExi
 ################################################################################
 sendWordExi:
 #li r4, 0x35 #bit pattern to write to control register to write four bytes
-mr r4, r3
-li r3, 0
-li r5, 3
+li r5, 4
 b handleExi
 
 ################################################################################
@@ -174,21 +210,33 @@ b handleExi
 handleExi:
 mflr r0
 stw r0, 0x4(r1)
-stwu r1,-0x20(r1)
-stw r7,0x1C(r1)
+stwu r1, -0x20(r1)
+stw r7, 0x1C(r1)
 
-# Write 1c to this memory value or for some reason the game doesn't allow
-# EXI calls
-li r6, 0x1c
-lis r7, 0x804A
-stw r6, 0x7C8C(r7)
+# Write the contents of r3 onto the stack and change r4 to an address to that
+stw r3, 0x18(r1)
+addi r4, r1, 0x18
 
-li r6, 1 # write mode input. 1 is write
-
+# Prepare to call EXIImm (80345b64)
 lis r7, 0x8034
 ori r7, r7, 0x5b64
 mtlr r7
+
+# Load input params
+li r3, 0 # slot
+li r6, 1 # write mode input. 1 is write
 li r7, 0 # r7 is cb? Dunno what that is, just set to 0
+
+blrl
+
+# Prepare to call EXISync (80345f4c) r3: 0
+lis r3, 0x8034
+ori r3, r3, 0x5f4c
+mtlr r3
+
+# Load input params
+li r3, 0
+
 blrl
 
 #restore registers and sp
@@ -205,6 +253,45 @@ blr
 endExiTransfer:
 #li r10, 0
 #stw r10, 0x6814(r11) #write 0 to the parameter register
+
+mflr r0
+stw r0, 0x4(r1)
+stwu r1,-0x20(r1)
+
+# Prepare to call EXIDeselect (803467b4) r3: 0
+lis r3, 0x8034
+ori r3, r3, 0x67b4
+mtlr r3
+
+# Load input params
+li r3, 0
+
+blrl
+
+# Prepare to call EXIUnlock (80346e74) r3: 0
+lis r3, 0x8034
+ori r3, r3, 0x6e74
+mtlr r3
+
+# Load input params
+li r3, 0
+
+blrl
+
+# Prepare to call EXIDetach (803465cc) r3: 0
+lis r3, 0x8034
+ori r3, r3, 0x65cc
+mtlr r3
+
+# Load input params
+li r3, 0
+
+blrl
+
+#restore registers and sp
+lwz r0, 0x24(r1)
+addi r1, r1, 0x20
+mtlr r0
 
 blr
 
