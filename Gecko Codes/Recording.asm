@@ -219,27 +219,17 @@ bl SendWordExi
 lwz r3, 0x6bc(r30) #load buttons pressed this frame
 bl SendWordExi
 
-# TODO: For some reason the following code block was causing a crash on console
-# TODO: Need to figure out why
-# TODO: Also need to make this work with single code concept
 #get raw controller inputs
-#lis r4, 0x804C
-#ori r4, r4, 0x1FAC
-#mulli r3, r14, 0x44
-#add r4, r4, r3
+lis r16, 0x804C
+ori r16, r16, 0x1FAC
+mulli r3, r14, 0x44
+add r16, r16, r3
 
-#lhz r3, 0x2(r4) #load constant button presses
-#bl SendHalfExi
-#lwz r3, 0x30(r4) #load l analog trigger
-#bl SendWordExi
-#lwz r3, 0x34(r4) #load r analog trigger
-#bl SendWordExi
-
-li r3, 0
+lhz r3, 0x2(r16) #load constant button presses
 bl SendHalfExi
-li r3, 0
+lwz r3, 0x30(r16) #load l analog trigger
 bl SendWordExi
-li r3, 0
+lwz r3, 0x34(r16) #load r analog trigger
 bl SendWordExi
 
 bl EndExiTransfer #stop transfer
