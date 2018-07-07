@@ -12,27 +12,27 @@
       ],
       "build": [
         {
-          "type": "replace",
+          "type": "branchAndLink",
           "address": "8016e74c",
-          "value": "4829BDF5",
+          "targetAddress": "8040a540",
           "annotation": "SendGameInfo [Fizzi]"
         },
         {
-          "type": "replace",
+          "type": "branchAndLink",
           "address": "8006b0dc",
-          "value": "4839F465",
+          "targetAddress": "8040a540",
           "annotation": "SendGamePreFrame [Fizzi, Achilles]"
         },
         {
-          "type": "replace",
+          "type": "branchAndLink",
           "address": "8006c5d4",
-          "value": "4839DF6D",
+          "targetAddress": "8040a540",
           "annotation": "SendGamePostFrame [Fizzi, Achilles]"
         },
         {
-          "type": "replace",
+          "type": "branchAndLink",
           "address": "801a5b04",
-          "value": "48264A3D",
+          "targetAddress": "8040a540",
           "annotation": "SendGameEnd [Fizzi]"
         },
         {
