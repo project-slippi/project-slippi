@@ -152,8 +152,8 @@ lwz r3, 0x1FB0(r14) #load UCF toggle
 bl SendWordExi
 
 addi r14, r14, 0x4
-andi. r3, r14, 0xFFFF
-cmpwi r3, 0x20
+andi. r3, r14, 0xFFFF # Grab the bottom of the loop address
+cmpwi r3, 0x20 # Stop looping after 8 iterations
 blt+ START_UCF_LOOP
 
 bl EndExiTransfer
@@ -353,9 +353,9 @@ CLEANUP:
 # Recover stack frame
 addi r1, r1, 0x88
 lwz r0, 0x4(r1)
-mtlr r0
-lmw r2, -0x78(r1)
-lwz r0, -0x80(r1)
+mtlr r0 # Put the stored lr back
+lmw r2, -0x78(r1) # Reload all registers to the state they were in when function was called
+lwz r0, -0x80(r1) # Can't multi-load past the register used for address so restore r0 individually
 
 # Fork on lr value to replace correct code
 mflr r3
