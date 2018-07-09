@@ -9,11 +9,21 @@ const electronSettings = require('electron-settings');
 export const LOAD_ROOT_FOLDER = 'LOAD_ROOT_FOLDER';
 export const CHANGE_FOLDER_SELECTION = 'CHANGE_FOLDER_SELECTION';
 export const STORE_SCROLL_POSITION = 'STORE_SCROLL_POSITION';
-
+export const PAGINATE_REPLAY_FILES = 'PAGINATE_REPLAY_FILES';
+export const CHANGE_PAGE_NUMBER = 'CHANGE_PAGE_NUMBER';
 export function loadRootFolder() {
   return {
     type: LOAD_ROOT_FOLDER,
     payload: {},
+  };
+}
+
+export function changePageNumber(value) {
+  return {
+    type: CHANGE_PAGE_NUMBER,
+    payload: {
+      value: value.selected,
+    },
   };
 }
 

@@ -1,5 +1,43 @@
+@import '../variables/colors.global.scss';
 .pagination {
-      &__page--page {
-         list-style-type: none;   
+      &__container {
+            text-align: center;
+      }
+      &__page {
+            &--link {
+                  color: $color-white;
+                  text-decoration-style: none;
+                  padding: 5px;
+                  outline: none;
+            }
+            &--active {
+                  background-color: $primary-green;
+                  box-shadow: 0 0 1rem rgba($color-white, 0.4);                  
+            }
+            &--page {
+                  margin-left: 40px;
+                  list-style-type: none;   
+                  display: inline-block;
+                  border: 1px solid $primary-green;
+                  width: 30px;
+                  height: 30px;
+                  padding-top: 3px;
+                  border-radius: 50%;
+                  text-align: center;
+                  cursor: pointer;
+
+                  &:hover {
+                        box-shadow: 0 0 1rem rgba($color-white, 0.4);
+                  }
+            }
+            &--previous{
+                  list-style-type: none;
+                  display: inline-block;
+            }
+            &--next {
+                  margin-left: 40px;
+                  list-style-type: none;
+                  display: inline-block;
+            }
       }
 }

@@ -10,7 +10,13 @@ import FileRow from '../components/FileRow';
 import DismissibleMessage from '../components/common/DismissibleMessage';
 import PageHeader from '../components/common/PageHeader';
 import FolderBrowser from '../components/common/FolderBrowser';
-import { loadRootFolder, changeFolderSelection, storeScrollPosition, playFile } from '../actions/fileLoader';
+import { loadRootFolder,
+  changeFolderSelection,
+  storeScrollPosition,
+  playFile,
+  paginateReplayFiles,
+  changePageNumber,
+} from '../actions/fileLoader';
 import { displayError, dismissError } from '../actions/error';
 import { gameProfileLoad } from '../actions/game';
 
@@ -23,7 +29,7 @@ class FileLoader extends Component {
     changeFolderSelection: (path) => void,
     playFile: (file) => void,
     storeScrollPosition: () => void,
-
+    changePageNumber: (val) => void,
     // game actions
     gameProfileLoad: (game) => void,
 
@@ -42,7 +48,6 @@ class FileLoader extends Component {
     this.state = {
       totalPages: 0,
       initialPage: 0,
-      totalPerPage: 10,
     };
   }
   componentDidMount() {
@@ -54,9 +59,8 @@ class FileLoader extends Component {
 
   componentWillReceiveProps(nextProps){
     const { store } = nextProps;
-    const { totalPerPage } = this.state;
     this.setState({
-      totalPages: store.files.length / totalPerPage,
+      totalPages: store.numberOfPages,
     });
   }
   componentWillUnmount() {
@@ -77,6 +81,10 @@ class FileLoader extends Component {
   setRefPrimary = element => {
     this.refPrimary = element;
   };
+
+  handlePageClick(val) {
+    this.props.changePageNumber(val);
+  }
 
   renderSidebar() {
     const refPrimary = this.refPrimary;
@@ -163,10 +171,10 @@ class FileLoader extends Component {
 
   renderFileSelection() {
     const store = this.props.store || {};
-    let files = store.files || [];
+    let selectedFilePage = store.selectedFilePage || [];
 
     // Filter out files that were shorter than 30 seconds
-    files = files.filter(file => {
+    selectedFilePage = selectedFilePage.filter(file => {
       const settings = file.game.getSettings() || {};
       if (!settings.stageId) {
         // I know that right now if you play games from debug mode it make some
@@ -180,7 +188,7 @@ class FileLoader extends Component {
     });
 
     // If we have no files to display, render an empty state
-    if (!files.length) {
+    if (!selectedFilePage.length) {
       return this.renderEmptyLoader();
     }
 
@@ -197,7 +205,7 @@ class FileLoader extends Component {
     );
 
     // Generate a row for every file in selected folder
-    const rows = files.map(file => (
+    const rows = selectedFilePage.map(file => (
       <FileRow
         key={file.fullPath}
         file={file}
@@ -234,11 +242,15 @@ class FileLoader extends Component {
       <ReactPaginate
         pageCount={totalPages}
         initialPage={initialPage}
+        onPageChange={val => this.handlePageClick(val)}
         previousLabel={'<'}
         nextLabel={'>'}
+        activeClassName={paginationStyles['pagination__page--active']}
         containerClassName={paginationStyles['pagination__container']}
         pageLinkClassName={paginationStyles['pagination__page--link']}
         pageClassName={paginationStyles['pagination__page--page']}
+        previousClassName={paginationStyles['pagination__page--previous']}
+        nextClassName={paginationStyles['pagination__page--next']}
       />
     );
   }
@@ -278,5 +290,7 @@ export default connect(mapStateToProps, {
   displayError,
   dismissError,
   gameProfileLoad,
+  paginateReplayFiles,
+  changePageNumber,
 })(FileLoader);
 

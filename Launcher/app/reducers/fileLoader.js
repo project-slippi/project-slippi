@@ -1,6 +1,6 @@
 import SlippiGame from 'slp-parser-js';
 import {
-  LOAD_ROOT_FOLDER, CHANGE_FOLDER_SELECTION, STORE_SCROLL_POSITION
+  LOAD_ROOT_FOLDER, CHANGE_FOLDER_SELECTION, STORE_SCROLL_POSITION, CHANGE_PAGE_NUMBER,
 } from '../actions/fileLoader';
 
 const fs = require('fs');
@@ -18,6 +18,8 @@ const defaultState = {
     x: 0,
     y: 0,
   },
+  numberOfPages: 0,
+  selectedFilePage: [],
 };
 
 export default function fileLoader(state = defaultState, action) {
@@ -28,9 +30,19 @@ export default function fileLoader(state = defaultState, action) {
     return changeFolderSelection(state, action);
   case STORE_SCROLL_POSITION:
     return storeScrollPosition(state, action);
+  case CHANGE_PAGE_NUMBER:
+    return changePageNumber(state, action);
   default:
     return state;
   }
+}
+
+function changePageNumber(state, action) {
+  const { files } = state;
+  return {
+    ...state,
+    selectedFilePage: files[action.payload.value],
+  };
 }
 
 function loadRootFolder(state) {
@@ -114,11 +126,29 @@ function changeFolderSelection(state, action) {
       game: game,
     };
   });
+  const numberOfPages = Math.ceil(files.length / 10);
+  const paginatedFiles = [];
+  for (let pagesX = 0; pagesX <= numberOfPages; pagesX++) {
+    // array to be pushed into paginatedFiles
+
+    const page = [];
+    const filesPerPage = files.length > 10 ? 10 : files.length;
+
+    for (let fileY = 0; fileY < filesPerPage; fileY++) {
+      if (files[fileY]) {
+        page.push(files[fileY]);
+        files.shift();
+      }
+    }
+    paginatedFiles.push(page);
+  }
 
   return {
     ...state,
+    numberOfPages: numberOfPages,
     selectedFolderFullPath: folderPath,
-    files: files,
+    files: paginatedFiles,
+    selectedFilePage: paginatedFiles[0],
   };
 }
 
