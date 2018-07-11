@@ -47,7 +47,7 @@ To find the Slippi-specific stuff in the codebase, search for "Slippi".
 ### Replay File
 Dolphin currently serves the purpose of receiving data from the game and writting a replay file. To understand the structure and format of the replay file, please read the spec here: https://github.com/JLaferri/project-slippi/wiki/Replay-File-Spec
 
-### Slippi Replay Launcher (Javascript)
+### Slippi Replay Launcher (Javascript/React)
 The Launcher application is maintained in the Launcher folder of this project: https://github.com/JLaferri/project-slippi/tree/master/Launcher.
 
 In order to build the Launcher application, consider forking this project and checking it out onto your computer.
