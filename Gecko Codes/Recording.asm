@@ -7,7 +7,7 @@
 # function to execute. Everything is done in one code to allow for sharing the
 # EXI functions
 # ------------------------------------------------------------------------------
-# Injection Address: 8040a540 (Aux Code Region)
+# Injection Address: 8032ED8C (Screenshot Code Region)
 # ------------------------------------------------------------------------------
 # Supports branching from:
 # 8016e74c (SendGameInfo)
@@ -15,6 +15,12 @@
 # 8006c5d4 (SendGamePostFrame)
 # 801a5b04 (SendGameEnd)
 ################################################################################
+
+.set MEM_SLOT, 0 # 0 is SlotA, 1 is SlotB
+.set GAME_INFO_PAYLOAD_LENGTH, 352
+.set GAME_PRE_FRAME_PAYLOAD_LENGTH, 58
+.set GAME_POST_PAYLOAD_LENGTH, 37
+.set GAME_END_PAYLOAD_LENGTH, 1
 
 # Create stack frame and back up every register. For now this is just ultra
 # safe partially to save space and also because the locations we are branching
@@ -89,25 +95,25 @@ bl SendByteExi
 # game info command
 li r3, 0x36
 bl SendByteExi
-li r3, 352
+li r3, GAME_INFO_PAYLOAD_LENGTH
 bl SendHalfExi
 
 # pre-frame update command
 li r3, 0x37
 bl SendByteExi
-li r3, 58
+li r3, GAME_PRE_FRAME_PAYLOAD_LENGTH
 bl SendHalfExi
 
 # post-frame update command
 li r3, 0x38
 bl SendByteExi
-li r3, 37
+li r3, GAME_POST_PAYLOAD_LENGTH
 bl SendHalfExi
 
 # game end command
 li r3, 0x39
 bl SendByteExi
-li r3, 1
+li r3, GAME_END_PAYLOAD_LENGTH
 bl SendHalfExi
 
 #------------- BEGIN GAME INFO COMMAND -------------
@@ -477,7 +483,7 @@ ori r3, r3, 0x64c0
 mtlr r3
 
 # Load input params
-li r3, 0 # slot
+li r3, MEM_SLOT # slot
 li r4, 0 # maybe a callback? leave 0
 blrl # Call EXIAttach
 
@@ -487,7 +493,7 @@ ori r3, r3, 0x6d80
 mtlr r3
 
 # Load input params
-li r3, 0 # slot
+li r3, MEM_SLOT # slot
 blrl # Call EXILock
 
 # Prepare to call EXISelect (80346688) r3: 0, r4: 0, r5: 4
@@ -496,7 +502,7 @@ ori r3, r3, 0x6688
 mtlr r3
 
 # Load input params
-li r3, 0 # slot
+li r3, MEM_SLOT # slot
 li r4, 0 # device
 li r5, 5 # freq
 blrl # Call EXISelect
@@ -570,7 +576,7 @@ ori r3, r3, 0x5b64
 mtlr r3
 
 # Load input params that haven't been loaded yet
-li r3, 0 # slot
+li r3, MEM_SLOT # slot
 li r6, 1 # write mode input. 1 is write
 li r7, 0 # r7 is a callback address. Dunno what to use so just set to 0
 blrl # Call EXIImm
@@ -581,7 +587,7 @@ ori r3, r3, 0x5f4c
 mtlr r3
 
 # Load input params
-li r3, 0
+li r3, MEM_SLOT # slot
 blrl # Call EXISync
 
 #restore registers and sp
@@ -605,7 +611,7 @@ lis r3, 0x8034
 ori r3, r3, 0x67b4
 mtlr r3
 
-li r3, 0 # Load input params
+li r3, MEM_SLOT # Load input param for slot
 blrl # Call EXIDeselect
 
 # Prepare to call EXIUnlock (80346e74) r3: 0
@@ -613,7 +619,7 @@ lis r3, 0x8034
 ori r3, r3, 0x6e74
 mtlr r3
 
-li r3, 0 # Load input params
+li r3, MEM_SLOT # Load input param for slot
 blrl # Call EXIUnlock
 
 # Prepare to call EXIDetach (803465cc) r3: 0
@@ -621,7 +627,7 @@ lis r3, 0x8034
 ori r3, r3, 0x65cc
 mtlr r3
 
-li r3, 0 # Load input params
+li r3, MEM_SLOT # Load input param for slot
 blrl # Call EXIDetach
 
 #restore registers and sp

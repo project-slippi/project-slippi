@@ -14,30 +14,30 @@
         {
           "type": "branchAndLink",
           "address": "8016e74c",
-          "targetAddress": "8040a540",
+          "targetAddress": "8032ED8C",
           "annotation": "SendGameInfo [Fizzi]"
         },
         {
           "type": "branchAndLink",
           "address": "8006b0dc",
-          "targetAddress": "8040a540",
+          "targetAddress": "8032ED8C",
           "annotation": "SendGamePreFrame [Fizzi, Achilles]"
         },
         {
           "type": "branchAndLink",
           "address": "8006c5d4",
-          "targetAddress": "8040a540",
+          "targetAddress": "8032ED8C",
           "annotation": "SendGamePostFrame [Fizzi, Achilles]"
         },
         {
           "type": "branchAndLink",
           "address": "801a5b04",
-          "targetAddress": "8040a540",
+          "targetAddress": "8032ED8C",
           "annotation": "SendGameEnd [Fizzi]"
         },
         {
           "type": "replaceCodeBlock",
-          "address": "8040a540",
+          "address": "8032ED8C",
           "sourceFile": "Recording.asm",
           "annotation": "SlippiRecording [Fizzi, Achilles]"
         }
