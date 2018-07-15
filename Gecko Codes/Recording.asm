@@ -19,9 +19,6 @@
 # r14 - used for persistent local variables
 # r15 - used for persistent local variables
 # r16 - used for persistent local variables
-# r24 - write buffer length
-# r25 - address of current write location
-# r26 - address of write buffer
 # r27-r31 - reserved for external function inputs (player block address, etc)
 ################################################################################
 
@@ -89,56 +86,51 @@ b CLEANUP
 ################################################################################
 SEND_GAME_INFO:
 #------------- WRITE OUT COMMAND SIZES -------------
-# prepare write buffer with size able to fit payload
-li r3, MESSAGE_DESCIPTIONS_PAYLOAD_LENGTH
-bl PrepareWriteBuffer
+# prepare to write EXI data
+bl StartExiTransfer
 
 # start file sending and indicate the sizes of the output commands
 li r3, 0x35
-bl PushByte
+bl SendByteExi
 
 # write out the payload size of the 0x35 command (includes this byte)
 # we can write this in only a byte because I doubt it will ever be larger
 # than 255. We write out the sizes of the other commands as half words for
 # consistent parsing
 li r3, MESSAGE_DESCIPTIONS_PAYLOAD_LENGTH
-bl PushByte
+bl SendByteExi
 
 # game info command
 li r3, 0x36
-bl PushByte
+bl SendByteExi
 li r3, GAME_INFO_PAYLOAD_LENGTH
-bl PushHalf
+bl SendHalfExi
 
 # pre-frame update command
 li r3, 0x37
-bl PushByte
+bl SendByteExi
 li r3, GAME_PRE_FRAME_PAYLOAD_LENGTH
-bl PushHalf
+bl SendHalfExi
 
 # post-frame update command
 li r3, 0x38
-bl PushByte
+bl SendByteExi
 li r3, GAME_POST_FRAME_PAYLOAD_LENGTH
-bl PushHalf
+bl SendHalfExi
 
 # game end command
 li r3, 0x39
-bl PushByte
+bl SendByteExi
 li r3, GAME_END_PAYLOAD_LENGTH
-bl PushHalf
+bl SendHalfExi
 
 bl ExiTransferBuffer
 bl FreeBuffer
 
 #------------- BEGIN GAME INFO COMMAND -------------
-# prepare write buffer with size able to fit payload
-li r3, GAME_INFO_PAYLOAD_LENGTH
-bl PrepareWriteBuffer
-
 # game information message type
 li r3, 0x36
-bl PushByte
+bl SendByteExi
 
 # build version number. Each byte is one digit
 # any change in command data should result in a minor version change
@@ -149,7 +141,7 @@ bl PushByte
 # events. Build/Revision can be incremented for smaller changes
 lis r3, 0x0100
 addi r3, r3, 0x0000
-bl PushWord
+bl SendWordExi
 
 #------------- GAME INFO BLOCK -------------
 # this iterates through the static game info block that is used to pull data
@@ -158,7 +150,7 @@ li r14, 0
 START_GAME_INFO_LOOP:
 add r3, r31, r14
 lwz r3, 0x0(r3)
-bl PushWord
+bl SendWordExi
 
 addi r14, r14, 0x4
 cmpwi r14, 0x138
@@ -168,21 +160,20 @@ blt+ START_GAME_INFO_LOOP
 # write out random seed
 lis r3, 0x804D
 lwz r3, 0x5F90(r3) #load random seed
-bl PushWord
+bl SendWordExi
 
 # write UCF toggle bytes
 lis r14, 0x804D
 START_UCF_LOOP:
 lwz r3, 0x1FB0(r14) #load UCF toggle
-bl PushWord
+bl SendWordExi
 
 addi r14, r14, 0x4
 andi. r3, r14, 0xFFFF # Grab the bottom of the loop address
 cmpwi r3, 0x20 # Stop looping after 8 iterations
 blt+ START_UCF_LOOP
 
-bl ExiTransferBuffer
-bl FreeBuffer
+bl EndExiTransfer
 
 b CLEANUP
 
@@ -204,48 +195,47 @@ mulli r3, r14, 0xE90
 add r15, r15, r3
 
 #------------- FRAME_UPDATE -------------
-# prepare write buffer with size able to fit payload
-li r3, GAME_PRE_FRAME_PAYLOAD_LENGTH
-bl PrepareWriteBuffer
+# prepare to write EXI data
+bl StartExiTransfer
 
 li r3, 0x37
-bl PushByte #send OnPreFrameUpdate event code
+bl SendByteExi #send OnPreFrameUpdate event code
 
 bl GetFrameCount
-bl PushWord
+bl SendWordExi
 
 mr r3, r14 #player slot
-bl PushByte
+bl SendByteExi
 
 mr r3, r30
 mr r4, r15
 bl GetIsFollower
-bl PushByte
+bl SendByteExi
 
 lis r3, 0x804D
 lwz r3, 0x5F90(r3) #load random seed
-bl PushWord
+bl SendWordExi
 
 lwz r3, 0x70(r30) #load action state ID
-bl PushHalf
+bl SendHalfExi
 lwz r3, 0x110(r30) #load x coord
-bl PushWord
+bl SendWordExi
 lwz r3, 0x114(r30) #load y coord
-bl PushWord
+bl SendWordExi
 lwz r3, 0x8C(r30) #load facing direction
-bl PushWord
+bl SendWordExi
 lwz r3, 0x680(r30) #load Joystick X axis
-bl PushWord
+bl SendWordExi
 lwz r3, 0x684(r30) #load Joystick Y axis
-bl PushWord
+bl SendWordExi
 lwz r3, 0x698(r30) #load c-stick X axis
-bl PushWord
+bl SendWordExi
 lwz r3, 0x69c(r30) #load c-stick Y axis
-bl PushWord
+bl SendWordExi
 lwz r3, 0x6b0(r30) #load analog trigger input
-bl PushWord
+bl SendWordExi
 lwz r3, 0x6bc(r30) #load buttons pressed this frame
-bl PushWord
+bl SendWordExi
 
 #get raw controller inputs
 lis r16, 0x804C
@@ -254,14 +244,13 @@ mulli r3, r14, 0x44
 add r16, r16, r3
 
 lhz r3, 0x2(r16) #load constant button presses
-bl PushHalf
+bl SendHalfExi
 lwz r3, 0x30(r16) #load l analog trigger
-bl PushWord
+bl SendWordExi
 lwz r3, 0x34(r16) #load r analog trigger
-bl PushWord
+bl SendWordExi
 
-bl ExiTransferBuffer
-bl FreeBuffer
+bl EndExiTransfer
 
 b CLEANUP
 
@@ -288,53 +277,51 @@ mulli r3, r14, 0xE90
 add r15, r15, r3
 
 #------------- FRAME_UPDATE -------------
-# prepare write buffer with size able to fit payload
-li r3, GAME_POST_FRAME_PAYLOAD_LENGTH
-bl PrepareWriteBuffer
+# prepare to write EXI data
+bl StartExiTransfer
 
 li r3, 0x38
-bl PushByte #send OnPostFrameUpdate event code
+bl SendByteExi #send OnPostFrameUpdate event code
 
 bl GetFrameCount
-bl PushWord
+bl SendWordExi
 
 mr r3, r14 #player slot
-bl PushByte
+bl SendByteExi
 
 mr r3, r29
 mr r4, r15
 bl GetIsFollower
-bl PushByte
+bl SendByteExi
 
 lwz r3, 0x64(r29) #load internal char ID
-bl PushByte
+bl SendByteExi
 lwz r3, 0x70(r29) #load action state ID
-bl PushHalf
+bl SendHalfExi
 lwz r3, 0x110(r29) #load x coord
-bl PushWord
+bl SendWordExi
 lwz r3, 0x114(r29) #load y coord
-bl PushWord
+bl SendWordExi
 lwz r3, 0x8C(r29) #load facing direction
-bl PushWord
+bl SendWordExi
 lwz r3, 0x1890(r29) #load current damage
-bl PushWord
+bl SendWordExi
 lwz r3, 0x19f8(r29) #load shield size
-bl PushWord
+bl SendWordExi
 lwz r3, 0x20ec(r29) #load last attack landed
-bl PushByte
+bl SendByteExi
 lhz r3, 0x20f0(r29) #load combo count
-bl PushByte
+bl SendByteExi
 lwz r3, 0x1924(r29) #load player who last hit this player
-bl PushByte
+bl SendByteExi
 
 lbz r3, 0x8E(r15) # load stocks remaining
-bl PushByte
+bl SendByteExi
 
 lwz r3, 0x8F4(r29) # load action state frame counter
-bl PushWord
+bl SendWordExi
 
-bl ExiTransferBuffer
-bl FreeBuffer
+bl EndExiTransfer
 
 b CLEANUP
 
@@ -344,21 +331,19 @@ b CLEANUP
 # Description: Send information about the end of a game to Slippi Device
 ################################################################################
 SEND_GAME_END:
-# prepare write buffer with size able to fit payload
-li r3, GAME_END_PAYLOAD_LENGTH
-bl PrepareWriteBuffer
+# prepare to write EXI data
+bl StartExiTransfer
 
 # request game information from slippi
 li r3, 0x39
-bl PushByte
+bl SendByteExi
 
 #check byte that will tell us whether the game was won by stock loss or by ragequit
 lis r3, 0x8047
 lbz r3, -0x4960(r3)
-bl PushByte #send win condition byte. this byte will be 0 on ragequit, 3 on win by stock loss
+bl SendByteExi #send win condition byte. this byte will be 0 on ragequit, 3 on win by stock loss
 
-bl ExiTransferBuffer
-bl FreeBuffer
+bl EndExiTransfer
 
 b CLEANUP
 
@@ -433,89 +418,6 @@ addi r28, r5, 0 #execute replaced code line
 blr
 
 ################################################################################
-# Function: PrepareWriteBuffer
-# ------------------------------------------------------------------------------
-# Description: Prepares memory buffer where data will be written to before
-# it is sent to the EXI bus
-# ------------------------------------------------------------------------------
-# Inputs:
-# r3 - Payload byte count. Size will be 1 greater than this to fit command
-# ------------------------------------------------------------------------------
-# Outputs: (Non-standard because this output is used code-wide)
-# r24 - write buffer length
-# r25 - address of allocated memory (serves as current write location)
-# r26 - address of allocated memory
-################################################################################
-PrepareWriteBuffer:
-# Store stack frame
-mflr r0
-stw r0, 0x4(r1)
-stwu r1, -0x20(r1)
-
-addi r24, r3, 1 # add 1 to payload length to fit command byte
-
-# Prepare to call _HSD_MemAlloc (8037f1e4)
-lis r3, 0x8037
-ori r3, r3, 0xf1e4
-mtlr r3
-mr r3, r24 # size to alloc
-blrl
-
-mr r25, r3 # store pointer to memory location
-mr r26, r3 # store pointer to memory location
-
-#restore registers and sp
-lwz r0, 0x24(r1)
-addi r1, r1, 0x20
-mtlr r0
-
-blr
-
-PushByte:
-stb r3, 0x0(r25)
-addi r25, r25, 1
-blr
-
-PushHalf:
-sth r3, 0x0(r25)
-addi r25, r25, 2
-blr
-
-PushWord:
-stw r3, 0x0(r25)
-addi r25, r25, 4
-blr
-
-################################################################################
-# Function: FreeBuffer
-# ------------------------------------------------------------------------------
-# Description: Prepares memory buffer where data will be written to before
-# it is sent to the EXI bus
-# ------------------------------------------------------------------------------
-# Inputs:
-# r26 - address of allocated memory
-################################################################################
-FreeBuffer:
-# Store stack frame
-mflr r0
-stw r0, 0x4(r1)
-stwu r1,-0x20(r1)
-
-# Prepare to call HSD_Free (8037f1b0)
-lis r3, 0x8037
-ori r3, r3, 0xf1b0
-mtlr r3
-mr r3, r26 # Pass address to free function
-blrl
-
-#restore registers and sp
-lwz r0, 0x24(r1)
-addi r1, r1, 0x20
-mtlr r0
-
-blr
-
-################################################################################
 # Function: GetFrameCount
 # ------------------------------------------------------------------------------
 # Description: Gets the number of frames this game has been going on for.
@@ -573,17 +475,16 @@ GET_IS_FOLLOWER_RETURN:
 blr
 
 ################################################################################
-# Function: ExiTransferBuffer
+# Function: StartExiTransfer
 # ------------------------------------------------------------------------------
-# Description: Sets up EXI slot, writes buffer via DMA, closes EXI slot
+# Description: Prepares EXI slot to be written to
 ################################################################################
-ExiTransferBuffer:
+StartExiTransfer:
 # Store stack frame
 mflr r0
 stw r0, 0x4(r1)
 stwu r1,-0x20(r1)
 
-# Step 1 - Prepare slot
 # Prepare to call EXIAttach (803464c0) r3: 0, r4: 803522a8
 lis r3, 0x8034
 ori r3, r3, 0x64c0
@@ -614,19 +515,79 @@ li r4, 0 # device
 li r5, 5 # freq
 blrl # Call EXISelect
 
-# Step 2 - Write
-# Prepare to call EXIDma (80345e60)
+#restore registers and sp
+lwz r0, 0x24(r1)
+addi r1, r1, 0x20
+mtlr r0
+
+blr
+
+################################################################################
+# Function: SendByteExi
+# ------------------------------------------------------------------------------
+# Description: Send byte over EXI
+# ------------------------------------------------------------------------------
+# Inputs:
+# r3 - Data to transfer
+################################################################################
+SendByteExi:
+slwi r3, r3, 24 #the byte to send has to be left shifted
+li r5, 1
+b HANDLE_EXI
+
+################################################################################
+# Function: SendHalfExi
+# ------------------------------------------------------------------------------
+# Description: Send half word over EXI
+# ------------------------------------------------------------------------------
+# Inputs:
+# r3 - Data to transfer
+################################################################################
+SendHalfExi:
+slwi r3, r3, 16 #the bytes to send have to be left shifted
+li r5, 2
+b HANDLE_EXI
+
+################################################################################
+# Function: SendWordExi
+# ------------------------------------------------------------------------------
+# Description: Send word over EXI
+# ------------------------------------------------------------------------------
+# Inputs:
+# r3 - Data to transfer
+################################################################################
+SendWordExi:
+li r5, 4
+b HANDLE_EXI
+
+################################################################################
+# Routine: HandleExi
+# ------------------------------------------------------------------------------
+# Description: Main handler for EXI sending
+# ------------------------------------------------------------------------------
+# Inputs:
+# r3 - Left-shifted data to transfer
+# r5 - Length of data to transfer
+################################################################################
+HANDLE_EXI:
+mflr r0
+stw r0, 0x4(r1)
+stwu r1, -0xC(r1)
+
+# Write the contents of r3 onto the stack and change r4 to that address
+stw r3, 0x8(r1)
+addi r4, r1, 0x8
+
+# Prepare to call EXIImm (80345b64)
 lis r3, 0x8034
-ori r3, r3, 0x5e60
+ori r3, r3, 0x5b64
 mtlr r3
 
 # Load input params that haven't been loaded yet
 li r3, MEM_SLOT # slot
-mr r4, r26
-mr r5, r24
 li r6, 1 # write mode input. 1 is write
 li r7, 0 # r7 is a callback address. Dunno what to use so just set to 0
-blrl # Call EXIDma
+blrl # Call EXIImm
 
 # Prepare to call EXISync (80345f4c) r3: 0
 lis r3, 0x8034
@@ -637,7 +598,22 @@ mtlr r3
 li r3, MEM_SLOT # slot
 blrl # Call EXISync
 
-# Step 3 - Close slot
+#restore registers and sp
+lwz r0, 0x10(r1)
+addi r1, r1, 0xC
+mtlr r0
+blr
+
+################################################################################
+# Function: EndExiTransfer
+# ------------------------------------------------------------------------------
+# Description: Wrap up EXI transfer
+################################################################################
+EndExiTransfer:
+mflr r0
+stw r0, 0x4(r1)
+stwu r1, -0xC(r1)
+
 # Prepare to call EXIDeselect (803467b4) r3: 0
 lis r3, 0x8034
 ori r3, r3, 0x67b4
@@ -663,8 +639,8 @@ li r3, MEM_SLOT # Load input param for slot
 blrl # Call EXIDetach
 
 #restore registers and sp
-lwz r0, 0x24(r1)
-addi r1, r1, 0x20
+lwz r0, 0x10(r1)
+addi r1, r1, 0xC
 mtlr r0
 
 blr
