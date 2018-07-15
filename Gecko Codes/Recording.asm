@@ -124,9 +124,6 @@ bl SendByteExi
 li r3, GAME_END_PAYLOAD_LENGTH
 bl SendHalfExi
 
-bl ExiTransferBuffer
-bl FreeBuffer
-
 #------------- BEGIN GAME INFO COMMAND -------------
 # game information message type
 li r3, 0x36
