@@ -34,10 +34,11 @@
 # Create stack frame and back up every register. For now this is just ultra
 # safe partially to save space and also because the locations we are branching
 # from were not originally designed to be branched from in those locations
-stmw r0, -0x80(r1) # store all registers
+stwu r1, -0x100(r1)
+stmw r3, 0xC(r1)
+stw r0, 0x8(r1)
 mflr r0
-stw r0, 0x4(r1)
-stwu r1, -0x88(r1)
+stw r0, 0x104(r1)
 
 # scene controller checks. must be in VS mode (major) and in-game (minor)
 lis r4, 0x8048 # load address to offset from for scene controller
@@ -49,7 +50,9 @@ cmpwi r3, 0x2 # the minor scene for in-game is 0x2
 bne- CLEANUP
 
 # Move value of the lr to r3 for determining where we came from
-lwz r3, 0x8C(r1)
+# I could have used r0 directly but doing this way allows for future bl calls
+# in the "should run" checks
+lwz r3, 0x104(r1)
 
 # Fork to SendGameInfo if we came from 8016e74c
 lis r4, 0x8016
@@ -352,11 +355,10 @@ b CLEANUP
 ################################################################################
 CLEANUP:
 # Recover stack frame
-addi r1, r1, 0x88
-lwz r0, 0x4(r1)
+lwz r0, 0x104(r1)
 mtlr r0 # Put the stored lr back
-lmw r2, -0x78(r1) # Reload all registers to the state they were in when function was called
-lwz r0, -0x80(r1) # Can't multi-load past the register used for address so restore r0 individually
+lwz r0, 0x8(r1) # Restore r0 to the value it had when code was called
+addi r1, r1, 0x100 # restore sp
 
 # Fork on lr value to replace correct code
 mflr r3
@@ -386,31 +388,26 @@ cmpw r3, r4
 beq RESTORE_SEND_GAME_END
 
 # If lr did not match any sources, just return
-lwz r3, -0x74(r1)
-lwz r4, -0x70(r1)
+lmw r3, -0xF4(r1) # Reload all registers
 blr
 
 RESTORE_SEND_GAME_INFO:
-lwz r3, -0x74(r1)
-lwz r4, -0x70(r1)
+lmw r3, -0xF4(r1) # Reload all registers
 lis r3, 0x8017 #execute replaced code line
 blr
 
 RESTORE_SEND_GAME_PRE_FRAME:
-lwz r3, -0x74(r1)
-lwz r4, -0x70(r1)
+lmw r3, -0xF4(r1) # Reload all registers
 lbz r0, 0x2219(r31) #execute replaced code line
 blr
 
 RESTORE_SEND_GAME_POST_FRAME:
-lwz r3, -0x74(r1)
-lwz r4, -0x70(r1)
+lmw r3, -0xF4(r1) # Reload all registers
 lwz r0, 0x3C(r1) #execute replaced code line
 blr
 
 RESTORE_SEND_GAME_END:
-lwz r3, -0x74(r1)
-lwz r4, -0x70(r1)
+lmw r3, -0xF4(r1) # Reload all registers
 addi r28, r5, 0 #execute replaced code line
 blr
 
