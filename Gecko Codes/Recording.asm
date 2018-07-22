@@ -35,8 +35,10 @@
 # safe partially to save space and also because the locations we are branching
 # from were not originally designed to be branched from in those locations
 stwu r1, -0x100(r1)
-stmw r3, 0xC(r1)
-stw r0, 0x8(r1)
+stw r14, 0x8(r1)
+stw r15, 0xC(r1)
+stw r16, 0x10(r1)
+stw r3, 0x14(r1) # Needed for game end code
 mflr r0
 stw r0, 0x104(r1)
 
@@ -357,57 +359,55 @@ CLEANUP:
 # Recover stack frame
 lwz r0, 0x104(r1)
 mtlr r0 # Put the stored lr back
-lwz r0, 0x8(r1) # Restore r0 to the value it had when code was called
+lwz r14, 0x8(r1)
+lwz r15, 0xC(r1)
+lwz r16, 0x10(r1)
+lwz r3, 0x14(r1) # Needed for game end code
 addi r1, r1, 0x100 # restore sp
 
 # Fork on lr value to replace correct code
-mflr r3
+mflr r9
 
 # Fork to SendGameInfo if we came from 8016e74c
-lis r4, 0x8016
-ori r4, r4, 0xe750
-cmpw r3, r4
+lis r8, 0x8016
+ori r8, r8, 0xe750
+cmpw r9, r8
 beq RESTORE_SEND_GAME_INFO
 
 # Fork to SendGamePreFrame if we came from 8006b0dc
-lis r4, 0x8006
-ori r4, r4, 0xb0e0
-cmpw r3, r4
+lis r8, 0x8006
+ori r8, r8, 0xb0e0
+cmpw r9, r8
 beq RESTORE_SEND_GAME_PRE_FRAME
 
 # Fork to SendGamePostFrame if we came from 8006c5d4
-lis r4, 0x8006
-ori r4, r4, 0xc5d8
-cmpw r3, r4
+lis r8, 0x8006
+ori r8, r8, 0xc5d8
+cmpw r9, r8
 beq RESTORE_SEND_GAME_POST_FRAME
 
 # Fork to SendGameEnd if we came from 801a5b04
-lis r4, 0x801a
-ori r4, r4, 0x5b08
-cmpw r3, r4
+lis r8, 0x801a
+ori r8, r8, 0x5b08
+cmpw r9, r8
 beq RESTORE_SEND_GAME_END
 
 # If lr did not match any sources, just return
-lmw r3, -0xF4(r1) # Reload all registers
 blr
 
 RESTORE_SEND_GAME_INFO:
-lmw r3, -0xF4(r1) # Reload all registers
 lis r3, 0x8017 #execute replaced code line
 blr
 
 RESTORE_SEND_GAME_PRE_FRAME:
-lmw r3, -0xF4(r1) # Reload all registers
 lbz r0, 0x2219(r31) #execute replaced code line
 blr
 
 RESTORE_SEND_GAME_POST_FRAME:
-lmw r3, -0xF4(r1) # Reload all registers
 lwz r0, 0x3C(r1) #execute replaced code line
 blr
 
 RESTORE_SEND_GAME_END:
-lmw r3, -0xF4(r1) # Reload all registers
 addi r28, r5, 0 #execute replaced code line
 blr
 
