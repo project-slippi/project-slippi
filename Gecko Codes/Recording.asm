@@ -42,6 +42,9 @@ stw r14, 0x8(r1)
 stw r15, 0xC(r1)
 stw r16, 0x10(r1)
 stw r3, 0x14(r1) # Needed for game end code
+stw r24, 0x18(r1)
+stw r25, 0x1C(r1)
+stw r26, 0x20(r1)
 mflr r0
 stw r0, 0x104(r1)
 
@@ -132,6 +135,9 @@ li r3, 0x39
 bl PushByte
 li r3, GAME_END_PAYLOAD_LENGTH
 bl PushHalf
+
+bl ExiTransferBuffer
+bl FreeBuffer
 
 #------------- BEGIN GAME INFO COMMAND -------------
 # prepare write buffer with size able to fit payload
@@ -378,6 +384,9 @@ lwz r14, 0x8(r1)
 lwz r15, 0xC(r1)
 lwz r16, 0x10(r1)
 lwz r3, 0x14(r1) # Needed for game end code
+lwz r24, 0x18(r1)
+lwz r25, 0x1C(r1)
+lwz r26, 0x20(r1)
 addi r1, r1, 0x100 # restore sp
 
 # Fork on lr value to replace correct code
