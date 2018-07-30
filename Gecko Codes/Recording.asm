@@ -586,6 +586,16 @@ mflr r0
 stw r0, 0x4(r1)
 stwu r1,-0x20(r1)
 
+# Start flush loop to write through to RAM
+li r3, 0
+flush_loop:
+dcbf r3, r26
+addi r3, r3, 4
+cmpw r3, r24
+blt+ flush_loop
+sync
+isync
+
 # Step 1 - Prepare slot
 # Prepare to call EXIAttach (803464c0) r3: 0, r4: 803522a8
 lis r3, 0x8034
