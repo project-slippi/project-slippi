@@ -586,13 +586,15 @@ mflr r0
 stw r0, 0x4(r1)
 stwu r1,-0x20(r1)
 
-# Start flush loop to write through to RAM
+# Start flush loop to write the data in buf through to RAM.
+# Cache blocks are 32 bytes in length and the buffer obtained from malloc
+# should be guaranteed to be aligned at the start of a cache block.
 li r3, 0
-flush_loop:
+FLUSH_LOOP:
 dcbf r3, r26
-addi r3, r3, 4
+addi r3, r3, 32
 cmpw r3, r24
-blt+ flush_loop
+blt+ FLUSH_LOOP
 sync
 isync
 
