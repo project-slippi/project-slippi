@@ -34,10 +34,10 @@
 # Payload lengths, if any additional data is added, these must be incremented
 .set MESSAGE_DESCIPTIONS_PAYLOAD_LENGTH, 13 # byte count
 .set GAME_INFO_PAYLOAD_LENGTH, 352 # byte count
-.set GAME_PRE_FRAME_PAYLOAD_LENGTH, 58 # byte count
+.set GAME_PRE_FRAME_PAYLOAD_LENGTH, 59 # byte count
 .set GAME_POST_FRAME_PAYLOAD_LENGTH, 37 # byte count
 .set GAME_END_PAYLOAD_LENGTH, 1 # byte count
-.set FULL_FRAME_DATA_BUF_LENGTH, 388 # 4 * (PRE_FRAME_LEN + 1) + 4 * (POST_FRAME_LEN + 1)
+.set FULL_FRAME_DATA_BUF_LENGTH, 784 # 8 * (PRE_FRAME_LEN + 1) + 8 * (POST_FRAME_LEN + 1)
 
 # Values to access memory locations
 .set BUF_HIGH, 0x8033
@@ -169,7 +169,7 @@ bl PushByte
 # indicates breaking changes/loss of backwards compatibility. A change
 # to minor indicates a pretty major change like added fields or new
 # events. Build/Revision can be incremented for smaller changes
-lis r3, 0x0100
+lis r3, 0x0102
 addi r3, r3, 0x0000
 bl PushWord
 
@@ -276,6 +276,14 @@ lwz r3, 0x30(r16) #load l analog trigger
 bl PushWord
 lwz r3, 0x34(r16) #load r analog trigger
 bl PushWord
+
+lis r16, 0x8046
+ori r16, r16, 0xb108
+mulli r3, r14, 0xc
+add r16, r16, r3
+
+lbz r3, 0x2(r16) #load raw x analog
+bl PushByte
 
 # frame data gets transferred at a different injection point
 b CLEANUP
