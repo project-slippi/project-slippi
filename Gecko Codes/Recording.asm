@@ -7,7 +7,11 @@
 # function to execute. Everything is done in one code to allow for sharing the
 # EXI functions
 # ------------------------------------------------------------------------------
-# Injection Address: 8032ED8C (Screenshot Code Region)
+# Injection Address: 8032ed94 (Screenshot Code Region)
+# ------------------------------------------------------------------------------
+# Uses address locations:
+# 8032ed8c - buffer address
+# 8032ed90 - current write buffer location
 # ------------------------------------------------------------------------------
 # Supports branching from:
 # 8016e74c (SendGameInfo)
@@ -19,7 +23,6 @@
 # r14 - used for persistent local variables
 # r15 - used for persistent local variables
 # r16 - used for persistent local variables
-# r24 - write buffer length
 # r25 - address of current write location
 # r26 - address of write buffer
 # r27-r31 - reserved for external function inputs (player block address, etc)
@@ -33,20 +36,25 @@
 .set GAME_PRE_FRAME_PAYLOAD_LENGTH, 58 # byte count
 .set GAME_POST_FRAME_PAYLOAD_LENGTH, 37 # byte count
 .set GAME_END_PAYLOAD_LENGTH, 1 # byte count
+.set FULL_FRAME_DATA_BUF_LENGTH, 388 # 4 * (PRE_FRAME_LEN + 1) + 4 * (POST_FRAME_LEN + 1)
+
+# Values to access memory locations
+.set BUF_HIGH, 0x8033
+.set BUF_ADDRESS_LOW, -0x1274
+.set BUF_WRITE_LOC_LOW, -0x1270
 
 # Create stack frame and back up every register. For now this is just ultra
 # safe partially to save space and also because the locations we are branching
 # from were not originally designed to be branched from in those locations
+mflr r0
+stw r0, 0x104(r1)
 stwu r1, -0x100(r1)
 stw r14, 0x8(r1)
 stw r15, 0xC(r1)
 stw r16, 0x10(r1)
 stw r3, 0x14(r1) # Needed for game end code
-stw r24, 0x18(r1)
-stw r25, 0x1C(r1)
-stw r26, 0x20(r1)
-mflr r0
-stw r0, 0x104(r1)
+stw r25, 0x18(r1)
+stw r26, 0x1C(r1)
 
 # scene controller checks. must be in VS mode (major) and in-game (minor)
 lis r4, 0x8048 # load address to offset from for scene controller
@@ -56,6 +64,11 @@ bne- CLEANUP # if not in VS Mode, ignore everything
 lbz r3, -0x62CD(r4)
 cmpwi r3, 0x2 # the minor scene for in-game is 0x2
 bne- CLEANUP
+
+# Get buffer location data from memory
+lis r3, BUF_HIGH
+lwz r25, BUF_WRITE_LOC_LOW(r3)
+lwz r26, BUF_ADDRESS_LOW(r3)
 
 # Move value of the lr to r3 for determining where we came from
 # I could have used r0 directly but doing this way allows for future bl calls
@@ -96,11 +109,12 @@ b CLEANUP
 # characters, settings, etc and write them out to Slippi device
 ################################################################################
 SEND_GAME_INFO:
-#------------- WRITE OUT COMMAND SIZES -------------
-# prepare write buffer with size able to fit payload
-li r3, MESSAGE_DESCIPTIONS_PAYLOAD_LENGTH
+# initialize the write buffer that will be used throughout the game
+# according to UnclePunch, all allocated memory gets free'd when the scene
+# transitions. This means we don't need to worry about freeing this memory
 bl PrepareWriteBuffer
 
+#------------- WRITE OUT COMMAND SIZES -------------
 # start file sending and indicate the sizes of the output commands
 li r3, 0x35
 bl PushByte
@@ -136,14 +150,7 @@ bl PushByte
 li r3, GAME_END_PAYLOAD_LENGTH
 bl PushHalf
 
-bl ExiTransferBuffer
-bl FreeBuffer
-
 #------------- BEGIN GAME INFO COMMAND -------------
-# prepare write buffer with size able to fit payload
-li r3, GAME_INFO_PAYLOAD_LENGTH
-bl PrepareWriteBuffer
-
 # game information message type
 li r3, 0x36
 bl PushByte
@@ -190,7 +197,6 @@ cmpwi r3, 0x20 # Stop looping after 8 iterations
 blt+ START_UCF_LOOP
 
 bl ExiTransferBuffer
-bl FreeBuffer
 
 b CLEANUP
 
@@ -211,11 +217,7 @@ ori r15, r15, 0x3080
 mulli r3, r14, 0xE90
 add r15, r15, r3
 
-#------------- FRAME_UPDATE -------------
-# prepare write buffer with size able to fit payload
-li r3, GAME_PRE_FRAME_PAYLOAD_LENGTH
-bl PrepareWriteBuffer
-
+# write data
 li r3, 0x37
 bl PushByte #send OnPreFrameUpdate event code
 
@@ -268,9 +270,7 @@ bl PushWord
 lwz r3, 0x34(r16) #load r analog trigger
 bl PushWord
 
-bl ExiTransferBuffer
-bl FreeBuffer
-
+# frame data gets transferred at a different injection point
 b CLEANUP
 
 ################################################################################
@@ -296,10 +296,6 @@ mulli r3, r14, 0xE90
 add r15, r15, r3
 
 #------------- FRAME_UPDATE -------------
-# prepare write buffer with size able to fit payload
-li r3, GAME_POST_FRAME_PAYLOAD_LENGTH
-bl PrepareWriteBuffer
-
 li r3, 0x38
 bl PushByte #send OnPostFrameUpdate event code
 
@@ -341,9 +337,7 @@ bl PushByte
 lwz r3, 0x8F4(r29) # load action state frame counter
 bl PushWord
 
-bl ExiTransferBuffer
-bl FreeBuffer
-
+# frame data gets transferred at a different injection point
 b CLEANUP
 
 ################################################################################
@@ -352,10 +346,6 @@ b CLEANUP
 # Description: Send information about the end of a game to Slippi Device
 ################################################################################
 SEND_GAME_END:
-# prepare write buffer with size able to fit payload
-li r3, GAME_END_PAYLOAD_LENGTH
-bl PrepareWriteBuffer
-
 # request game information from slippi
 li r3, 0x39
 bl PushByte
@@ -366,7 +356,6 @@ lbz r3, -0x4960(r3)
 bl PushByte #send win condition byte. this byte will be 0 on ragequit, 3 on win by stock loss
 
 bl ExiTransferBuffer
-bl FreeBuffer
 
 b CLEANUP
 
@@ -377,6 +366,11 @@ b CLEANUP
 # and the stack and will fork to execute the replaced lines of code
 ################################################################################
 CLEANUP:
+# Write buffer data back to memory
+lis r3, BUF_HIGH
+stw r25, BUF_WRITE_LOC_LOW(r3)
+stw r26, BUF_ADDRESS_LOW(r3)
+
 # Recover stack frame
 lwz r0, 0x104(r1)
 mtlr r0 # Put the stored lr back
@@ -384,9 +378,8 @@ lwz r14, 0x8(r1)
 lwz r15, 0xC(r1)
 lwz r16, 0x10(r1)
 lwz r3, 0x14(r1) # Needed for game end code
-lwz r24, 0x18(r1)
-lwz r25, 0x1C(r1)
-lwz r26, 0x20(r1)
+lwz r25, 0x18(r1)
+lwz r26, 0x1C(r1)
 addi r1, r1, 0x100 # restore sp
 
 # Fork on lr value to replace correct code
@@ -445,7 +438,6 @@ blr
 # r3 - Payload byte count. Size will be 1 greater than this to fit command
 # ------------------------------------------------------------------------------
 # Outputs: (Non-standard because this output is used code-wide)
-# r24 - write buffer length
 # r25 - address of allocated memory (serves as current write location)
 # r26 - address of allocated memory
 ################################################################################
@@ -455,13 +447,11 @@ mflr r0
 stw r0, 0x4(r1)
 stwu r1, -0x20(r1)
 
-addi r24, r3, 1 # add 1 to payload length to fit command byte
-
 # Prepare to call _HSD_MemAlloc (8037f1e4)
 lis r3, 0x8037
 ori r3, r3, 0xf1e4
 mtlr r3
-mr r3, r24 # size to alloc
+li r3, FULL_FRAME_DATA_BUF_LENGTH # size to alloc
 blrl
 
 mr r25, r3 # store pointer to memory location
@@ -487,35 +477,6 @@ blr
 PushWord:
 stw r3, 0x0(r25)
 addi r25, r25, 4
-blr
-
-################################################################################
-# Function: FreeBuffer
-# ------------------------------------------------------------------------------
-# Description: Prepares memory buffer where data will be written to before
-# it is sent to the EXI bus
-# ------------------------------------------------------------------------------
-# Inputs:
-# r26 - address of allocated memory
-################################################################################
-FreeBuffer:
-# Store stack frame
-mflr r0
-stw r0, 0x4(r1)
-stwu r1,-0x20(r1)
-
-# Prepare to call HSD_Free (8037f1b0)
-lis r3, 0x8037
-ori r3, r3, 0xf1b0
-mtlr r3
-mr r3, r26 # Pass address to free function
-blrl
-
-#restore registers and sp
-lwz r0, 0x24(r1)
-addi r1, r1, 0x20
-mtlr r0
-
 blr
 
 ################################################################################
@@ -589,11 +550,11 @@ stwu r1,-0x20(r1)
 # Start flush loop to write the data in buf through to RAM.
 # Cache blocks are 32 bytes in length and the buffer obtained from malloc
 # should be guaranteed to be aligned at the start of a cache block.
-li r3, 0
+mr r3, r26
 FLUSH_LOOP:
-dcbf r3, r26
+dcbf 0, r3
 addi r3, r3, 32
-cmpw r3, r24
+cmpw r3, r25
 blt+ FLUSH_LOOP
 sync
 isync
@@ -638,7 +599,7 @@ mtlr r3
 # Load input params that haven't been loaded yet
 li r3, MEM_SLOT # slot
 mr r4, r26
-mr r5, r24
+sub r5, r25, r26
 li r6, 1 # write mode input. 1 is write
 li r7, 0 # r7 is a callback address. Dunno what to use so just set to 0
 blrl # Call EXIDma
@@ -676,6 +637,9 @@ mtlr r3
 
 li r3, MEM_SLOT # Load input param for slot
 blrl # Call EXIDetach
+
+# reset the write position
+mr r25, r26
 
 #restore registers and sp
 lwz r0, 0x24(r1)
