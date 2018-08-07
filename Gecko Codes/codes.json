@@ -36,10 +36,16 @@
           "annotation": "SendGameEnd [Fizzi]"
         },
         {
+          "type": "branchAndLink",
+          "address": "802fed3c",
+          "targetAddress": "8032ed94",
+          "annotation": "FlushFrameBuffer [Fizzi]"
+        },
+        {
           "type": "replaceCodeBlock",
           "address": "8032ed94",
           "sourceFile": "Recording.asm",
-          "annotation": "SlippiRecording [Fizzi, Achilles]"
+          "annotation": "SlippiRecording [Fizzi, Achilles, UnclePunch]"
         }
       ]
     },

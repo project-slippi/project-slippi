@@ -18,6 +18,7 @@
 # 8006b0dc (SendGamePreFrame)
 # 8006c5d4 (SendGamePostFrame)
 # 801a5b04 (SendGameEnd)
+# 802fed3c (FlushFrameBuffer)
 # ------------------------------------------------------------------------------
 # Register Usage:
 # r14 - used for persistent local variables
@@ -47,7 +48,7 @@
 # safe partially to save space and also because the locations we are branching
 # from were not originally designed to be branched from in those locations
 mflr r0
-stw r0, 0x104(r1)
+stw r0, 0x4(r1)
 stwu r1, -0x100(r1)
 stw r14, 0x8(r1)
 stw r15, 0xC(r1)
@@ -98,6 +99,12 @@ lis r4, 0x801a
 ori r4, r4, 0x5b08
 cmpw r3, r4
 beq SEND_GAME_END
+
+# Fork to FlushFrameBuffer if we came from 802fed3c
+lis r4, 0x802f
+ori r4, r4, 0xed40
+cmpw r3, r4
+beq FLUSH_FRAME_BUFFER
 
 # If we did not come from a known location, just clean up
 b CLEANUP
@@ -356,7 +363,18 @@ lbz r3, -0x4960(r3)
 bl PushByte #send win condition byte. this byte will be 0 on ragequit, 3 on win by stock loss
 
 bl ExiTransferBuffer
+b CLEANUP
 
+################################################################################
+# Routine: FlushFrameBuffer
+# ------------------------------------------------------------------------------
+# Description: Flush the buffer once per frame to actually send the frame data
+################################################################################
+FLUSH_FRAME_BUFFER:
+cmpw r25, r26
+beq- CLEANUP # if write position is identical to buf address, no data
+
+bl ExiTransferBuffer
 b CLEANUP
 
 ################################################################################
@@ -409,6 +427,12 @@ ori r8, r8, 0x5b08
 cmpw r9, r8
 beq RESTORE_SEND_GAME_END
 
+# Fork to FlushFrameBuffer if we came from 802fed3c
+lis r8, 0x802f
+ori r8, r8, 0xed40
+cmpw r9, r8
+beq RESTORE_FLUSH_FRAME_BUFFER
+
 # If lr did not match any sources, just return
 blr
 
@@ -426,6 +450,10 @@ blr
 
 RESTORE_SEND_GAME_END:
 addi r28, r5, 0 #execute replaced code line
+blr
+
+RESTORE_FLUSH_FRAME_BUFFER:
+lbz r0, 0x0(r31)
 blr
 
 ################################################################################
