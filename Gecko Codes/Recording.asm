@@ -164,7 +164,7 @@ bl PushByte
 
 # build version number. Each byte is one digit
 # any change in command data should result in a minor version change
-# current version: 1.0.0.0
+# current version: 1.2.0.0
 # Version is of the form major.minor.build.revision. A change to major
 # indicates breaking changes/loss of backwards compatibility. A change
 # to minor indicates a pretty major change like added fields or new
@@ -277,12 +277,27 @@ bl PushWord
 lwz r3, 0x34(r16) #load r analog trigger
 bl PushWord
 
-lis r16, 0x8046
-ori r16, r16, 0xb108
-mulli r3, r14, 0xc
-add r16, r16, r3
+# get raw x analog input for UCF. The game has a 5 frame circular buffer
+# where it stores raw inputs for previous frames, we must fetch the location
+# where the current frame's value is stored
+lis r3, 0x8046  # start location of circular buffer
+ori r3, r3, 0xb108
 
-lbz r3, 0x2(r16) #load raw x analog
+lis r4, 0x804c
+ori r4, r4, 0x1f78
+lbz r4, 0x0001(r4) # this is the current index in the circular buffer
+subi r4, r4, 1
+cmpwi r4, 0
+bge+ CONTINUE_RAW_X # if our index is already 0 or greater, continue
+addi r4, r4, 5 # here our index was -1, this should wrap around to be 4
+CONTINUE_RAW_X:
+mulli r4, r4, 0x30
+add r3, r3, r4 # move to the correct start index for this index
+
+mulli r4, r14, 0xc
+add r3, r3, r4 # move to the correct player position
+
+lbz r3, 0x2(r3) #load raw x analog
 bl PushByte
 
 # frame data gets transferred at a different injection point

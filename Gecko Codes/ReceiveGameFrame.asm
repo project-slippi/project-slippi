@@ -98,6 +98,28 @@ stw r3,0x2C(r31) #facing direction
 bl readWordExi
 stw r3,0x10(r31) #animation state ID
 
+# UCF uses raw controller inputs for dashback, restore x analog byte here
+lis r3, 0x8046  # start location of circular buffer
+ori r3, r3, 0xb108
+
+lis r4, 0x804c
+ori r4, r4, 0x1f78
+lbz r4, 0x0001(r4) # this is the current index in the circular buffer
+subi r4, r4, 1
+cmpwi r4, 0
+bge+ CONTINUE_RAW_X # if our index is already 0 or greater, continue
+addi r4, r4, 5 # here our index was -1, this should wrap around to be 4
+CONTINUE_RAW_X:
+mulli r4, r4, 0x30
+add r3, r3, r4 # move to the correct start index for this index
+
+mulli r4, r7, 0xc
+add r3, r3, r4 # move to the correct player position
+
+mr r8, r3
+bl readWordExi
+stb r3, 0x2(r8) #load raw x analog
+
 bl endExiTransfer
 
 CLEANUP:
