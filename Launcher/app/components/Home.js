@@ -41,7 +41,7 @@ export default class Home extends Component {
       "Stream From Slippi Device",
       "Stream replay from Slippi device",
       "/console",
-      true
+      false
     ));
 
     navigationElements.push(this.generateNav(
