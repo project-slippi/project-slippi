@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
-import { Table, Icon, Sticky, Header, Button, Segment } from 'semantic-ui-react';
+import { Table, Icon, Sticky, Header, Button, Segment, Message } from 'semantic-ui-react';
 import styles from './FileLoader.scss';
 import FileRow from './FileRow';
 import DismissibleMessage from './common/DismissibleMessage';
@@ -76,6 +76,30 @@ export default class FileLoader extends Component {
     );
   }
 
+  processFiles(files) {
+    let resultFiles = files;
+
+    resultFiles = _.orderBy(resultFiles, file => {
+      const metadata = file.game.getMetadata() || {};
+      const startAt = metadata.startAt;
+      return moment(startAt);
+    }, 'desc');
+
+    // Filter out files that were shorter than 30 seconds
+    return resultFiles.filter(file => {
+      const settings = file.game.getSettings() || {};
+      if (!settings.stageId) {
+        // I know that right now if you play games from debug mode it make some
+        // weird replay files... this should filter those out
+        return false;
+      }
+
+      const metadata = file.game.getMetadata() || {};
+      const totalFrames = metadata.lastFrame || (30 * 60) + 1;
+      return totalFrames > (30 * 60);
+    });
+  }
+
   renderGlobalError() {
     const errors = this.props.errors || {};
     const errorKey = 'fileLoader-global';
@@ -91,6 +115,21 @@ export default class FileLoader extends Component {
         content={globalErrorMessage}
         onDismiss={this.props.dismissError}
         dismissParams={[errorKey]}
+      />
+    );
+  }
+
+  renderFilteredFilesNotif(filteredFileCount) {
+    if (!filteredFileCount) {
+      return null;
+    }
+
+    return (
+      <Message
+        info={true}
+        icon="info circle"
+        header={`${filteredFileCount} Files have been filtered`}
+        content="Replays shorter than 30 seconds are automatically filtered."
       />
     );
   }
@@ -141,30 +180,7 @@ export default class FileLoader extends Component {
     );
   }
 
-  renderFileSelection() {
-    const store = this.props.store || {};
-    let files = store.files || [];
-
-    files = _.orderBy(files, file => {
-      const metadata = file.game.getMetadata() || {};
-      const startAt = metadata.startAt;
-      return moment(startAt);
-    }, 'desc');
-
-    // Filter out files that were shorter than 30 seconds
-    files = files.filter(file => {
-      const settings = file.game.getSettings() || {};
-      if (!settings.stageId) {
-        // I know that right now if you play games from debug mode it make some
-        // weird replay files... this should filter those out
-        return false;
-      }
-
-      const metadata = file.game.getMetadata() || {};
-      const totalFrames = metadata.lastFrame || (30 * 60) + 1;
-      return totalFrames > (30 * 60);
-    });
-
+  renderFileSelection(files) {
     // If we have no files to display, render an empty state
     if (!files.length) {
       return this.renderEmptyLoader();
@@ -211,11 +227,17 @@ export default class FileLoader extends Component {
   }
 
   renderMain() {
+    const store = this.props.store || {};
+    const files = store.files || [];
+    const processedFiles = this.processFiles(files);
+    const filteredFileCount = files.length - processedFiles.length;
+
     return (
       <div className="main-padding">
         <PageHeader icon="disk outline" text="Replay Browser" history={this.props.history} />
         {this.renderGlobalError()}
-        {this.renderFileSelection()}
+        {this.renderFilteredFilesNotif(filteredFileCount)}
+        {this.renderFileSelection(processedFiles)}
       </div>
     );
   }

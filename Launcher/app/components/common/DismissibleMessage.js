@@ -4,12 +4,13 @@ import { Message, Transition } from 'semantic-ui-react';
 export default class DismissibleMessage extends Component {
   props: {
     visible: boolean,
+    info: boolean,
     error: boolean,
     icon: string,
     header: string,
     content: string,
     onDismiss: () => void,
-    dismissParams: array
+    dismissParams: array,
   };
 
   refMessage: {};
@@ -51,6 +52,7 @@ export default class DismissibleMessage extends Component {
       >
         <div ref={this.setRefMessage}>
           <Message
+            info={this.props.info}
             error={this.props.error}
             icon={this.props.icon}
             header={this.props.header}
