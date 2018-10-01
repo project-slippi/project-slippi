@@ -5,23 +5,31 @@ import styles from './Home.scss';
 
 export default class Home extends Component {
   generateNav(iconName, header, subHeader, target, disabled) {
-    return (
-      <Link key={target} to={target}>
-        <Button fluid={true} inverted={true} color={"green"} disabled={disabled}>
-          <div className="grid-list center-items">
-            <Header as='h2' inverted={true} textAlign={"center"}>
-              <Icon name={iconName} />
-              <Header.Content>
-                {header}
-                <Header.Subheader>
-                  {subHeader}
-                </Header.Subheader>
-              </Header.Content>
-            </Header>
-          </div>
-        </Button>
-      </Link>
+    let buttonDisplay = (
+      <Button key={target} fluid={true} inverted={true} color={"green"} disabled={disabled}>
+        <div className="grid-list center-items">
+          <Header as='h2' inverted={true} textAlign={"center"}>
+            <Icon name={iconName} />
+            <Header.Content>
+              {header}
+              <Header.Subheader>
+                {subHeader}
+              </Header.Subheader>
+            </Header.Content>
+          </Header>
+        </div>
+      </Button>
     );
+
+    if (!disabled) {
+      buttonDisplay = (
+        <Link key={target} to={target}>
+          {buttonDisplay}
+        </Link>
+      );
+    }
+    
+    return buttonDisplay;
   }
 
   render() {

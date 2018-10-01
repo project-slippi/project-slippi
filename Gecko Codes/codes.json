@@ -12,28 +12,40 @@
       ],
       "build": [
         {
-          "type": "inject",
-          "address": "8006b0dc",
-          "sourceFile": "SendGamePreFrame.asm",
-          "annotation": "SendGamePreFrame [Fizzi, Achilles]"
-        },
-        {
-          "type": "inject",
-          "address": "8006c5d4",
-          "sourceFile": "SendGamePostFrame.asm",
-          "annotation": "SendGamePostFrame [Fizzi, Achilles]"
-        },
-        {
-          "type": "inject",
+          "type": "branchAndLink",
           "address": "8016e74c",
-          "sourceFile": "SendGameInfo.asm",
+          "targetAddress": "8032ed94",
           "annotation": "SendGameInfo [Fizzi]"
         },
         {
-          "type": "inject",
+          "type": "branchAndLink",
+          "address": "8006b0dc",
+          "targetAddress": "8032ed94",
+          "annotation": "SendGamePreFrame [Fizzi, Achilles]"
+        },
+        {
+          "type": "branchAndLink",
+          "address": "8006c5d4",
+          "targetAddress": "8032ed94",
+          "annotation": "SendGamePostFrame [Fizzi, Achilles]"
+        },
+        {
+          "type": "branchAndLink",
           "address": "801a5b04",
-          "sourceFile": "SendGameEnd.asm",
+          "targetAddress": "8032ed94",
           "annotation": "SendGameEnd [Fizzi]"
+        },
+        {
+          "type": "branchAndLink",
+          "address": "802fed3c",
+          "targetAddress": "8032ed94",
+          "annotation": "FlushFrameBuffer [Fizzi]"
+        },
+        {
+          "type": "replaceCodeBlock",
+          "address": "8032ed94",
+          "sourceFile": "Recording.asm",
+          "annotation": "SlippiRecording [Fizzi, Achilles, UnclePunch]"
         }
       ]
     },

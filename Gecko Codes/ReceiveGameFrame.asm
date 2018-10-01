@@ -98,6 +98,28 @@ stw r3,0x2C(r31) #facing direction
 bl readWordExi
 stw r3,0x10(r31) #animation state ID
 
+# UCF uses raw controller inputs for dashback, restore x analog byte here
+lis r3, 0x8046  # start location of circular buffer
+ori r3, r3, 0xb108
+
+lis r4, 0x804c
+ori r4, r4, 0x1f78
+lbz r4, 0x0001(r4) # this is the current index in the circular buffer
+subi r4, r4, 1
+cmpwi r4, 0
+bge+ CONTINUE_RAW_X # if our index is already 0 or greater, continue
+addi r4, r4, 5 # here our index was -1, this should wrap around to be 4
+CONTINUE_RAW_X:
+mulli r4, r4, 0x30
+add r3, r3, r4 # move to the correct start index for this index
+
+mulli r4, r7, 0xc
+add r3, r3, r4 # move to the correct player position
+
+mr r8, r3
+bl readWordExi
+stb r3, 0x2(r8) #load raw x analog
+
 bl endExiTransfer
 
 CLEANUP:
@@ -118,8 +140,8 @@ startExiTransfer:
 lis r11, 0xCC00 #top bytes of address of EXI registers
 
 #set up EXI
-li r10, 0xB0 #bit pattern to set clock to 8 MHz and enable CS for device 0
-stw r10, 0x6814(r11) #start transfer, write to parameter register
+li r10, 0xD0 #bit pattern to set clock to 8 MHz and enable CS for device 0
+stw r10, 0x6800(r11) #start transfer, write to parameter register
 
 blr
 
@@ -162,7 +184,7 @@ b handleExi
 ################################################################################
 handleExi:
 #write value in r3 to EXI
-stw r3, 0x6824(r11) #store data into transfer register
+stw r3, 0x6810(r11) #store data into transfer register
 b handleExiStart
 
 handleExiRetry:
@@ -173,12 +195,12 @@ handleExiRetry:
 # to not soft-lock the game (the receive_wait loop would loop forever) was
 # to do this
 li r10, 0
-stw r10, 0x6814(r11) #write 0 to the parameter register
-li r10, 0xB0 #bit pattern to set clock to 8 MHz and enable CS for device 0
-stw r10, 0x6814(r11) #start transfer, write to parameter register
+stw r10, 0x6800(r11) #write 0 to the parameter register
+li r10, 0xD0 #bit pattern to set clock to 8 MHz and enable CS for device 0
+stw r10, 0x6800(r11) #start transfer, write to parameter register
 
 handleExiStart:
-stw r4, 0x6820(r11) #write to control register to begin transfer
+stw r4, 0x680C(r11) #write to control register to begin transfer
 
 li r9, 0
 #wait until byte has been transferred
@@ -186,12 +208,12 @@ handleExiWait:
 addi r9, r9, 1
 cmpwi r9, 15
 bge- handleExiRetry
-lwz r10, 0x6820(r11)
+lwz r10, 0x680C(r11)
 andi. r10, r10, 1
 bne handleExiWait
 
 #read values from transfer register to r3 for output
-lwz r3, 0x6824(r11) #read from transfer register
+lwz r3, 0x6810(r11) #read from transfer register
 
 blr
 
@@ -201,7 +223,7 @@ blr
 ################################################################################
 endExiTransfer:
 li r10, 0
-stw r10, 0x6814(r11) #write 0 to the parameter register
+stw r10, 0x6800(r11) #write 0 to the parameter register
 
 blr
 
