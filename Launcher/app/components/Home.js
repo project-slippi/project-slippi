@@ -28,7 +28,7 @@ export default class Home extends Component {
         </Link>
       );
     }
-    
+
     return buttonDisplay;
   }
 

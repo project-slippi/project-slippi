@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
+import moment from 'moment';
 import { Link } from 'react-router-dom';
 import { Table, Icon, Sticky, Header, Button, Segment } from 'semantic-ui-react';
 import styles from './FileLoader.scss';
@@ -143,6 +144,12 @@ export default class FileLoader extends Component {
   renderFileSelection() {
     const store = this.props.store || {};
     let files = store.files || [];
+
+    files = _.orderBy(files, file => {
+      const metadata = file.game.getMetadata() || {};
+      const startAt = metadata.startAt;
+      return moment(startAt);
+    }, 'desc');
 
     // Filter out files that were shorter than 30 seconds
     files = files.filter(file => {
