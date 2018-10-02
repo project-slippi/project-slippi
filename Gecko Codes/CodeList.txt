@@ -1,4 +1,4 @@
-$Slippi Recording [Fizzi, Achilles]
+$Slippi Recording [Fizzi, Achilles, UnclePunch]
 *Used in conjunction with Slippi plugged into PortB to extract game data
 0416E74C 481C0649 #SendGameInfo [Fizzi]
 0406B0DC 482C3CB9 #SendGamePreFrame [Fizzi, Achilles]
