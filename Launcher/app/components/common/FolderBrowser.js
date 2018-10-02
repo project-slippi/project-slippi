@@ -10,7 +10,7 @@ export default class FolderBrowser extends Component {
     folders: object,
     rootFolderName: string,
     selectedFolderFullPath: string,
-    changeFolderSelection: (path) => void
+    changeFolderSelection: (path) => void,
   };
 
   selectFolder = (folderFullPath) => {
@@ -38,7 +38,7 @@ export default class FolderBrowser extends Component {
     // Generate styles for selection
     const currentSelection = this.props.selectedFolderFullPath;
     const selectorClasses = classNames({
-      [styles['selected']]: currentSelection === folderDetails.fullPath
+      [styles['selected']]: currentSelection === folderDetails.fullPath,
     }, styles['folder-selection']);
 
     return [
@@ -56,7 +56,7 @@ export default class FolderBrowser extends Component {
           </List.Header>
           {subDirectoryList}
         </List.Content>
-      </List.Item>
+      </List.Item>,
     ];
   }
 

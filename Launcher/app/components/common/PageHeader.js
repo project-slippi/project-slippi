@@ -5,7 +5,7 @@ export default class PageHeader extends Component {
   props: {
     text: string,
     icon: string,
-    history: object
+    history: object,
   };
 
   handleBack = () => {
@@ -31,7 +31,6 @@ export default class PageHeader extends Component {
             {this.props.text}
             <Button
               content='Back'
-              circular={true}
               color="green"
               basic={true}
               inverted={true}

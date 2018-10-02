@@ -1,13 +1,15 @@
-import { Input, Button, Segment, Label } from 'semantic-ui-react';
+import { Input, Button, Segment } from 'semantic-ui-react';
 
 import React, { Component } from 'react';
+import LabelDescription from './LabelDescription';
 
 export default class ActionInput extends Component {
   props: {
     label: string,
+    description: string,
     value: string,
     onClick: () => void,
-    handlerParams: array
+    handlerParams: array,
   };
 
   clickHandler = () => {
@@ -27,9 +29,7 @@ export default class ActionInput extends Component {
 
     return (
       <Segment basic={true}>
-        <Label color={"green"} size="large" ribbon={true}>
-          {this.props.label}
-        </Label>
+        <LabelDescription label={this.props.label} description={this.props.description} />
         <Input
           fluid={true}
           action={actionButton}

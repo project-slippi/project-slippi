@@ -1,11 +1,10 @@
+import _ from 'lodash';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import FileLoader from '../components/FileLoader';
 import * as FileLoaderActions from '../actions/fileLoader';
 import * as GameActions from '../actions/game';
 import * as ErrorActions from '../actions/error';
-
-const _ = require('lodash');
 
 function mapStateToProps(state) {
   return {
