@@ -29,7 +29,7 @@
 # r27-r31 - reserved for external function inputs (player block address, etc)
 ################################################################################
 
-.set MEM_SLOT, 0 # 0 is SlotA, 1 is SlotB
+.set MEM_SLOT, 1 # 0 is SlotA, 1 is SlotB
 
 # Payload lengths, if any additional data is added, these must be incremented
 .set MESSAGE_DESCIPTIONS_PAYLOAD_LENGTH, 13 # byte count
