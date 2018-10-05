@@ -106,6 +106,17 @@ export function playFile(file) {
       // Join the commands with && which will execute the commands in sequence
       command = commands.join(' && ');
       break;
+    case "linux":
+      dolphinPath = isDev ? "./app/dolphin-dev/linux" : dolphinPath;
+      slippiPath = path.join(dolphinPath, 'Slippi');
+      destinationFile = path.join(slippiPath, 'CurrentGame.slp');
+      commands = [
+        `cp "${filePath}" "${destinationFile}"`,
+        `cd "${dolphinPath}"`,
+        `./Ishiiruka/Build/Binaries/dolphin-emu -b -e "${meleeFile}"`,
+      ];
+      command = commands.join(' && ');
+    break;
     default:
       const error = displayError(
         'fileLoader-global',
