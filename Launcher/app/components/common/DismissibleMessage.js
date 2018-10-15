@@ -15,6 +15,12 @@ export default class DismissibleMessage extends Component {
 
   refMessage: {};
 
+  static defaultProps = {
+    visible: false,
+    info: false,
+    error: false,
+  };
+
   componentWillReceiveProps(nextProps) {
     // If message has not been dismissed and content changes, we should move it into view
     const contentChanged = this.props.content !== nextProps.content;

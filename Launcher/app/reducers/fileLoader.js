@@ -103,15 +103,23 @@ function changeFolderSelection(state, action) {
   files = files.map((file) => {
     const fullPath = path.join(folderPath, file);
     const game = new SlippiGame(fullPath);
+    let hasError = false;
 
     // Pre-load settings here
-    game.getSettings();
-    game.getMetadata();
-
+    try {
+      game.getSettings();
+      game.getMetadata();
+    } catch (err) {
+      console.log(`Failed to parse file: ${fullPath}`);
+      console.log(err);
+      hasError = true;
+    }
+   
     return {
       fullPath: fullPath,
       fileName: file,
       game: game,
+      hasError: hasError,
     };
   });
 

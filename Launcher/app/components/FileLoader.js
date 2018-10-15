@@ -79,14 +79,12 @@ export default class FileLoader extends Component {
   processFiles(files) {
     let resultFiles = files;
 
-    resultFiles = _.orderBy(resultFiles, file => {
-      const metadata = file.game.getMetadata() || {};
-      const startAt = metadata.startAt;
-      return moment(startAt);
-    }, 'desc');
+    resultFiles = resultFiles.filter(file => {
+      if (file.hasError) {
+        // This will occur if an error was encountered while parsing
+        return false;
+      }
 
-    // Filter out files that were shorter than 30 seconds
-    return resultFiles.filter(file => {
       const settings = file.game.getSettings() || {};
       if (!settings.stageId) {
         // I know that right now if you play games from debug mode it make some
@@ -98,6 +96,15 @@ export default class FileLoader extends Component {
       const totalFrames = metadata.lastFrame || (30 * 60) + 1;
       return totalFrames > (30 * 60);
     });
+
+    resultFiles = _.orderBy(resultFiles, file => {
+      const metadata = file.game.getMetadata() || {};
+      const startAt = metadata.startAt;
+      return moment(startAt);
+    }, 'desc');
+
+    // Filter out files that were shorter than 30 seconds
+    return resultFiles;
   }
 
   renderGlobalError() {
@@ -119,9 +126,21 @@ export default class FileLoader extends Component {
     );
   }
 
-  renderFilteredFilesNotif(filteredFileCount) {
+  renderFilteredFilesNotif(processedFiles) {
+    const store = this.props.store || {};
+    const files = store.files || [];
+    const filteredFileCount = files.length - processedFiles.length;
+
     if (!filteredFileCount) {
       return null;
+    }
+
+    let contentText = "Replays shorter than 30 seconds are automatically filtered.";
+
+    const filesWithErrors = files.filter(file => file.hasError);
+    const errorFileCount = filesWithErrors.length;
+    if (errorFileCount) {
+      contentText = `${errorFileCount} corrupt files detected. Also replays shorter than 30 seconds are automatically filtered.`;
     }
 
     return (
@@ -129,7 +148,7 @@ export default class FileLoader extends Component {
         info={true}
         icon="info circle"
         header={`${filteredFileCount} Files have been filtered`}
-        content="Replays shorter than 30 seconds are automatically filtered."
+        content={contentText}
       />
     );
   }
@@ -230,13 +249,12 @@ export default class FileLoader extends Component {
     const store = this.props.store || {};
     const files = store.files || [];
     const processedFiles = this.processFiles(files);
-    const filteredFileCount = files.length - processedFiles.length;
 
     return (
       <div className="main-padding">
         <PageHeader icon="disk outline" text="Replay Browser" history={this.props.history} />
         {this.renderGlobalError()}
-        {this.renderFilteredFilesNotif(filteredFileCount)}
+        {this.renderFilteredFilesNotif(processedFiles)}
         {this.renderFileSelection(processedFiles)}
       </div>
     );
