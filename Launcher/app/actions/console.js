@@ -61,6 +61,11 @@ export function connectConnection(connection) {
     const folder = connection.targetFolder;
     let writeStream = null;
     client.on('data', (data) => {
+      if (data.length === 5 && data.toString() === "HELO\0") {
+        // This is just a keep-alive message, filter it
+        return;
+      }
+
       const firstCommand = data[0];
       if (firstCommand === 0x35) {
         if (writeStream) {
