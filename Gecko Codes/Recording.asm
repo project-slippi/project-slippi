@@ -615,8 +615,6 @@ isync
 lis r3, 0x8034
 ori r3, r3, 0x64c0
 mtlr r3
-
-# Load input params
 li r3, MEM_SLOT # slot
 li r4, 0 # maybe a callback? leave 0
 blrl # Call EXIAttach
@@ -625,8 +623,6 @@ blrl # Call EXIAttach
 lis r3, 0x8034
 ori r3, r3, 0x6d80
 mtlr r3
-
-# Load input params
 li r3, MEM_SLOT # slot
 blrl # Call EXILock
 
@@ -634,8 +630,6 @@ blrl # Call EXILock
 lis r3, 0x8034
 ori r3, r3, 0x6688
 mtlr r3
-
-# Load input params
 li r3, MEM_SLOT # slot
 li r4, 0 # device
 li r5, 5 # freq
@@ -646,8 +640,6 @@ blrl # Call EXISelect
 lis r3, 0x8034
 ori r3, r3, 0x5e60
 mtlr r3
-
-# Load input params that haven't been loaded yet
 li r3, MEM_SLOT # slot
 mr r4, r26
 sub r5, r25, r26
@@ -659,8 +651,6 @@ blrl # Call EXIDma
 lis r3, 0x8034
 ori r3, r3, 0x5f4c
 mtlr r3
-
-# Load input params
 li r3, MEM_SLOT # slot
 blrl # Call EXISync
 
@@ -669,7 +659,6 @@ blrl # Call EXISync
 lis r3, 0x8034
 ori r3, r3, 0x67b4
 mtlr r3
-
 li r3, MEM_SLOT # Load input param for slot
 blrl # Call EXIDeselect
 
@@ -677,7 +666,6 @@ blrl # Call EXIDeselect
 lis r3, 0x8034
 ori r3, r3, 0x6e74
 mtlr r3
-
 li r3, MEM_SLOT # Load input param for slot
 blrl # Call EXIUnlock
 
@@ -685,7 +673,6 @@ blrl # Call EXIUnlock
 lis r3, 0x8034
 ori r3, r3, 0x65cc
 mtlr r3
-
 li r3, MEM_SLOT # Load input param for slot
 blrl # Call EXIDetach
 
