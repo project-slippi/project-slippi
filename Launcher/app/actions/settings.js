@@ -119,6 +119,14 @@ export function openDolphin() {
       // Join the commands with && which will execute the commands in sequence
       command = commands.join(' && ');
       break;
+    case "linux": //linux
+      dolphinPath = isDev ? "./app/dolphin-dev/linux" : dolphinPath;
+      commands = [
+        `cd "${dolphinPath}"`,
+        `./Ishiiruka/Build/Binaries/dolphin-emu`
+    ];
+    command = commands.join(' && ');
+    break;
     default:
       const error = displayError(
         'settings-global',
