@@ -17,6 +17,10 @@ function CopyDolphin() {
     console.log("Copying the windows build of dolphin to package");
     copyForWindows(targetFolder);
     break;
+  case "linux":
+    console.log("Copying the linux build of dolphin to package");
+    copyForLinux(targetFolder);
+    break;
   default:
     throw new Error("Platform not yet supported.");
   }
@@ -59,6 +63,30 @@ function copyForWindows(targetFolder) {
   const dolphinSource = "./app/dolphin-dev/windows/Dolphin.exe";
   if (!fs.existsSync(dolphinSource)) {
     throw new Error("Must have a Dolphin.exe file in dolphin-dev/windows folder.");
+  }
+
+  const dolphinDestUserFolder = path.join(targetFolder, 'User');
+  const dolphinDestSysFolder = path.join(targetFolder, 'Sys');
+  const dolphinDestSlippiFolder = path.join(targetFolder, 'Slippi');
+  const gitIgnoreDest = path.join(targetFolder, ".gitignore");
+
+  const overwriteUserFolder = "./app/dolphin-dev/overwrite/User";
+  const overwriteSysFolder = "./app/dolphin-dev/overwrite/Sys";
+
+  fs.emptyDirSync(targetFolder);
+  fs.copySync(sourceFolder, targetFolder);
+  fs.removeSync(dolphinDestUserFolder);
+  fs.copySync(overwriteUserFolder, dolphinDestUserFolder);
+  fs.copySync(overwriteSysFolder, dolphinDestSysFolder);
+  fs.removeSync(gitIgnoreDest);
+  fs.emptyDirSync(dolphinDestSlippiFolder);
+}
+
+function copyForLinux(targetFolder) {
+  const sourceFolder = "./app/dolphin-dev/linux";
+  const dolphinSource = "./app/dolphin-dev/linux/dolphin-emu";
+  if (!fs.existsSync(dolphinSource)) {
+    throw new Error("Must have a dolphin-emu file in dolphin-dev/linux folder.");
   }
 
   const dolphinDestUserFolder = path.join(targetFolder, 'User');
