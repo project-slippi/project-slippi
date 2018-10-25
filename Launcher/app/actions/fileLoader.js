@@ -110,13 +110,15 @@ export function playFile(file) {
       dolphinPath = isDev ? "./app/dolphin-dev/linux" : dolphinPath;
       slippiPath = path.join(dolphinPath, 'Slippi');
       destinationFile = path.join(slippiPath, 'CurrentGame.slp');
+
       commands = [
         `cp "${filePath}" "${destinationFile}"`,
         `cd "${dolphinPath}"`,
-        `./Ishiiruka/Build/Binaries/dolphin-emu -b -e "${meleeFile}"`,
+        `./dolphin-emu -b -e "${meleeFile}"`,
       ];
+
       command = commands.join(' && ');
-    break;
+      break;
     default:
       const error = displayError(
         'fileLoader-global',

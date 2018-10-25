@@ -43,7 +43,6 @@ app/renderer.prod.js
 app/renderer.prod.js.map
 app/style.css
 app/style.css.map
-app/dolphin-dev
 dist
 dll
 main.js
@@ -53,4 +52,3 @@ main.js.map
 npm-debug.log.*
 
 dolphin/
-

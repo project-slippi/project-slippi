@@ -92,9 +92,6 @@ export function openDolphin() {
       // In production mode, only the build from the correct platform should exist
       dolphinPath = isDev ? "./app/dolphin-dev/osx" : dolphinPath;
 
-      // 1) Copy file to the playback dolphin build with the name CurrentGame.slp
-      // 2) Navigate to dolphin build path
-      // 3) Run dolphin with parameters to launch melee directly
       commands = [
         `cd "${dolphinPath}"`,
         `open "Dolphin.app"`,
@@ -108,9 +105,6 @@ export function openDolphin() {
       // In production mode, only the build from the correct platform should exist
       dolphinPath = isDev ? "./app/dolphin-dev/windows" : dolphinPath;
 
-      // 1) Copy file to the playback dolphin build with the name CurrentGame.slp
-      // 2) Navigate to dolphin build path
-      // 3) Run dolphin with parameters to launch melee directly
       commands = [
         `cd "${dolphinPath}"`,
         `Dolphin.exe`,
@@ -119,14 +113,16 @@ export function openDolphin() {
       // Join the commands with && which will execute the commands in sequence
       command = commands.join(' && ');
       break;
-    case "linux": //linux
+    case "linux": // linux
       dolphinPath = isDev ? "./app/dolphin-dev/linux" : dolphinPath;
+
       commands = [
         `cd "${dolphinPath}"`,
-        `./Ishiiruka/Build/Binaries/dolphin-emu`
-    ];
-    command = commands.join(' && ');
-    break;
+        `./dolphin-emu`,
+      ];
+      
+      command = commands.join(' && ');
+      break;
     default:
       const error = displayError(
         'settings-global',
