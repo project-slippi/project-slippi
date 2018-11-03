@@ -1,4 +1,4 @@
-import net from 'net';
+import net, { Socket } from 'net';
 import fs from 'fs-extra';
 import path from 'path';
 
@@ -57,6 +57,8 @@ export function connectConnection(connection) {
       });
     });
 
+    client.setTimeout(5000);
+
     let fileIndex = 1;
     const folder = connection.targetFolder;
     let writeStream = null;
@@ -88,6 +90,19 @@ export function connectConnection(connection) {
       }
 
       writeStream.write(data);
+    });
+
+    client.on('timeout', () => {
+      console.log('timeout');
+      client.destroy();
+
+      // TODO: Handle auto-reconnect logic
+    });
+
+    client.on('error', (error) => {
+      console.log('error');
+      console.log(error);
+      client.destroy();
     });
 
     client.on('end', () => {
