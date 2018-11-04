@@ -48,16 +48,11 @@ export function connectConnection(connection) {
     const client = net.connect({
       host: connection.ipAddress,
       port: 666,
-    }, (arg1, arg2, arg3) => {
+    }, () => {
       console.log("Connected!");
-      console.log({
-        arg1: arg1,
-        arg2: arg2,
-        arg3: arg3,
-      });
     });
 
-    client.setTimeout(5000);
+    client.setTimeout(10000);
 
     let fileIndex = 1;
     const folder = connection.targetFolder;
@@ -78,20 +73,21 @@ export function connectConnection(connection) {
         });
       }
 
-      const dataLen = data.length;
-      if (dataLen >= 2 && data[dataLen - 2] === 0x39 && (data[dataLen - 1] === 0x0 || data[dataLen - 1] === 0x3)) {
-        if (writeStream) {
-          // TODO: This should instead happen when we detect the end of the game
-          writeStream.end();
-          writeStream = null;
-          // fileIndex += 1;
-
-          console.log("Game end detected.");
-        }
+      if (!writeStream) {
+        // If no active writeStream, don't do anything
+        return;
       }
 
-      if (!writeStream) {
-        return;
+      const dataLen = data.length;
+      const gameEndCommandBytePresent = data[dataLen - 2] === 0x39;
+      const gameEndPayloadValid = data[dataLen - 1] === 0x0 || data[dataLen - 1] === 0x3;
+      if (gameEndCommandBytePresent && gameEndPayloadValid) {
+        // TODO: This should instead happen when we detect the end of the game
+        writeStream.end();
+        writeStream = null;
+        // fileIndex += 1;
+
+        console.log("Game end detected.");
       }
 
       writeStream.write(data);
