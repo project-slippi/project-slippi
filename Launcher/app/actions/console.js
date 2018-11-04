@@ -70,19 +70,24 @@ export function connectConnection(connection) {
 
       const firstCommand = data[0];
       if (firstCommand === 0x35) {
-        if (writeStream) {
-          // TODO: This should instead happen when we detect the end of the game
-          writeStream.end();
-          writeStream = null;
-          fileIndex += 1;
-        }
-
         console.log("Making new file...");
         const filePath = path.join(folder, `file${fileIndex}.bin`);
         console.log(filePath);
         writeStream = fs.createWriteStream(filePath, {
           encoding: 'binary',
         });
+      }
+
+      const dataLen = data.length;
+      if (dataLen >= 2 && data[dataLen - 2] === 0x39 && (data[dataLen - 1] === 0x0 || data[dataLen - 1] === 0x3)) {
+        if (writeStream) {
+          // TODO: This should instead happen when we detect the end of the game
+          writeStream.end();
+          writeStream = null;
+          // fileIndex += 1;
+
+          console.log("Game end detected.");
+        }
       }
 
       if (!writeStream) {
