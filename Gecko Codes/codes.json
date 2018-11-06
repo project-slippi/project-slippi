@@ -1,5 +1,5 @@
 {
-  "outputFile": "CodeList.txt",
+  "outputFiles": [ "CodeList.txt" ],
   "codes": [
     {
       "name": "Slippi Recording",
@@ -75,10 +75,10 @@
       ],
       "build": [
         {
-          "type": "replace",
-          "address": "801A45C0",
-          "value": "3860000E",
-          "annotation": "Boot into game [UnclePunch]"
+          "type": "injectFolder",
+          "sourceFolder": "Playback Scene",
+          "isRecursive": true,
+          "annotation": "Playback Scene [UnclePunch]"
         },
         {
           "type": "inject",
