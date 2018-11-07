@@ -685,3 +685,221 @@ addi r1, r1, 0x20
 mtlr r0
 
 blr
+
+################################################################################
+# Function: FindGeckoCodelist
+# ------------------------------------------------------------------------------
+# Description: Finds the gecko codelist in the dol. Returns
+# the address and length if successful, -1 if unsuccessful
+# ------------------------------------------------------------------------------
+# Inputs:
+# None
+# ------------------------------------------------------------------------------
+# Outputs:
+# r3 - codelist address / -1 for unsuccessful
+# r4 - codelist length
+################################################################################
+#To be inserted at 8016e758
+
+.macro load reg, address
+lis \reg, \address @h
+ori \reg, \reg, \address @l
+.endm
+
+.macro backup
+mflr r0
+stw r0, 0x4(r1)
+stwu	r1,-0x100(r1)	# make space for 12 registers
+stmw  r27,0x8(r1)
+.endm
+
+ .macro restore
+lmw  r27,0x8(r1)
+lwz r0, 0x104(r1)
+addi	r1,r1,0x100	# release the space
+mtlr r0
+.endm
+
+SearchForGeckoCodes:
+.set CurrentAddress,31
+.set EndAddress,30
+.set CodelistStartOpCode,29
+.set GeckoOpCode,28
+.set CodelistStart,27
+
+backup
+
+#Init Function Variables
+  load  CurrentAddress,0x800018a8         #Start Address
+  load  EndAddress,0x803b722c             #End Address
+  load  CodelistStartOpCode,0x00D0C0DE    #Start of codelist
+  subi  CurrentAddress,CurrentAddress,0x4
+
+SearchForGeckoCodes_SearchLoop:
+#Get next value
+  lwzu r3,0x4(CurrentAddress)
+#Check if the start of a codelist
+  cmpw r3,CodelistStartOpCode
+  beq SearchForGeckoCodes_CheckForSecondStartOpCode
+#Check if finished searching
+  cmpw  CurrentAddress,EndAddress
+  blt SearchForGeckoCodes_SearchLoop
+#No codelist found, return 0
+  li  r3,0
+  b Exit
+
+SearchForGeckoCodes_CheckForSecondStartOpCode:
+#Get next value
+  lwzu r3,0x4(CurrentAddress)
+#Check if the start of a codelist
+  cmpw r3,CodelistStartOpCode
+  bne SearchForGeckoCodes_SearchLoop
+#Save as start of codelist
+  addi  CodelistStart,CurrentAddress,4
+  b SearchForGeckoCodes_CountGeckoCodeList_Start
+
+SearchForGeckoCodes_CountGeckoCodeList_Start:
+#Check if finished search
+  cmpw  CurrentAddress,EndAddress
+  blt SearchForGeckoCodes_CountGeckoCodeList_Parse
+#No codelist found, return 0
+  li  r3,0
+  b Exit
+
+SearchForGeckoCodes_CountGeckoCodeList_Parse:
+#Get next value
+  lwzu r3,0x4(CurrentAddress)
+#Get Opcode (Mask Bits 24-31)
+  rlwinm GeckoOpCode,r3,8,24,31
+#Check if this is a terminator (isolate left opcode digit)
+  rlwinm r0,GeckoOpCode,0,24,27
+  cmpwi r0,0xF0
+  beq SearchForGeckoCodes_EndOfCodelist
+# Check codetype group, determine how many bytes to get to next code
+SearchForGeckoCodes_CountGeckoCodeList_CheckNoSkip:
+#Check for single line gecko codetypes
+  mr  r3,GeckoOpCode
+  bl  GeckoOpCode_NoSkip
+  mflr  r4
+  bl  SearchForGeckoCodes_SearchCodetypeTable
+  cmpwi r3,0x0
+  beq SearchForGeckoCodes_CountGeckoCodeList_Check8Bytes
+#Go to next code
+  addi CurrentAddress,CurrentAddress,0x4
+  b SearchForGeckoCodes_CountGeckoCodeList_Parse
+
+SearchForGeckoCodes_CountGeckoCodeList_Check8Bytes:
+#Check for 8 byte gecko codetypes
+  mr  r3,GeckoOpCode
+  bl  GeckoOpCode_Skip8Bytes
+  mflr  r4
+  bl  SearchForGeckoCodes_SearchCodetypeTable
+  cmpwi r3,0x0
+  beq SearchForGeckoCodes_CountGeckoCodeList_CheckXBytes
+#Go to next code
+  addi CurrentAddress,CurrentAddress,0x8
+  b SearchForGeckoCodes_CountGeckoCodeList_Parse
+
+SearchForGeckoCodes_CountGeckoCodeList_CheckXBytes:
+#Check for X bytes gecko codetypes
+  mr  r3,GeckoOpCode
+  bl  GeckoOpCode_SkipXBytes
+  mflr  r4
+  bl  SearchForGeckoCodes_SearchCodetypeTable
+  cmpwi r3,0x0
+  beq SearchForGeckoCodes_CountGeckoCodeList_CheckXLines
+#Get next value
+  lwz r3,0x4(CurrentAddress)
+  addi CurrentAddress,CurrentAddress,0x4        #Get to the data portion of the code
+  add CurrentAddress,CurrentAddress,r3
+  b SearchForGeckoCodes_CountGeckoCodeList_Parse
+
+SearchForGeckoCodes_CountGeckoCodeList_CheckXLines:
+#Check for X lines gecko codetypes
+  mr  r3,GeckoOpCode
+  bl  GeckoOpCode_SkipXLines
+  mflr  r4
+  bl  SearchForGeckoCodes_SearchCodetypeTable
+  cmpwi r3,0x0
+  beq SearchForGeckoCodes_EndOfCodelist
+#Get next value
+  lwz r3,0x4(CurrentAddress)
+  addi CurrentAddress,CurrentAddress,0x4       #Get to the data portion of the code
+  mulli r3,r3,0x8
+  add CurrentAddress,CurrentAddress,r3
+  b SearchForGeckoCodes_CountGeckoCodeList_Parse
+
+SearchForGeckoCodes_EndOfCodelist:
+#End of codelist, return starting address (r3) and length (r4)
+  mr  r3,CodelistStart
+  sub  r4,CurrentAddress,CodelistStart
+
+SearchForGeckoCodes_Exit:
+restore
+blr
+
+###########################
+# Codetype Reference Tables
+###########################
+
+GeckoOpCode_NoSkip:
+blrl
+.long 0x00020420
+.long 0x2A2C2E40
+.long 0x42444648
+.long 0x4A4C4E60
+.long 0x62646668
+.long 0x80828486
+.long 0x888A8CA0
+.long 0xA2A4A6A8
+.long 0xAAACAEC6
+.long 0xCCCEE0E2
+.long 0xDF000000
+
+GeckoOpCode_Skip8Bytes:
+blrl
+.long 0x08DF0000
+
+GeckoOpCode_SkipXBytes:
+blrl
+.long 0x06DF0000
+
+GeckoOpCode_SkipXLines:
+blrl
+.long 0xC0C2DF00
+
+##################################
+# Search Codetype Tables Function
+##################################
+
+SearchForGeckoCodes_SearchCodetypeTable:
+# in
+# r3 = current codetype
+# r4 = list of codetypes to check
+# out
+# r3 = isExists (bool)
+
+backup
+#Backup codetype list
+  subi  r31,r4,0x1
+
+SearchForGeckoCodes_SearchCodetypeTable_Loop:
+#Get Codetype
+  lbzu  r4,0x1(r31)
+#Check if end of list
+  cmpwi r4,0xDF
+  beq SearchForGeckoCodes_SearchCodetypeTable_NotFound
+#Check if they match
+  cmpw  r3,r4
+  bne SearchForGeckoCodes_SearchCodetypeTable_Loop
+#Codetypes match, return 1
+  li  r3,1
+  b SearchForGeckoCodes_SearchCodetypeTable_Exit
+
+SearchForGeckoCodes_SearchCodetypeTable_NotFound:
+  li  r3,0
+  b SearchForGeckoCodes_SearchCodetypeTable_Exit
+
+SearchForGeckoCodes_SearchCodetypeTable_Exit:
+restore
+blr
