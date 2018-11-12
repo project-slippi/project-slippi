@@ -15,6 +15,7 @@ import styles from './GameProfile.scss';
 import getLocalImage from '../../utils/image';
 import * as stageUtils from '../../utils/stages';
 import * as timeUtils from '../../utils/time';
+import * as playerUtils from '../../utils/players'
 
 export default class GameProfile extends Component {
   props: {
@@ -94,6 +95,9 @@ export default class GameProfile extends Component {
       'horizontal-spaced-group-left-sm': !isFirstPlayer,
     });
 
+    const game = this.props.store.game;
+    const playerNamesByIndex = playerUtils.getPlayerNamesByIndex(game);
+
     return (
       <Segment
         className={segmentClasses}
@@ -101,7 +105,7 @@ export default class GameProfile extends Component {
         basic={true}
       >
         <Header inverted={true} textAlign="center" as="h2">
-          Player {player.port}
+          {playerNamesByIndex[player.playerIndex]}
         </Header>
         <Image
           className={styles['character-image']}

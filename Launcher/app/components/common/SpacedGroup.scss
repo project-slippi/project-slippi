@@ -1,0 +1,15 @@
+.container {
+  display: grid;
+  grid-gap: 6px 6px;
+  align-items: center;
+  justify-content: start;
+  grid-auto-flow: column;
+
+  &.xs {
+    grid-gap: 3px 3px;
+  }
+  
+  &.md {
+    grid-gap: 9px 9px;
+  }
+}
