@@ -57,31 +57,35 @@ export default class PlayerChiclet extends Component {
     switch (player.port) {
     case 1:
       portCircles = [
-        <circle cx={centerX} cy={centerY} r={dotRadius} fill={color} />,
+        <circle key="1-1" cx={centerX} cy={centerY} r={dotRadius} fill={color} />,
       ];
       break;
     case 2:
       portCircles = [
-        <circle cx={centerX - spacer} cy={centerY} r={dotRadius} fill={color} />,
-        <circle cx={centerX + spacer} cy={centerY} r={dotRadius} fill={color} />,
+        <circle key="2-1" cx={centerX - spacer} cy={centerY} r={dotRadius} fill={color} />,
+        <circle key="2-2" cx={centerX + spacer} cy={centerY} r={dotRadius} fill={color} />,
       ];
       break;
     case 3:
       portCircles = [
-        <circle cx={centerX} cy={centerY - spacer} r={dotRadius} fill={color} />,
-        <circle cx={centerX - spacer} cy={centerY + spacer} r={dotRadius} fill={color} />,
-        <circle cx={centerX + spacer} cy={centerY + spacer} r={dotRadius} fill={color} />,
+        <circle key="3-1" cx={centerX} cy={centerY - spacer} r={dotRadius} fill={color} />,
+        <circle key="3-2" cx={centerX - spacer} cy={centerY + spacer} r={dotRadius} fill={color} />,
+        <circle key="3-3" cx={centerX + spacer} cy={centerY + spacer} r={dotRadius} fill={color} />,
       ];
       break;
     case 4:
       portCircles = [
-        <circle cx={centerX - spacer} cy={centerY - spacer} r={dotRadius} fill={color} />,
-        <circle cx={centerX + spacer} cy={centerY - spacer} r={dotRadius} fill={color} />,
-        <circle cx={centerX - spacer} cy={centerY + spacer} r={dotRadius} fill={color} />,
-        <circle cx={centerX + spacer} cy={centerY + spacer} r={dotRadius} fill={color} />,
+        <circle key="4-1" cx={centerX - spacer} cy={centerY - spacer} r={dotRadius} fill={color} />,
+        <circle key="4-2" cx={centerX + spacer} cy={centerY - spacer} r={dotRadius} fill={color} />,
+        <circle key="4-3" cx={centerX - spacer} cy={centerY + spacer} r={dotRadius} fill={color} />,
+        <circle key="4-4" cx={centerX + spacer} cy={centerY + spacer} r={dotRadius} fill={color} />,
       ];
       break;
+    default:
+      // Nothing
+      break;
     }
+
     return (
       <svg width="20px" height="18px">
         <path
