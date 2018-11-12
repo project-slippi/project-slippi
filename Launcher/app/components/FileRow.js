@@ -75,11 +75,13 @@ export default class FileRow extends Component {
 
     return (
       <Table.Cell singleLine={true}>
-        <SpacedGroup>
-          {this.generateTeamElements()}
-        </SpacedGroup>
-        <SpacedGroup className={styles['metadata-display']} size="md"> 
-          {metadataDisplay}
+        <SpacedGroup direction="vertical" size="xs">
+          <SpacedGroup>
+            {this.generateTeamElements()}
+          </SpacedGroup>
+          <SpacedGroup className={styles['metadata-display']} size="md">
+            {metadataDisplay}
+          </SpacedGroup>
         </SpacedGroup>
       </Table.Cell>
     );

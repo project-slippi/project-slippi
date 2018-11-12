@@ -4,22 +4,23 @@ import styles from './SpacedGroup.scss';
 
 export default class SpacedGroup extends Component {
   props: {
-    childen: any,
+    children: any,
     className: string,
     size: string,
+    direction: string,
   };
 
   static defaultProps = {
     className: "",
     size: "sm",
+    direction: "horizontal",
   };
 
   render() {
-    const size = this.props.size;
-
     const classes = classNames({
       [styles['container']]: true,
       [styles[this.props.size]]: true,
+      [styles[this.props.direction]]: true,
     }, this.props.className);
 
     return (

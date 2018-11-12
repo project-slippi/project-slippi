@@ -5,6 +5,10 @@
   justify-content: start;
   grid-auto-flow: column;
 
+  &.vertical {
+    grid-auto-flow: row;
+  }
+
   &.xs {
     grid-gap: 3px 3px;
   }

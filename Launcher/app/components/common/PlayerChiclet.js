@@ -57,28 +57,28 @@ export default class PlayerChiclet extends Component {
     switch (player.port) {
     case 1:
       portCircles = [
-        <circle stroke-width="0" cx={centerX} cy={centerY} r={dotRadius} fill={color} />,
+        <circle cx={centerX} cy={centerY} r={dotRadius} fill={color} />,
       ];
       break;
     case 2:
       portCircles = [
-        <circle stroke-width="0" cx={centerX - spacer} cy={centerY} r={dotRadius} fill={color} />,
-        <circle stroke-width="0" cx={centerX + spacer} cy={centerY} r={dotRadius} fill={color} />,
+        <circle cx={centerX - spacer} cy={centerY} r={dotRadius} fill={color} />,
+        <circle cx={centerX + spacer} cy={centerY} r={dotRadius} fill={color} />,
       ];
       break;
     case 3:
       portCircles = [
-        <circle stroke-width="0" cx={centerX} cy={centerY - spacer} r={dotRadius} fill={color} />,
-        <circle stroke-width="0" cx={centerX - spacer} cy={centerY + spacer} r={dotRadius} fill={color} />,
-        <circle stroke-width="0" cx={centerX + spacer} cy={centerY + spacer} r={dotRadius} fill={color} />,
+        <circle cx={centerX} cy={centerY - spacer} r={dotRadius} fill={color} />,
+        <circle cx={centerX - spacer} cy={centerY + spacer} r={dotRadius} fill={color} />,
+        <circle cx={centerX + spacer} cy={centerY + spacer} r={dotRadius} fill={color} />,
       ];
       break;
     case 4:
       portCircles = [
-        <circle stroke-width="0" cx={centerX - spacer} cy={centerY - spacer} r={dotRadius} fill={color} />,
-        <circle stroke-width="0" cx={centerX + spacer} cy={centerY - spacer} r={dotRadius} fill={color} />,
-        <circle stroke-width="0" cx={centerX - spacer} cy={centerY + spacer} r={dotRadius} fill={color} />,
-        <circle stroke-width="0" cx={centerX + spacer} cy={centerY + spacer} r={dotRadius} fill={color} />,
+        <circle cx={centerX - spacer} cy={centerY - spacer} r={dotRadius} fill={color} />,
+        <circle cx={centerX + spacer} cy={centerY - spacer} r={dotRadius} fill={color} />,
+        <circle cx={centerX - spacer} cy={centerY + spacer} r={dotRadius} fill={color} />,
+        <circle cx={centerX + spacer} cy={centerY + spacer} r={dotRadius} fill={color} />,
       ];
       break;
     }

@@ -97,11 +97,14 @@ export default class FileLoader extends Component {
       return totalFrames > (30 * 60);
     });
 
-    resultFiles = _.orderBy(resultFiles, file => {
-      const metadata = file.game.getMetadata() || {};
-      const startAt = metadata.startAt;
-      return moment(startAt);
-    }, 'desc');
+    resultFiles = _.orderBy(resultFiles, [
+      file => {
+        const metadata = file.game.getMetadata() || {};
+        const startAt = metadata.startAt;
+        return moment(startAt);
+      },
+      'fileName',
+    ], ['desc', 'desc']);
 
     // Filter out files that were shorter than 30 seconds
     return resultFiles;
