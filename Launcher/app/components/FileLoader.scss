@@ -49,7 +49,49 @@
   background: rgba(255, 255, 255, 0.4);
   border-radius: 4px;
   font-weight: bold;
-  padding: 0 0 2px 0;
-  margin: 0 4px;
   font-size: .8em;
+  line-height: 1.3;
+  width: 18px;
+  height: 15px;
+  text-align: center;
+}
+
+.secondary-text {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.player-names {
+  // margin: 0 !important;
+  // padding: 0 0 14px 0 !important;
+
+  display: flex;
+  justify-content: start;
+  flex-wrap: wrap;
+
+  div:not(:last-child) {
+    border-right-color: rgba(255, 255, 255, 0.5);
+    border-right-width: 1px;
+    border-right-style: solid;
+    padding-right: 6px;
+  }
+
+  div:not(:first-child) {
+    padding-left: 6px;
+  }
+}
+
+.metadata-display {
+  .label {
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.5);
+    margin-right: 4px;
+  }
+
+  .value {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .separator {
+    color: rgba(255, 255, 255, 0.5);
+  }
 }
