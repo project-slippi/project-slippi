@@ -78,19 +78,18 @@ export function connectConnection(connection) {
         return;
       }
 
+      writeStream.write(data);
+
       const dataLen = data.length;
       const gameEndCommandBytePresent = data[dataLen - 2] === 0x39;
       const gameEndPayloadValid = data[dataLen - 1] === 0x0 || data[dataLen - 1] === 0x3;
       if (gameEndCommandBytePresent && gameEndPayloadValid) {
-        // TODO: This should instead happen when we detect the end of the game
         writeStream.end();
         writeStream = null;
         // fileIndex += 1;
 
         console.log("Game end detected.");
       }
-
-      writeStream.write(data);
     });
 
     client.on('timeout', () => {
