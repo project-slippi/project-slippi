@@ -71,7 +71,7 @@
       ],
       "description": [
         "Used to play back a .slp file",
-        "Will always play 'CurrentGame.slp' in the Slippi folder"
+        "*Will play replay configured in playback.txt"
       ],
       "build": [
         {
