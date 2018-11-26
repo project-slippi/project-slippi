@@ -158,8 +158,8 @@ blrl
     slwi r3, r3, 24
     li r4, 0x5            #bit pattern to write to control register to write one byte
     bl handleExi
-  #Receive One Byte Response
-    li  r4,0x1            #bit pattern to write to control register to read one byte
+  #Receive Word Response
+    li  r4,0x31            #bit pattern to write to control register to read one byte
     bl  handleExi
   #Wait For Replay to be Ready
     cmpwi r3,0x1
