@@ -11,6 +11,7 @@ export default class Console extends Component {
     saveConnection: () => void,
     deleteConnection: () => void,
     connectConnection: () => void,
+    startMirroring: () => void,
     history: object,
     store: object,
   };
@@ -40,7 +41,7 @@ export default class Console extends Component {
       },
     });
   };
-  
+
   onFormSubmit = (index) => {
     const formData = this.state.formData || {};
     this.props.saveConnection(index, formData);
@@ -49,6 +50,10 @@ export default class Console extends Component {
   connectTo = (connection) => {
     this.props.connectConnection(connection);
   };
+
+  mirror = (connection) => {
+    this.props.startMirroring(connection);
+  }
 
   renderContent() {
     const store = this.props.store || {};
@@ -74,16 +79,19 @@ export default class Console extends Component {
             Edit
           </Button>
           {this.renderConnectButton(connection)}
+          {this.renderMirrorButton(connection)}
         </Card.Content>
       </Card>
     );
   }
 
-  renderConnectButton = (connection) => {
-    return (
-      <Button onClick={_.partial(this.connectTo, connection)}>Connect</Button>
-    );
-  }
+  renderConnectButton = (connection) => (
+    <Button onClick={_.partial(this.connectTo, connection)}>Connect</Button>
+  );
+
+  renderMirrorButton = (connection) => (
+    <Button onClick={_.partial(this.mirror, connection)}>Mirror</Button>
+  );
 
   renderEditModal() {
     const store = this.props.store || {};
