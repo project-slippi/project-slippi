@@ -2,6 +2,12 @@
 #                      Inject at address 80067cf8
 # Injection point provided by Achilles, runs every time somebody spawns
 ################################################################################
+.macro branchl reg, address
+lis \reg, \address @h
+ori \reg,\reg,\address @l
+mtctr \reg
+bctrl
+.endm
 
 #replaced code line is executed at the end
 
@@ -45,6 +51,7 @@ add r8, r8, r3
 #------------- START MAIN -------------
 bl startExiTransfer
 
+REQUEST_DATA:
 li r3,0x77
 bl sendByteExi
 
@@ -84,6 +91,17 @@ WRITE_IS_FOLLOWER:
 mr r3, r4 # stage isFollower bool for writing
 bl sendByteExi
 
+bl readWordExi #success value
+cmpwi r3, 0
+bne+ CONTINUE_READ_DATA
+
+# Wait a frame before trying again
+li r3,0x0
+branchl r4,0x803761c0 #HSD_VICopyXFBASync
+
+b REQUEST_DATA
+
+CONTINUE_READ_DATA:
 # read positions and write back to proper locations
 bl readWordExi
 stw r3, 0x2c(sp) # x position

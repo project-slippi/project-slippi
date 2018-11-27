@@ -71,7 +71,7 @@
       ],
       "description": [
         "Used to play back a .slp file",
-        "*Will play replay configured in playback.txt"
+        "Will play replay configured in playback.txt"
       ],
       "build": [
         {

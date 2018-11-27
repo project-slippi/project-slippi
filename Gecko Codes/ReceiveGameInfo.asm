@@ -3,6 +3,12 @@
 # Function is StartMelee and we are loading game information right before
 # it gets read to initialize the match
 ################################################################################
+.macro branchl reg, address
+lis \reg, \address @h
+ori \reg,\reg,\address @l
+mtctr \reg
+bctrl
+.endm
 
 #replaced code line is executed at the end
 
@@ -29,10 +35,22 @@ stwu r1,-0x20(r1)
 # initialize transfer with slippi device
 bl startExiTransfer
 
+REQUEST_DATA:
 # request game information from slippi
 li r3,0x75
 bl sendByteExi
 
+bl readWordExi #success value
+cmpwi r3, 0
+bne+ CONTINUE_READ_DATA
+
+# Wait a frame before trying again
+li r3,0x0
+branchl r4,0x803761c0 #HSD_VICopyXFBASync
+
+b REQUEST_DATA
+
+CONTINUE_READ_DATA:
 bl readWordExi #randomSeed
 lis r4, 0x804D
 stw r3, 0x5F90(r4) #load random seed

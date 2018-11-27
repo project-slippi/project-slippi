@@ -3,6 +3,12 @@
 # Function is PlayerThink_ControllerInputsToDataOffset. Injection location
 # suggested by Achilles
 ################################################################################
+.macro branchl reg, address
+lis \reg, \address @h
+ori \reg,\reg,\address @l
+mtctr \reg
+bctrl
+.endm
 
 #replaced code line is executed at the end
 
@@ -46,6 +52,7 @@ add r8, r8, r3
 #------------- START MAIN -------------
 bl startExiTransfer
 
+REQUEST_DATA:
 li r3,0x76
 bl sendByteExi
 
@@ -83,7 +90,17 @@ WRITE_IS_FOLLOWER:
 mr r3, r4 # stage isFollower bool for writing
 bl sendByteExi
 
-REPLAY:
+bl readWordExi #success value
+cmpwi r3, 0
+bne+ CONTINUE_READ_DATA
+
+# Wait a frame before trying again
+li r3,0x0
+branchl r4,0x803761c0 #HSD_VICopyXFBASync
+
+b REQUEST_DATA
+
+CONTINUE_READ_DATA:
 bl readWordExi
 lis r4,0x804D
 stw r3,0x5F90(r4) #RNG seed
