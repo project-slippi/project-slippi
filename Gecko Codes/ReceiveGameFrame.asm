@@ -90,15 +90,29 @@ WRITE_IS_FOLLOWER:
 mr r3, r4 # stage isFollower bool for writing
 bl sendByteExi
 
+#Frame data case ID's
+.set GameEnd,-1
+.set NoFrame,0
+.set FrameExists,1
+
+#Get status of this player's frame data
 bl readWordExi #success value
-cmpwi r3, 0
-bne+ CONTINUE_READ_DATA
+cmpwi r3, FrameExists
+beq CONTINUE_READ_DATA
+cmpwi r3, GameEnd
+beq END_GAME
 
 # Wait a frame before trying again
 li r3,0x0
 branchl r4,0x803761c0 #HSD_VICopyXFBASync
 
 b REQUEST_DATA
+
+END_GAME:
+li  r3,-1  #Unk
+li  r4,7   #GameEnd ID (7 = LRA Start)
+branchl r12,0x8016cf4c
+b GECKO_END
 
 CONTINUE_READ_DATA:
 bl readWordExi
