@@ -46,7 +46,7 @@ bne+ CONTINUE_READ_DATA
 
 # Wait a frame before trying again
 li r3,0x0
-branchl r4,0x803761c0 #HSD_VICopyXFBASync
+branchl r12,0x803761c0 #HSD_VICopyXFBASync
 
 b REQUEST_DATA
 

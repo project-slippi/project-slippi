@@ -22,6 +22,11 @@ bctrl
 .set EXI_CR_LOW, 0x6820
 .set EXI_DATA_LOW, 0x6824
 
+# Frame data case ID's
+.set RESULT_WAIT, 0
+.set RESULT_CONTINUE, 1
+.set RESULT_TERMINATE, 2
+
 ################################################################################
 #                   subroutine: readInputs
 # description: reads inputs from Slippi for a given frame and overwrites
@@ -90,21 +95,16 @@ WRITE_IS_FOLLOWER:
 mr r3, r4 # stage isFollower bool for writing
 bl sendByteExi
 
-#Frame data case ID's
-.set GameEnd,-1
-.set NoFrame,0
-.set FrameExists,1
-
 #Get status of this player's frame data
-bl readWordExi #success value
-cmpwi r3, FrameExists
+bl readWordExi # result value
+cmpwi r3, RESULT_CONTINUE
 beq CONTINUE_READ_DATA
-cmpwi r3, GameEnd
+cmpwi r3, RESULT_TERMINATE
 beq END_GAME
 
 # Wait a frame before trying again
 li r3,0x0
-branchl r4,0x803761c0 #HSD_VICopyXFBASync
+branchl r12,0x803761c0 #HSD_VICopyXFBASync
 
 b REQUEST_DATA
 
@@ -112,7 +112,7 @@ END_GAME:
 li  r3,-1  #Unk
 li  r4,7   #GameEnd ID (7 = LRA Start)
 branchl r12,0x8016cf4c
-b GECKO_END
+b CLEANUP
 
 CONTINUE_READ_DATA:
 bl readWordExi
