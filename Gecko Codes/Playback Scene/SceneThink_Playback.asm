@@ -205,16 +205,12 @@ blrl
 
   FloatValues:
   blrl
-  .long 0xC2A00000		#Y Initial
+  .float -80		#Y Initial
 
   Text:
   blrl
-  .long 0x57616974
-  .long 0x696e6720
-  .long 0x666f7220
-  .long 0x7265706c
-  .long 0x61792e2e
-  .long 0x2e000000
+  .string "Waiting for game..."
+  .align 2
 
   PlaybackThink_Exit:
   restore
