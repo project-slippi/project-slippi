@@ -1,7 +1,8 @@
 import SlippiGame from 'slp-parser-js';
 import {
-  LOAD_ROOT_FOLDER, CHANGE_FOLDER_SELECTION, STORE_SCROLL_POSITION
+  LOAD_ROOT_FOLDER, CHANGE_FOLDER_SELECTION, STORE_SCROLL_POSITION,
 } from '../actions/fileLoader';
+import DolphinManager from '../domain/DolphinManager';
 
 const fs = require('fs');
 const path = require('path');
@@ -9,6 +10,7 @@ const electronSettings = require('electron-settings');
 
 // Default state for this reducer
 const defaultState = {
+  dolphinManager: new DolphinManager('vod'),
   rootFolderName: "",
   selectedFolderFullPath: "",
   folders: {},

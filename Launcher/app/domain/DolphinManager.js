@@ -1,49 +1,59 @@
-import { exec } from 'child_process';
-import net from 'net';
+import util from 'util';
+import { execFile } from 'child_process';
 import fs from 'fs-extra';
 import path from 'path';
-import { displayError } from './error';
+import os from 'os';
+import crypto from 'crypto';
 
 const { app } = require('electron').remote;
 const electronSettings = require('electron-settings');
 
 export default class DolphinManager {
   constructor(key) {
-    // The key 
+    // The key of this dolphin manager, should be unique for different processes
     this.key = key;
     this.isRunning = false;
-    this.initCommFiles();
+
+    const commFilePaths = this.genCommFilePaths();
+
+    this.outputFilePath = commFilePaths.output;
   }
 
-  // TODO: Make private?
-  initCommFiles() {
-    // TODO: Create file in temp directory
+  genCommFilePaths() {
+    // Create comm file in temp directory
+    const tmpDir = os.tmpdir();
+    const uniqueId = crypto.randomBytes(3 * 4).toString('hex');
+    const commFileName = `slippi-comm-${this.key}-${uniqueId}.txt`;
+    const commFileFullPath = path.join(tmpDir, commFileName);
+
+    return {
+      'output': commFileFullPath,
+    };
   }
 
-  configureDolphin() {
-
+  removeCommFiles() {
+    fs.removeSync(this.outputFilePath);
   }
-  
-  startPlayback() {
-    // Trigger playFile with empty file to boot into
-    // Playback wait scene
+
+  async configureDolphin() {
+    this.runDolphin(false);
+  }
+
+  async startPlayback() {
+    // Trigger playFile with empty file to boot into playback wait scene
     this.playFile("");
   }
 
-  playFile(filePath) {
-    // TODO: Write filePath to comm file
-
-    
+  async playFile(filePath) {
+    fs.writeFileSync(this.outputFilePath, filePath);
+    await this.runDolphin(true);
   }
 
-  // TODO: Private
-  launchDolphin(startPlayback) {
+  async runDolphin(startPlayback) {
     if (this.isRunning) {
       // TODO: Bring dolphin into focus
       return;
     }
-
-    // TODO: Better launch code
 
     const platform = process.platform;
     const isDev = process.env.NODE_ENV === "development";
@@ -64,75 +74,46 @@ export default class DolphinManager {
 
     // Here we are going to build the platform-specific commands required to launch
     // dolphin from the command line with the correct game
-    let commands, command, slippiPath, playbackFile;
+    // When in development mode, use the build-specific dolphin version
+    // In production mode, only the build from the correct platform should exist
+    let executablePath;
     switch (platform) {
-      case "darwin": // osx
-        // When in development mode, use the build-specific dolphin version
-        // In production mode, only the build from the correct platform should exist
-        dolphinPath = isDev ? "./app/dolphin-dev/osx" : dolphinPath;
-        slippiPath = path.join(dolphinPath, 'Slippi');
-
-        playbackFile = path.join(slippiPath, 'playback.txt');
-        fs.writeFileSync(playbackFile, "");
-
-        // 1) Copy file to the playback dolphin build with the name CurrentGame.slp
-        // 2) Navigate to dolphin build path
-        // 3) Run dolphin with parameters to launch melee directly
-        commands = [
-          `cd "${dolphinPath}"`,
-          `open "Dolphin.app" --args -b -e "${meleeFile}"`,
-        ];
-
-        // Join the commands with && which will execute the commands in sequence
-        command = commands.join(' && ');
-        break;
-      case "win32": // windows
-        // When in development mode, use the build-specific dolphin version
-        // In production mode, only the build from the correct platform should exist
-        dolphinPath = isDev ? "./app/dolphin-dev/windows" : dolphinPath;
-        slippiPath = path.join(dolphinPath, 'Slippi');
-
-        playbackFile = path.join(slippiPath, 'playback.txt');
-        fs.writeFileSync(playbackFile, "");
-
-        // 1) Copy file to the playback dolphin build with the name CurrentGame.slp
-        // 2) Navigate to dolphin build path
-        // 3) Run dolphin with parameters to launch melee directly
-        commands = [
-          `cd "${dolphinPath}"`,
-          `Dolphin.exe /b /e "${meleeFile}"`,
-        ];
-
-        // Join the commands with && which will execute the commands in sequence
-        command = commands.join(' && ');
-        break;
-      case "linux":
-        dolphinPath = isDev ? "./app/dolphin-dev/linux" : dolphinPath;
-        slippiPath = path.join(dolphinPath, 'Slippi');
-
-        playbackFile = path.join(slippiPath, 'playback.txt');
-        fs.writeFileSync(playbackFile, "");
-
-        commands = [
-          `cd "${dolphinPath}"`,
-          `./dolphin-emu -b -e "${meleeFile}"`,
-        ];
-
-        command = commands.join(' && ');
-        break;
-      default:
-        throw new Error("The current platform is not supported");
+    case "darwin": // osx
+      dolphinPath = isDev ? "./app/dolphin-dev/osx" : dolphinPath;
+      executablePath = path.join(dolphinPath, "Dolphin.app");
+      break;
+    case "win32": // windows
+      dolphinPath = isDev ? "./app/dolphin-dev/windows" : dolphinPath;
+      executablePath = path.join(dolphinPath, "Dolphin.exe");
+      break;
+    case "linux": // linux
+      dolphinPath = isDev ? "./app/dolphin-dev/linux" : dolphinPath;
+      executablePath = path.join(dolphinPath, "dolphin-emu");
+      break;
+    default:
+      throw new Error("The current platform is not supported");
     }
 
-    // Ensure the target Slippi folder exists
-    fs.ensureDirSync(slippiPath);
+    let args = [
+      '-c',
+      this.outputFilePath,
+    ];
 
-    exec(command, (error) => {
-      // Apparently this callback happens before dolphin exits...
-      if (error) {
-        // TODO: Do I need to do this?
-        throw error;
-      }
-    });
+    if (startPlayback) {
+      args = args.concat([
+        '-b',
+        '-e',
+        meleeFile,
+      ]);
+    }
+
+    try {
+      this.isRunning = true;
+      const execFilePromise = util.promisify(execFile);
+      await execFilePromise(executablePath, args);
+    } finally {
+      this.removeCommFiles();
+      this.isRunning = false;
+    }
   }
 }
