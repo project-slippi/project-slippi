@@ -1,4 +1,5 @@
 import { SELECT_FOLDER, SELECT_FILE, SAVE_SETTINGS, CLEAR_CHANGES } from '../actions/settings';
+import DolphinManager from '../domain/DolphinManager';
 
 const _ = require('lodash');
 const electronSettings = require('electron-settings');
@@ -16,6 +17,7 @@ const availableSettings = {
 
 // Default state for this reducer
 const defaultState = {
+  dolphinManager: new DolphinManager("settings"),
   storedSettings: getStoredSettings(),
   currentSettings: getStoredSettings(),
 };
