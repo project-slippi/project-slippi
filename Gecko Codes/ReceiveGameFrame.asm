@@ -44,6 +44,10 @@ stw r4,0x18(r1)
 #lis r4, 0x800D
 #stw r3, -0x64B4(r4)
 
+#------------- START MAIN -------------
+bl startExiTransfer
+
+REQUEST_DATA:
 #------------- INITIALIZE -------------
 # here we want to initalize some variables we plan on using throughout
 lbz r7, 0xC(r31) #loads this player slot
@@ -54,10 +58,6 @@ ori r8, r8, 0x3080
 mulli r3, r7, 0xE90
 add r8, r8, r3
 
-#------------- START MAIN -------------
-bl startExiTransfer
-
-REQUEST_DATA:
 li r3,0x76
 bl sendByteExi
 
@@ -103,8 +103,7 @@ cmpwi r3, RESULT_TERMINATE
 beq END_GAME
 
 # Wait a frame before trying again
-li r3,0x0
-branchl r12,0x803761c0 #HSD_VICopyXFBASync
+branchl r12,0x8034f314 #VIWaitForRetrace
 
 b REQUEST_DATA
 
