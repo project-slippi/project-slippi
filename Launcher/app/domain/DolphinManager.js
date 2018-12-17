@@ -10,7 +10,8 @@ const electronSettings = require('electron-settings');
 
 export default class DolphinManager {
   constructor(key) {
-    // The key of this dolphin manager, should be unique for different processes
+    // The key of this dolphin manager, doesn't really do anything
+    // atm other than get added to the commFileName
     this.key = key;
     this.isRunning = false;
 
@@ -36,12 +37,12 @@ export default class DolphinManager {
   }
 
   async configureDolphin() {
-    this.runDolphin(false);
+    await this.runDolphin(false);
   }
 
   async startPlayback() {
     // Trigger playFile with empty file to boot into playback wait scene
-    this.playFile("");
+    await this.playFile("");
   }
 
   async playFile(filePath) {
@@ -112,6 +113,9 @@ export default class DolphinManager {
       const execFilePromise = util.promisify(execFile);
       await execFilePromise(executablePath, args);
     } finally {
+      // TODO: This doesn't work right when the main electon app gets
+      // TODO: closed first instead of the dolphin instance.
+      // TODO: Could cause the temp directory to get cluttered
       this.removeCommFiles();
       this.isRunning = false;
     }

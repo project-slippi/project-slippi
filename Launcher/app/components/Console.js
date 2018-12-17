@@ -42,9 +42,9 @@ export default class Console extends Component {
     });
   };
 
-  onFormSubmit = (index) => {
+  onFormSubmit = (id) => {
     const formData = this.state.formData || {};
-    this.props.saveConnection(index, formData);
+    this.props.saveConnection(id, formData);
   };
 
   connectTo = (connection) => {
@@ -57,14 +57,14 @@ export default class Console extends Component {
 
   renderContent() {
     const store = this.props.store || {};
-    const connections = store.connections || [];
+    const connectionsById = store.connections || [];
 
     return (
       <Container text={true}>
         <Button color="blue" onClick={this.addConnectionClick}>
           Add Connection
         </Button>
-        {connections.map(this.renderConnection)}
+        {connectionsById.map(this.renderConnection)}
       </Container>
     );
   }
@@ -95,9 +95,9 @@ export default class Console extends Component {
 
   renderEditModal() {
     const store = this.props.store || {};
-    const connectionToEdit = store.connectionToEdit;
+    const connectionToEdit = store.connectionSettingsToEdit;
 
-    const connectionIndex = _.get(connectionToEdit, 'index');
+    const connectionIndex = _.get(connectionToEdit, 'id');
     const actionText = connectionIndex === "new" ? "Add" : "Edit";
 
     return (
@@ -110,15 +110,15 @@ export default class Console extends Component {
     );
   }
 
-  renderEditForm(connection) {
-    if (!connection) {
+  renderEditForm(connectionSettings) {
+    if (!connectionSettings) {
       return null;
     }
 
     return (
-      <Form onSubmit={_.partial(this.onFormSubmit, connection.index)}>
-        <Form.Input name="ipAddress" label="IP Address" value={connection.ipAddress} onChange={this.onFieldChange} />
-        <Form.Input name="targetFolder" label="Target Folder" value={connection.targetFolder} onChange={this.onFieldChange} />
+      <Form onSubmit={_.partial(this.onFormSubmit, connectionSettings.id)}>
+        <Form.Input name="ipAddress" label="IP Address" value={connectionSettings.ipAddress} onChange={this.onFieldChange} />
+        <Form.Input name="targetFolder" label="Target Folder" value={connectionSettings.targetFolder} onChange={this.onFieldChange} />
         <Form.Button content="Submit" />
       </Form>
     );
