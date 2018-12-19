@@ -76,27 +76,15 @@
       "build": [
         {
           "type": "injectFolder",
-          "sourceFolder": "Playback Scene",
+          "sourceFolder": "Playback",
           "isRecursive": true,
-          "annotation": "Playback Scene [UnclePunch]"
+          "annotation": "Playback [Fizzi, Achilles, UnclePunch]"
         },
         {
-          "type": "inject",
-          "address": "8006B0DC",
-          "sourceFile": "ReceiveGameFrame.asm",
-          "annotation": "ReceiveGameFrame [Fizzi]"
-        },
-        {
-          "type": "inject",
-          "address": "8016E74C",
-          "sourceFile": "ReceiveGameInfo.asm",
-          "annotation": "ReceiveGameInfo [Fizzi]"
-        },
-        {
-          "type": "inject",
-          "address": "80067CF8",
-          "sourceFile": "ReceiveGameSpawn.asm",
-          "annotation": "ReceiveGameSpawn [Fizzi, Achilles]"
+          "type": "injectFolder",
+          "sourceFolder": "Common",
+          "isRecursive": true,
+          "annotation": "EXITransferBuffer [Fizzi, UnclePunch]"
         }
       ]
     }

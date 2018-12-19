@@ -46,6 +46,7 @@ mtlr r0
 .set entity,31
 .set player,31
 .set floats,30
+.set BufferPointer,29
 
 # Port B EXI Addresses
 .set EXI_CSR_LOW, 0x6814
@@ -53,6 +54,11 @@ mtlr r0
 .set EXI_DATA_LOW, 0x6824
 
 .set CHECK_FOR_REPLAY,0x88
+
+# Read/write definitions
+.set EXI_READ,0
+.set EXI_WRITE,1
+
 
 #############################
 # Create Per Frame Function #
@@ -127,6 +133,13 @@ blrl
   mflr	r4
   branchl	r12,0x803a6b98
 
+  ###########################
+  ## Allocate Buffer Space ##
+  ###########################
+
+  li  r3,0x20
+  branchl r12,0x8037f1e4
+  mr  BufferPointer,r3
 
   ########################
   ## Message Think Loop ##
@@ -143,25 +156,25 @@ blrl
   lwz	r4, -0x52D0 (r13)
   branchl	r12,0x803a84bc			#renderTextOnscreen
 
-
   li	r3,0x0
   branchl	r12,0x803761c0			#HSD_VICopyXFBASync
 
   #Check For EXI
   PlaybackThink_CheckEXI:
-  #Init EXI Transfer
-    lis r5,0xCC00          #top bytes of address of EXI registers
-    li  r3,0xD0            #bit pattern to set clock to 8 MHz and enable CS for device 0
-    stw r3,0x6814(r5)     #start transfer, write to parameter register
-  #Ask for Replay
+  RequestReplay:
     li r3,CHECK_FOR_REPLAY
-    slwi r3, r3, 24
-    li r4, 0x5            #bit pattern to write to control register to write one byte
-    bl handleExi
-  #Receive Word Response
-    li  r4,0x31            #bit pattern to write to control register to read one byte
-    bl  handleExi
+    stb r4,0x0(BufferPointer)
+    mr r3,BufferPointer
+    li  r4,0x1                #Length
+    li  r5,EXI_WRITE
+    branchl r12,0x800055f0
+  ReceiveReplay:
+    mr r3,BufferPointer
+    li  r4,0x1                #Length
+    li  r5,EXI_READ
+    branchl r12,0x800055f0
   #Wait For Replay to be Ready
+    lbz r3,0x0(BufferPointer)
     cmpwi r3,0x1
     bne PlaybackThink_Loop
 
@@ -188,20 +201,6 @@ blrl
   b	PlaybackThink_Exit
 
 ######################################################
-
-  handleExi:
-  #write value in r3 to EXI
-    stw r3, EXI_DATA_LOW(r5) #store data into transfer register
-    stw r4, EXI_CR_LOW(r5) #write to control register to begin transfer
-  handleExiWait:
-    lwz r3, EXI_CR_LOW(r5)
-    andi. r3, r3, 1
-    bne handleExiWait
-  #read values from transfer register to r3 for output
-    lwz r3, EXI_DATA_LOW(r5) #read from transfer register
-    blr
-
-#######################################################
 
   FloatValues:
   blrl
