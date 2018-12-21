@@ -96,7 +96,7 @@ export default class DolphinManager {
     }
 
     let args = [
-      '-c',
+      '-i',
       this.outputFilePath,
     ];
 
