@@ -88,6 +88,12 @@ ori \reg, \reg, \address @l
 .set MatchStruct,0x5
 .set UCFToggles,0x13D
 
+# function names
+.set GetFrameIndex,0x800055fc
+
+# debug flag
+.set debugFlag,0
+
 ################################################################################
 #                   subroutine: FetchFrameInfo
 # description: per frame function that will handle fetching the current frame's
@@ -102,16 +108,8 @@ lwz BufferPointer,-0x49b4(r13)
 # check if from LoadFirstSpawn
   cmpwi r3,0
   beq FromLoadFirstSpawn
-# request frame number
-  lis r4,0x8048
-  lwz r4,-0x62A8(r4) # load scene controller frame count
-  lis r3,0x8047
-  lwz FrameNumber,-0x493C(r3) #load match frame count
-  cmpwi FrameNumber, 0
-  bne FetchFrameInfo_REQUEST_DATA #this makes it so that if the timer hasn't started yet, we have a unique frame count still
-  sub FrameNumber,FrameNumber,r4
-  li r4,-0x7B
-  sub FrameNumber,r4,FrameNumber
+  branchl r12,GetFrameIndex
+  mr  FrameNumber,r3
   b FetchFrameInfo_REQUEST_DATA
 FromLoadFirstSpawn:
   li  FrameNumber,-123
@@ -137,7 +135,15 @@ FetchFrameInfo_RECEIVE_DATA:
   cmpwi r3, 0
   bne FetchFrameInfo_ENDGAME_CHECK
 # Wait a frame before trying again
-  branchl r12,0x8034f314 #VIWaitForRetrace
+  branchl r12,0x8034f314     #VIWaitForRetrace
+.if debugFlag==1
+# OSReport
+  branchl r12,GetFrameIndex
+  mr r4,r3
+  bl  WaitAFrameText
+  mflr r3
+  branchl r12,0x803456a8
+.endif
   b FetchFrameInfo_REQUEST_DATA
 FetchFrameInfo_ENDGAME_CHECK:
 #Get status of this player's frame data
@@ -148,6 +154,16 @@ END_GAME:
   li  r3,-1  #Unk
   li  r4,7   #GameEnd ID (7 = LRA Start)
   branchl r12,0x8016cf4c
+
+.if debugFlag==1
+b FetchFrameInfo_Exit
+#################################
+WaitAFrameText:
+blrl
+.string "Waiting on frame %d"
+.align 2
+#################################
+.endif
 
 FetchFrameInfo_Exit:
 restore

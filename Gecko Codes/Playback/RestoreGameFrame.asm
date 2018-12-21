@@ -87,6 +87,12 @@ ori \reg, \reg, \address @l
 .set MatchStruct,0x5
 .set UCFToggles,0x13D
 
+# function names
+.set GetIsFollower,0x800055f8
+
+# debug flag
+.set debugFlag,0
+
 ################################################################################
 #                   subroutine: readInputs
 # description: reads inputs from Slippi for a given frame and overwrites
@@ -107,22 +113,8 @@ ori \reg, \reg, \address @l
 # get buffer pointer
   lwz BufferPointer,-0x49b4(r13)
 
-# check if the player is a follower
-  li r20, 0 # initialize isFollower to false
-  lbz	r3, 0x221F (PlayerData)
-#Check If Subchar
-  rlwinm.	r0, r3, 29, 31, 31
-  beq	WRITE_IS_FOLLOWER
-#Check If Follower
-  lwz r3,0x4(PlayerDataStatic)
-  load	r4,0x803bcde0			#pdLoadCommonData table
-  mulli	r0, r3, 3			#struct length
-  add	r3,r4,r0			#get characters entry
-  lbz	r0, 0x2 (r3)			#get subchar functionality
-  cmpwi	r0,0x0			#if not a follower, exit
-  bne	WRITE_IS_FOLLOWER
-  li r20, 1 # if we get here then we know this is nana
-WRITE_IS_FOLLOWER:
+  mr  r3,PlayerData
+  branchl r12,GetIsFollower
 
 # Get players offset in buffer ()
   addi r4,BufferPointer,FrameHeaderLength  #get to player data start
@@ -133,6 +125,8 @@ WRITE_IS_FOLLOWER:
   add PlayerBackup,r4,r5
 
 CONTINUE_READ_DATA:
+
+.if debugFlag==1
 CheckForDesync:
   lfs f1,XPos(PlayerBackup)
   lfs f2,0xB0(PlayerData)
@@ -154,6 +148,7 @@ CheckForDesync:
 
 DesyncDetected:
   bl  DumpFrameData
+.endif
 
 RestoreData:
 # Restore data
@@ -201,6 +196,9 @@ RestoreData:
 # Get backed up input value
   lbz r3,AnalogRawInput(PlayerBackup)
   stb r3, 0x2(r20) #store raw x analog
+
+
+.if debugFlag==1
 
   b Injection_Exit
 
@@ -290,6 +288,7 @@ blr
   .string "------Desync Detected--------"
   .align 2
 
+.endif
 #######################################################################
 
 Injection_Exit:
