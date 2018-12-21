@@ -55,6 +55,7 @@ ori \reg, \reg, \address @l
 .set PlayerDataStatic,28
 .set BufferPointer,27
 .set PlayerBackup,26
+.set FrameNumber,25
 
 # Read/write definitions
 .set EXI_READ,0
@@ -105,22 +106,21 @@ lwz BufferPointer,-0x49b4(r13)
   lis r4,0x8048
   lwz r4,-0x62A8(r4) # load scene controller frame count
   lis r3,0x8047
-  lwz r3,-0x493C(r3) #load match frame count
-  cmpwi r3, 0
-  bne WriteFrameToBuffer #this makes it so that if the timer hasn't started yet, we have a unique frame count still
-  sub r3,r3,r4
+  lwz FrameNumber,-0x493C(r3) #load match frame count
+  cmpwi FrameNumber, 0
+  bne FetchFrameInfo_REQUEST_DATA #this makes it so that if the timer hasn't started yet, we have a unique frame count still
+  sub FrameNumber,FrameNumber,r4
   li r4,-0x7B
-  sub r3,r4,r3
-  b WriteFrameToBuffer
+  sub FrameNumber,r4,FrameNumber
+  b FetchFrameInfo_REQUEST_DATA
 FromLoadFirstSpawn:
-  li  r3,-123
-WriteFrameToBuffer:
-  stw r3,0x1(BufferPointer)
+  li  FrameNumber,-123
 
 FetchFrameInfo_REQUEST_DATA:
 # request game information from slippi
   li r3,0x76        # store gameframe request ID
   stb r3,0x0(BufferPointer)
+  stw FrameNumber,0x1(BufferPointer)
 # Transfer buffer over DMA
   mr  r3,BufferPointer   #Buffer Pointer
   li  r4,0x5            #Buffer Length
