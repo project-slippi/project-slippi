@@ -163,7 +163,7 @@ blrl
   PlaybackThink_CheckEXI:
   RequestReplay:
     li r3,CHECK_FOR_REPLAY
-    stb r4,0x0(BufferPointer)
+    stb r3,0x0(BufferPointer)
     mr r3,BufferPointer
     li  r4,0x1                #Length
     li  r5,EXI_WRITE
