@@ -9,33 +9,7 @@
 #     r4 = buffer length
 #     r5 = read (0x0) or write (0x1)
 ################################################################################
-
-.macro branchl reg, address
-lis \reg, \address @h
-ori \reg,\reg,\address @l
-mtctr \reg
-bctrl
-.endm
-
-.macro backup
-mflr r0
-stw r0, 0x4(r1)
-stwu	r1,-0x50(r1)	# make space for 12 registers
-stmw  r20,0x8(r1)
-.endm
-
- .macro restore
-lmw  r20,0x8(r1)
-lwz r0, 0x54(r1)
-addi	r1,r1,0x50	# release the space
-mtlr r0
-.endm
-
-.macro load reg, address
-lis \reg, \address @h
-ori \reg, \reg, \address @l
-.endm
-
+.include "Common/Common.s"
 
 .set MEM_SLOT, 1 # 0 is SlotA, 1 is SlotB
 
