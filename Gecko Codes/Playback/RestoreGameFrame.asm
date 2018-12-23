@@ -1,22 +1,5 @@
 #To be inserted at 8006b0dc
-################################################################################
-#                      Inject at address 8006b0dc
-# Function is PlayerThink_ControllerInputsToDataOffset. Injection location
-# suggested by Achilles
-################################################################################
 .include "Common/Common.s"
-
-#replaced code line is executed at the end
-
-# Port A EXI Addresses
-# .set EXI_CSR_LOW, 0x6800
-# .set EXI_CR_LOW, 0x680C
-# .set EXI_DATA_LOW, 0x6810
-
-# Port B EXI Addresses
-.set EXI_CSR_LOW, 0x6814
-.set EXI_CR_LOW, 0x6820
-.set EXI_DATA_LOW, 0x6824
 
 # Frame data case ID's
 .set RESULT_WAIT, 0
@@ -30,10 +13,6 @@
 .set PlayerDataStatic,28
 .set BufferPointer,27
 .set PlayerBackup,26
-
-# Read/write definitions
-.set EXI_READ,0
-.set EXI_WRITE,1
 
 # gameframe offsets
 # header
@@ -62,9 +41,6 @@
 .set MatchStruct,0x5
 .set UCFToggles,0x13D
 
-# function names
-.set GetIsFollower,0x800055f8
-
 # debug flag
 .set debugFlag,0
 
@@ -89,7 +65,7 @@
   lwz BufferPointer,-0x49b4(r13)
 
   mr  r3,PlayerData
-  branchl r12,GetIsFollower
+  branchl r12,FN_GetIsFollower
 
 # Get players offset in buffer ()
   addi r4,BufferPointer,FrameHeaderLength  #get to player data start

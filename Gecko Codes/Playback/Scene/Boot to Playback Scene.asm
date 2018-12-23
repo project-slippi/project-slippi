@@ -1,7 +1,7 @@
 #To be inserted at 801a45a0
 .include "Common/Common.s"
 
-.set MajorStruct_DebugMelee,0x803dada8
+.set ADDR_MajorStruct_DebugMelee,0x803dada8
 
 ###########################################################################
 # Store pointer to custom OnMajorLoad function                            #
@@ -10,7 +10,7 @@
 ###########################################################################
   bl  SceneLoadMajor_DebugMelee
   mflr r3
-  load r4,MajorStruct_DebugMelee
+  load r4, ADDR_MajorStruct_DebugMelee
   stw r3,0x4(r4)    #Store to OnMajorLoad offset
   b Exit
 

@@ -5,30 +5,6 @@
 ################################################################################
 .include "Common/Common.s"
 
-#replaced code line is executed at the end
-
-# Port A EXI Addresses
-# .set EXI_CSR_LOW, 0x6800
-# .set EXI_CR_LOW, 0x680C
-# .set EXI_DATA_LOW, 0x6810
-
-# Port B EXI Addresses
-.set EXI_CSR_LOW, 0x6814
-.set EXI_CR_LOW, 0x6820
-.set EXI_DATA_LOW, 0x6824
-
-# Payload lengths, if any additional data is added, these must be incremented
-.set MESSAGE_DESCIPTIONS_PAYLOAD_LENGTH, 13 # byte count
-.set GAME_INFO_PAYLOAD_LENGTH, 352 # byte count
-.set GAME_PRE_FRAME_PAYLOAD_LENGTH, 59 # byte count
-.set GAME_POST_FRAME_PAYLOAD_LENGTH, 37 # byte count
-.set GAME_END_PAYLOAD_LENGTH, 1 # byte count
-.set FULL_FRAME_DATA_BUF_LENGTH, 8 * (GAME_PRE_FRAME_PAYLOAD_LENGTH + 1) + 8 * (GAME_POST_FRAME_PAYLOAD_LENGTH + 1) + 1 #784
-
-# Read/write definitions
-.set EXI_READ,0
-.set EXI_WRITE,1
-
 # Frame data case ID's
 .set RESULT_WAIT, 0
 .set RESULT_CONTINUE, 1

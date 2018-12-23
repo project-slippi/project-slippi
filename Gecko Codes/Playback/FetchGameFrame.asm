@@ -1,22 +1,5 @@
 #To be inserted at 800055f4
-################################################################################
-#                      Inject at address 800055f4
-# Function is PlayerThink_ControllerInputsToDataOffset. Injection location
-# suggested by Achilles
-################################################################################
 .include "Common/Common.s"
-
-#replaced code line is executed at the end
-
-# Port A EXI Addresses
-# .set EXI_CSR_LOW, 0x6800
-# .set EXI_CR_LOW, 0x680C
-# .set EXI_DATA_LOW, 0x6810
-
-# Port B EXI Addresses
-.set EXI_CSR_LOW, 0x6814
-.set EXI_CR_LOW, 0x6820
-.set EXI_DATA_LOW, 0x6824
 
 # Frame data case ID's
 .set RESULT_WAIT, 0
@@ -31,10 +14,6 @@
 .set BufferPointer,27
 .set PlayerBackup,26
 .set FrameNumber,25
-
-# Read/write definitions
-.set EXI_READ,0
-.set EXI_WRITE,1
 
 # gameframe offsets
 # header
@@ -63,9 +42,6 @@
 .set MatchStruct,0x5
 .set UCFToggles,0x13D
 
-# function names
-.set GetFrameIndex,0x800055fc
-
 # debug flag
 .set debugFlag,0
 
@@ -83,7 +59,7 @@ lwz BufferPointer,-0x49b4(r13)
 # check if from LoadFirstSpawn
   cmpwi r3,0
   beq FromLoadFirstSpawn
-  branchl r12,GetFrameIndex
+  branchl r12,FN_GetFrameIndex
   mr  FrameNumber,r3
   b FetchFrameInfo_REQUEST_DATA
 FromLoadFirstSpawn:
@@ -91,20 +67,20 @@ FromLoadFirstSpawn:
 
 FetchFrameInfo_REQUEST_DATA:
 # request game information from slippi
-  li r3,0x76        # store gameframe request ID
+  li r3, CONST_SlippiCmdGetFrame        # store gameframe request ID
   stb r3,0x0(BufferPointer)
   stw FrameNumber,0x1(BufferPointer)
 # Transfer buffer over DMA
   mr  r3,BufferPointer   #Buffer Pointer
   li  r4,0x5            #Buffer Length
-  li  r5,EXI_WRITE
-  branchl r12,0x800055f0
+  li  r5,CONST_ExiWrite
+  branchl r12,FN_EXITransferBuffer
 FetchFrameInfo_RECEIVE_DATA:
 # Transfer buffer over DMA
   mr  r3,BufferPointer
   li  r4,(PlayerDataLength*8)+FrameHeaderLength      #Buffer Length
-  li  r5,EXI_READ
-  branchl r12,0x800055f0
+  li  r5,CONST_ExiRead
+  branchl r12,FN_EXITransferBuffer
 # Check if successful
   lbz r3,Status(BufferPointer)
   cmpwi r3, 0
@@ -113,7 +89,7 @@ FetchFrameInfo_RECEIVE_DATA:
   branchl r12,0x8034f314     #VIWaitForRetrace
 .if debugFlag==1
 # OSReport
-  branchl r12,GetFrameIndex
+  branchl r12,FN_GetFrameIndex
   mr r4,r3
   bl  WaitAFrameText
   mflr r3

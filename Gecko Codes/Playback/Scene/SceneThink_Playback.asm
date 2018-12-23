@@ -1,22 +1,8 @@
 #To be inserted at 801a6348
 .include "Common/Common.s"
 
-.set entity,31
-.set player,31
-.set floats,30
-.set BufferPointer,29
-
-# Port B EXI Addresses
-.set EXI_CSR_LOW, 0x6814
-.set EXI_CR_LOW, 0x6820
-.set EXI_DATA_LOW, 0x6824
-
-.set CHECK_FOR_REPLAY,0x88
-
-# Read/write definitions
-.set EXI_READ,0
-.set EXI_WRITE,1
-
+.set REG_Floats, 30
+.set REG_BufferPointer, 29
 
 #############################
 # Create Per Frame Function #
@@ -59,7 +45,7 @@ blrl
 
   #Get Float Values
   bl	FloatValues
-  mflr	floats
+  mflr	REG_Floats
 
   #Create Text Struct
   li	r3,0
@@ -86,7 +72,7 @@ blrl
   PlaybackThink_InitText:
   lwz	r3, -0x52D0 (r13)
   lfs	f1, -0x7D50 (rtoc)
-  lfs	f2, 0x0(floats)
+  lfs	f2, 0x0(REG_Floats)
   bl	Text
   mflr	r4
   branchl	r12,0x803a6b98
@@ -97,7 +83,7 @@ blrl
 
   li  r3,0x20
   branchl r12,0x8037f1e4
-  mr  BufferPointer,r3
+  mr  REG_BufferPointer,r3
 
   ########################
   ## Message Think Loop ##
@@ -120,19 +106,19 @@ blrl
   #Check For EXI
   PlaybackThink_CheckEXI:
   RequestReplay:
-    li r3,CHECK_FOR_REPLAY
-    stb r3,0x0(BufferPointer)
-    mr r3,BufferPointer
+    li r3,CONST_SlippiCmdCheckForReplay
+    stb r3,0x0(REG_BufferPointer)
+    mr r3,REG_BufferPointer
     li  r4,0x1                #Length
-    li  r5,EXI_WRITE
-    branchl r12,0x800055f0
+    li  r5,CONST_ExiWrite
+    branchl r12,FN_EXITransferBuffer
   ReceiveReplay:
-    mr r3,BufferPointer
+    mr r3,REG_BufferPointer
     li  r4,0x1                #Length
-    li  r5,EXI_READ
-    branchl r12,0x800055f0
+    li  r5,CONST_ExiRead
+    branchl r12,FN_EXITransferBuffer
   #Wait For Replay to be Ready
-    lbz r3,0x0(BufferPointer)
+    lbz r3,0x0(REG_BufferPointer)
     cmpwi r3,0x1
     bne PlaybackThink_Loop
 

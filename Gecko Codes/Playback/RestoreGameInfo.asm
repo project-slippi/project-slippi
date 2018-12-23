@@ -6,18 +6,6 @@
 ################################################################################
 .include "Common/Common.s"
 
-#replaced code line is executed at the end
-
-# Port A EXI Addresses
-# .set EXI_CSR_LOW, 0x6800
-# .set EXI_CR_LOW, 0x680C
-# .set EXI_DATA_LOW, 0x6810
-
-# Port B EXI Addresses
-.set EXI_CSR_LOW, 0x6814
-.set EXI_CR_LOW, 0x6820
-.set EXI_DATA_LOW, 0x6824
-
 # Frame data case ID's
 .set RESULT_WAIT, 0
 .set RESULT_CONTINUE, 1
@@ -49,10 +37,6 @@
 .set InfoRNGSeed,0x1
 .set MatchStruct,0x5
 .set UCFToggles,0x13D
-
-# Read/write definitions
-.set EXI_READ,0
-.set EXI_WRITE,1
 
 # Register names
 .set BufferPointer,30
@@ -93,14 +77,14 @@ REQUEST_DATA:
 # Transfer buffer over DMA
   mr r3,BufferPointer   #Buffer Pointer
   li  r4,0x1            #Buffer Length
-  li  r5,EXI_WRITE
-  branchl r12,0x800055f0
+  li  r5,CONST_ExiWrite
+  branchl r12,FN_EXITransferBuffer
 RECEIVE_DATA:
 # Transfer buffer over DMA
   mr  r3,BufferPointer
   li  r4,GameInfoLength     #Buffer Length
-  li  r5,EXI_READ
-  branchl r12,0x800055f0
+  li  r5,CONST_ExiRead
+  branchl r12,FN_EXITransferBuffer
 # Check if successful
   lbz r3,0x0(BufferPointer)
   cmpwi r3, 1

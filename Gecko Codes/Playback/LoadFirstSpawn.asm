@@ -6,18 +6,6 @@
 ################################################################################
 .include "Common/Common.s"
 
-#replaced code line is executed at the end
-
-# Port A EXI Addresses
-# .set EXI_CSR_LOW, 0x6800
-# .set EXI_CR_LOW, 0x680C
-# .set EXI_DATA_LOW, 0x6810
-
-# Port B EXI Addresses
-.set EXI_CSR_LOW, 0x6814
-.set EXI_CR_LOW, 0x6820
-.set EXI_DATA_LOW, 0x6824
-
 # Frame data case ID's
 .set RESULT_WAIT, 0
 .set RESULT_CONTINUE, 1
@@ -30,10 +18,6 @@
 .set PlayerDataStatic,28
 .set BufferPointer,27
 .set PlayerBackup,26
-
-# Read/write definitions
-.set EXI_READ,0
-.set EXI_WRITE,1
 
 # gameframe offsets
 # header
