@@ -10,7 +10,7 @@
 # out
 #   r3 = current frame index
 ################################################################################
-.include "Common/Common.s"
+.include "Common.s"
 
 GetFrameIndex:
 backup

@@ -1,5 +1,5 @@
 #To be inserted at 801a45a0
-.include "Common/Common.s"
+.include "../../Common/Common.s"
 
 .set ADDR_MajorStruct_DebugMelee,0x803dada8
 

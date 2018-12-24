@@ -10,7 +10,7 @@
 # out
 #   r3 = REG_IsFollower
 ################################################################################
-.include "Common/Common.s"
+.include "Common.s"
 
 .set REG_IsFollower, 31
 .set REG_PlayerData, 30

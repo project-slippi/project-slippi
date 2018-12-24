@@ -1,5 +1,5 @@
 #To be inserted at 8006b0dc
-.include "Common/Common.s"
+.include "../Common/Common.s"
 
 # Frame data case ID's
 .set RESULT_WAIT, 0

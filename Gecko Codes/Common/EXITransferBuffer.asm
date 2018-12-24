@@ -9,7 +9,7 @@
 #     r4 = buffer length
 #     r5 = read (0x0) or write (0x1)
 ################################################################################
-.include "Common/Common.s"
+.include "Common.s"
 
 .set CONST_MemSlot, 1 # 0 is SlotA, 1 is SlotB. Indicates which slot to use
 

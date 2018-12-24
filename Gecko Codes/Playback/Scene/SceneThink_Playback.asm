@@ -1,5 +1,5 @@
 #To be inserted at 801a6348
-.include "Common/Common.s"
+.include "../../Common/Common.s"
 
 .set REG_Floats, 30
 .set REG_BufferPointer, 29

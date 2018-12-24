@@ -3,7 +3,7 @@
 #                      Inject at address 80067d18
 # Injection point provided by Achilles, runs every time somebody spawns
 ################################################################################
-.include "Common/Common.s"
+.include "../Common/Common.s"
 
 # Frame data case ID's
 .set RESULT_WAIT, 0

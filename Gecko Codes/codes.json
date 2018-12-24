@@ -1,4 +1,7 @@
 {
+  "settings": {
+    "areIncludesRelativeFromFile": true
+  },
   "outputFiles": [ "CodeList.txt" ],
   "codes": [
     {

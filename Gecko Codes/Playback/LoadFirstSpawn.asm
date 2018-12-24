@@ -4,7 +4,7 @@
 # Function is PlayerThink_ControllerInputsToDataOffset. Injection location
 # suggested by Achilles
 ################################################################################
-.include "Common/Common.s"
+.include "../Common/Common.s"
 
 # Frame data case ID's
 .set RESULT_WAIT, 0

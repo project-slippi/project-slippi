@@ -4,7 +4,7 @@
 # Function is StartMelee and we are loading game information right before
 # it gets read to initialize the match
 ################################################################################
-.include "Common/Common.s"
+.include "../Common/Common.s"
 
 # Frame data case ID's
 .set RESULT_WAIT, 0
