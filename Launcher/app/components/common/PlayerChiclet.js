@@ -51,7 +51,6 @@ export default class PlayerChiclet extends Component {
     const centerY = 8;
     const spacer = 2.5;
     const color = "#919296";
-    const background = "#2D313A";
 
     let portCircles = [];
     switch (player.port) {
@@ -94,7 +93,7 @@ export default class PlayerChiclet extends Component {
           d="M3.18,0.9375
             a9,9 0 1,0 13.5,0
             Z"
-          fill={background}
+          fillOpacity="0"
         />
         {portCircles}
       </svg>
