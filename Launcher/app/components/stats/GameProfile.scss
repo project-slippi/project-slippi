@@ -93,12 +93,13 @@ $header-height: 97px;
 }
 
 .vs-element {
-  color: $background-dark;
-  background: rgba(255, 255, 255, 0.4);
-  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 0.8;
+  width: 20px;
+  height: 18px;
   font-weight: bold;
-  padding: 0 4px 3px 4px;
-  font-size: 1.2em;
+  font-size: 1.4em;
+  text-align: center;
 }
 
 .section-header {
