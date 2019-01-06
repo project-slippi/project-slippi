@@ -46,8 +46,8 @@ export default class Home extends Component {
 
     upcomingElements.push(this.generateNav(
       "microchip",
-      "Stream From Slippi Device",
-      "Stream replay from Slippi device",
+      "Stream From Console",
+      "Get replays by connecting to a console over network",
       "/console",
       true
     ));

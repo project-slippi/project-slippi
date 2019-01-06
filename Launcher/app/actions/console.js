@@ -1,7 +1,3 @@
-import net from 'net';
-import fs from 'fs-extra';
-import path from 'path';
-
 export const CONNECTION_CANCEL_EDIT = 'CONNECTION_CANCEL_EDIT';
 export const CONNECTION_EDIT = 'CONNECTION_EDIT';
 export const CONNECTION_SAVE = 'CONNECTION_SAVE';
@@ -44,49 +40,14 @@ export function deleteConnection(id) {
 }
 
 export function connectConnection(connection) {
-  return (dispatch) => {
-    const client = net.connect({
-      host: connection.ipAddress,
-      port: 666,
-    }, (arg1, arg2, arg3) => {
-      console.log("Connected!");
-      console.log({
-        arg1: arg1,
-        arg2: arg2,
-        arg3: arg3,
-      });
-    });
+  return () => {
+    connection.connect();
+  };
+}
 
-    let fileIndex = 1;
-    const folder = connection.targetFolder;
-    let writeStream = null;
-    client.on('data', (data) => {
-      const firstCommand = data[0];
-      if (firstCommand === 0x35) {
-        if (writeStream) {
-          // TODO: This should instead happen when we detect the end of the game
-          writeStream.end();
-          writeStream = null;
-          fileIndex += 1;
-        }
-
-        console.log("Making new file...");
-        const filePath = path.join(folder, `file${fileIndex}.bin`);
-        console.log(filePath);
-        writeStream = fs.createWriteStream(filePath, {
-          encoding: 'binary',
-        });
-      }
-
-      if (!writeStream) {
-        return;
-      }
-
-      writeStream.write(data);
-    });
-
-    client.on('end', () => {
-      console.log('disconnect');
-    });
+export function startMirroring(connection) {
+  return () => {
+    // TODO: Handle errors
+    connection.startMirroring();
   };
 }

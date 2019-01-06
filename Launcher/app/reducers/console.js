@@ -1,19 +1,25 @@
-import {
-  CONNECTION_CANCEL_EDIT, CONNECTION_EDIT, CONNECTION_SAVE, CONNECTION_DELETE, CONNECTION_CONNECT,
-} from '../actions/console';
+import electronSettings from 'electron-settings';
+import _ from 'lodash';
 
-const _ = require('lodash');
-const electronSettings = require('electron-settings');
+import ConsoleConnection from '../domain/ConsoleConnection';
+
+import {
+  CONNECTION_CANCEL_EDIT, CONNECTION_EDIT, CONNECTION_SAVE, CONNECTION_DELETE,
+  CONNECTION_CONNECT,
+} from '../actions/console';
 
 const connectionPath = "connections";
 
 const defaultState = {
   connections: getStoredConnections(),
-  connectionToEdit: null,
+  connectionSettingsToEdit: null,
 };
 
 function getStoredConnections() {
-  return electronSettings.get(connectionPath) || [];
+  const serializedConnections = electronSettings.get(connectionPath) || [];
+  return _.map(serializedConnections, (serializedConnection) => (
+    new ConsoleConnection(serializedConnection)
+  ));
 }
 
 export default function connections(state = defaultState, action) {
@@ -37,13 +43,15 @@ function editConnection(state, action) {
   const payload = action.payload || {};
   const editId = payload.id;
 
-  const list = state.connections || [];
-  const connectionToEdit = list[editId] || {};
+  const connectionObjs = state.connections || [];
+  const connectionsById = _.keyBy(connectionObjs, 'id');
+  const connectionToEdit = connectionsById[editId];
+  const connectionSettings = connectionToEdit ? connectionToEdit.getSettings() : {};
 
   const newState = { ...state };
-  newState.connectionToEdit = {
-    ...connectionToEdit,
-    index: editId,
+  newState.connectionSettingsToEdit = {
+    id: editId,
+    ...connectionSettings,
   };
 
   return newState;
@@ -51,7 +59,7 @@ function editConnection(state, action) {
 
 function cancelEditConnection(state) {
   const newState = { ...state };
-  newState.connectionToEdit = null;
+  newState.connectionSettingsToEdit = null;
   return newState;
 }
 
@@ -61,17 +69,30 @@ function saveConnection(state, action) {
   const settings = payload.settings;
 
   const newState = { ...state };
-  const list = newState.connections || [];
+  const connectionObjs = state.connections || [];
+  const connectionsById = _.keyBy(connectionObjs, 'id');
+  const connectionToEdit = connectionsById[index];
 
-  if (index === "new") {
-    list.push(settings);
-  } else if (parseInt(index, 10)) {
-    list[index] = settings;
+  if (connectionToEdit) {
+    connectionToEdit.editSettings(settings);
+  } else {
+    const newConnection = new ConsoleConnection(settings);
+    connectionsById[newConnection.id] = newConnection;
   }
 
-  newState.connections = list;
-  newState.connectionToEdit = null; // Close modal
+  const resultConnections = _.toArray(connectionsById);
+  newState.connections = resultConnections;
+  newState.connectionSettingsToEdit = null; // Close modal
+
+  storeConnections(resultConnections);
+
   return newState;
+}
+
+function storeConnections(connectionObjs) {
+  electronSettings.set(connectionPath, _.map(connectionObjs, (connection) => (
+    connection.getSettings()
+  )));
 }
 
 function deleteConnection(state) {

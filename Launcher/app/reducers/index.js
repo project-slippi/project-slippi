@@ -12,7 +12,7 @@ const rootReducer = combineReducers({
   settings: settings,
   console: console,
   game: game,
-  errors: errors
+  errors: errors,
 });
 
 export default rootReducer;

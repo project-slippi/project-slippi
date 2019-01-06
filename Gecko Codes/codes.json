@@ -1,5 +1,8 @@
 {
-  "outputFile": "CodeList.txt",
+  "settings": {
+    "areIncludesRelativeFromFile": true
+  },
+  "outputFiles": [ "CodeList.txt" ],
   "codes": [
     {
       "name": "Slippi Recording",
@@ -32,7 +35,7 @@
         },
         {
           "type": "branchAndLink",
-          "address": "801a5b04",
+          "address": "801a5b14",
           "targetAddress": "8032ed94",
           "annotation": "SendGameEnd [Fizzi]"
         },
@@ -71,32 +74,20 @@
       ],
       "description": [
         "Used to play back a .slp file",
-        "Will always play 'CurrentGame.slp' in the Slippi folder"
+        "Will play replay configured in playback.txt"
       ],
       "build": [
         {
-          "type": "replace",
-          "address": "801A45C0",
-          "value": "3860000E",
-          "annotation": "Boot into game [UnclePunch]"
+          "type": "injectFolder",
+          "sourceFolder": "Playback",
+          "isRecursive": true,
+          "annotation": "Playback [Fizzi, Achilles, UnclePunch]"
         },
         {
-          "type": "inject",
-          "address": "8006B0DC",
-          "sourceFile": "ReceiveGameFrame.asm",
-          "annotation": "ReceiveGameFrame [Fizzi]"
-        },
-        {
-          "type": "inject",
-          "address": "8016E74C",
-          "sourceFile": "ReceiveGameInfo.asm",
-          "annotation": "ReceiveGameInfo [Fizzi]"
-        },
-        {
-          "type": "inject",
-          "address": "80067CF8",
-          "sourceFile": "ReceiveGameSpawn.asm",
-          "annotation": "ReceiveGameSpawn [Fizzi, Achilles]"
+          "type": "injectFolder",
+          "sourceFolder": "Common",
+          "isRecursive": true,
+          "annotation": "EXITransferBuffer [Fizzi, UnclePunch]"
         }
       ]
     }
