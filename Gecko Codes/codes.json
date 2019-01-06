@@ -35,7 +35,7 @@
         },
         {
           "type": "branchAndLink",
-          "address": "801a5b04",
+          "address": "801a5b14",
           "targetAddress": "8032ed94",
           "annotation": "SendGameEnd [Fizzi]"
         },

@@ -17,7 +17,7 @@
 # 8016e74c (SendGameInfo)
 # 8006b0dc (SendGamePreFrame)
 # 8006c5d4 (SendGamePostFrame)
-# 801a5b04 (SendGameEnd)
+# 801a5b14 (SendGameEnd)
 # 802fed3c (FlushFrameBuffer)
 # ------------------------------------------------------------------------------
 # Register Usage:
@@ -53,7 +53,7 @@ stwu r1, -0x100(r1)
 stw r14, 0x8(r1)
 stw r15, 0xC(r1)
 stw r16, 0x10(r1)
-stw r3, 0x14(r1) # Needed for game end code
+stw r3, 0x14(r1) # Needed for game end code (no longer true)
 stw r25, 0x18(r1)
 stw r26, 0x1C(r1)
 
@@ -96,7 +96,7 @@ beq SEND_GAME_POST_FRAME
 
 # Fork to SendGameEnd if we came from 801a5b04
 lis r4, 0x801a
-ori r4, r4, 0x5b08
+ori r4, r4, 0x5b18
 cmpw r3, r4
 beq SEND_GAME_END
 
@@ -418,7 +418,7 @@ mtlr r0 # Put the stored lr back
 lwz r14, 0x8(r1)
 lwz r15, 0xC(r1)
 lwz r16, 0x10(r1)
-lwz r3, 0x14(r1) # Needed for game end code
+lwz r3, 0x14(r1) # Needed for game end code (no longer true)
 lwz r25, 0x18(r1)
 lwz r26, 0x1C(r1)
 addi r1, r1, 0x100 # restore sp
@@ -446,7 +446,7 @@ beq RESTORE_SEND_GAME_POST_FRAME
 
 # Fork to SendGameEnd if we came from 801a5b04
 lis r8, 0x801a
-ori r8, r8, 0x5b08
+ori r8, r8, 0x5b18
 cmpw r9, r8
 beq RESTORE_SEND_GAME_END
 
@@ -472,7 +472,7 @@ lwz r0, 0x3C(r1) #execute replaced code line
 blr
 
 RESTORE_SEND_GAME_END:
-addi r28, r5, 0 #execute replaced code line
+li r29, 0 #execute replaced code line
 blr
 
 RESTORE_FLUSH_FRAME_BUFFER:
