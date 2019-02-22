@@ -9,6 +9,8 @@ The primary means of doing this introduced by this project is by creating a data
 1. Enhancing streams and commentary discussion with detailed information about the games
 
 ## More Information
+Support Development: https://www.patreon.com/fizzi36
+
 Release Blog Post: https://medium.com/project-slippi/project-public-release-4080c81d7205
 
 Release Demo Video: https://www.youtube.com/watch?v=1OYS5JSZepQ
