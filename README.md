@@ -18,10 +18,10 @@ Release Demo Video: https://www.youtube.com/watch?v=1OYS5JSZepQ
 Discord Server: https://discord.gg/XpHZex6
 
 ## .slp Parsing Libraries
-### Javascript
+### Javascript [Official]
 slp-parser-js: https://github.com/project-slippi/slp-parser-js
 
-### Python
+### Python [Community]
 py-slippi: https://github.com/hohav/py-slippi
 
 ## How to Contribute
