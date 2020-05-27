@@ -24,6 +24,9 @@ slp-parser-js: https://github.com/project-slippi/slp-parser-js
 ### Python [Community]
 py-slippi: https://github.com/hohav/py-slippi
 
+### Rust [Community]
+peppi: https://github.com/hohav/peppi
+
 ## How to Contribute
 If you're interested in making Melee better than it already is, you should consider contributing!
 
