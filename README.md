@@ -58,10 +58,10 @@ To find the Slippi-specific stuff in the codebase, search for "Slippi".
 ### Replay File
 Dolphin currently serves the purpose of receiving data from the game and writting a replay file. To understand the structure and format of the replay file, please read the spec here: https://github.com/project-slippi/slippi-wiki/blob/master/SPEC.md
 
-### Slippi Desktop App (Javascript/React)
-The desktop application is maintained in the repo found here: https://github.com/project-slippi/slippi-desktop-app.
+### Slippi Launcher (TypeScript/React/Material-UI)
+The desktop application is maintained in the repo found here: https://github.com/project-slippi/slippi-launcher.
 
-This application is used to browse and launch replay files. It also has a screen for viewing the detailed stats of a single game. For building instructions, see the readme in the repo.
+This application is the ome stop shop for Slippi users. Acts as a Netplay Launcher, Dolphin Auto Updater, Replay Viewer and Analyzer, and more.
 
 ### .slp Tools Library (Javascript)
 Replay files are read and stats are computed by a separate library that can be found here: https://github.com/project-slippi/slp-parser-js. This was split out from the desktop app in order to allow people to read replays and display stats in their own applications.
