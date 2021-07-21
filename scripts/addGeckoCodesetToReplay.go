@@ -26,7 +26,7 @@ var codeset []byte
 
 func main() {
 	codeFilePath := "./summit11-codes.bin"
-	folderToConvert := "/Users/Fizzi/Downloads/Summit11Day1" // Recursive
+	folderToConvert := "D:\\Slippi\\Tournament-Replays\\Summit-11" // Recursive
 
 	res.errors = map[string]errorDetails{}
 	cs, err := ioutil.ReadFile(codeFilePath)
@@ -75,10 +75,12 @@ func addCodesetToFile(path string) {
 		return
 	}
 
+	codesetLen := len(codeset)
+
 	// Add codeset length to payload messages
 	lenPos := 0x10 + int(payloadMsgLen)
 	bs := make([]byte, 2)
-	binary.BigEndian.PutUint16(bs, uint16(len(codeset)))
+	binary.BigEndian.PutUint16(bs, uint16(codesetLen))
 	outBuf := append(buf[:lenPos], append([]byte{0x3D, bs[0], bs[1]}, buf[lenPos:]...)...)
 
 	// Overwrite payload lengths size
@@ -88,6 +90,11 @@ func addCodesetToFile(path string) {
 	csPos := lenPos + 4 + int(gameInfoLen)
 	csWithCmd := append([]byte{0x3D}, codeset...)
 	outBuf = append(outBuf[:csPos], append(csWithCmd, outBuf[csPos:]...)...)
+
+	// Increment raw array size
+	rawLen := binary.BigEndian.Uint32(outBuf[0xB : 0xB+4])
+	rawLen += uint32(codesetLen + 4) // Codeset length, 3 bytes in payload sizes, 1 byte for command byte
+	binary.BigEndian.PutUint32(outBuf[0xB:], rawLen)
 
 	// Overwrite file
 	err = ioutil.WriteFile(path, outBuf, 0666)
