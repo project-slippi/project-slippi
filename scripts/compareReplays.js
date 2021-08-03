@@ -2,8 +2,11 @@ const { default: SlippiGame } = require('slp-parser-js');
 const _ = require('lodash');
 const moment = require('moment');
 
-const replay1Path = "C:\\Slippi\\OnlineDesyncs\\Release\\HtwaVsSlowking\\Game1.slp";
-const replay2Path = "C:\\Slippi\\OnlineDesyncs\\Release\\HtwaVsSlowking\\Game2.slp";
+const replay1Path = "C:\\Users\\Jas\\Downloads\\desync_slippi_replays\\ICs-1.slp";
+const replay2Path = "C:\\Users\\Jas\\Downloads\\desync_slippi_replays\\Peach-1.slp";
+
+// Set to 0 to print all
+const framePrintMax = 5;
 
 const game1 = new SlippiGame(replay1Path);
 const game2 = new SlippiGame(replay2Path);
@@ -14,6 +17,7 @@ const game2Frames = game2.getFrames();
 const gameSettings = game1.getSettings(); // These should be identical between the two games
 
 let iFrameIdx = -123;
+let framePrintCount = 0;
 
 function findDifferences(f1, f2, type, playerIndex) {
 	const difference = {};
@@ -77,6 +81,14 @@ while (game1Frames[iFrameIdx] && game2Frames[iFrameIdx]) {
 			timer: moment.utc(duration.as('milliseconds')).format('m:ss.SSS'),
 			...difference,
 		});
+
+		// Frame -39 is first playable frame. There seem to be some differences during the freeze frames
+		if (framePrintMax && iFrameIdx >= -39) {
+			framePrintCount++;
+			if (framePrintCount > framePrintMax) {
+				return;
+			}
+		}
 	}
 
 	iFrameIdx += 1;
