@@ -2,8 +2,8 @@ const { default: SlippiGame } = require('slp-parser-js');
 const _ = require('lodash');
 const moment = require('moment');
 
-const replay1Path = "C:\\Users\\Jas\\Downloads\\desync_slippi_replays\\ICs-1.slp";
-const replay2Path = "C:\\Users\\Jas\\Downloads\\desync_slippi_replays\\Peach-1.slp";
+const replay1Path = "C:\\Users\\Jas\\Downloads\\desync_slippi_replays\\ICs-3.slp";
+const replay2Path = "C:\\Users\\Jas\\Downloads\\desync_slippi_replays\\Peach-3.slp";
 
 // Set to 0 to print all
 const framePrintMax = 5;
@@ -19,11 +19,13 @@ const gameSettings = game1.getSettings(); // These should be identical between t
 let iFrameIdx = -123;
 let framePrintCount = 0;
 
-function findDifferences(f1, f2, type, playerIndex) {
+function findDifferences(f1, f2, type, playerIndex, isFollower) {
 	const difference = {};
 
 	const t1 = f1[type];
 	const t2 = f2[type];
+
+	const prefix = isFollower ? "follower-" : "";
 
 	_.forEach(t1, (value, key) => {
 		if (key === "physicalLTrigger" || key === "physicalRTrigger") {
@@ -39,7 +41,7 @@ function findDifferences(f1, f2, type, playerIndex) {
 			return;
 		}
 
-		difference[`${type}-${key}-${playerIndex}`] = `${value} | ${t2[key]}`;
+		difference[`${prefix}${type}-${key}-${playerIndex}`] = `${value} | ${t2[key]}`;
 	});
 
 	return difference;
@@ -68,9 +70,21 @@ while (game1Frames[iFrameIdx] && game2Frames[iFrameIdx]) {
 
 		difference = {
 			...difference,
-			...findDifferences(f1, f2, "pre", player.playerIndex),
-			...findDifferences(f1, f2, "post", player.playerIndex),
+			...findDifferences(f1, f2, "pre", player.playerIndex, false),
+			...findDifferences(f1, f2, "post", player.playerIndex, false),
 		};
+
+		const ff1 = _.get(game1Frame, ['followers', player.playerIndex]);
+		const ff2 = _.get(game2Frame, ['followers', player.playerIndex]);
+
+		// Check for nana desyncs
+		if (ff1 && ff2) {
+			difference = {
+				...difference,
+				...findDifferences(ff1, ff2, "pre", player.playerIndex, true),
+				...findDifferences(ff1, ff2, "post", player.playerIndex, true),
+			};
+		}
 	});
 
 	if (!_.isEmpty(difference)) {
