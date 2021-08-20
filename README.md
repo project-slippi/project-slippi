@@ -61,13 +61,10 @@ Dolphin currently serves the purpose of receiving data from the game and writtin
 ### Slippi Launcher (TypeScript/React/Material-UI)
 The desktop application is maintained in the repo found here: https://github.com/project-slippi/slippi-launcher.
 
-This application is the ome stop shop for Slippi users. Acts as a Netplay Launcher, Dolphin Auto Updater, Replay Viewer and Analyzer, and more.
+This application is the one stop shop for Slippi users. Acts as a Netplay Launcher, Dolphin Auto Updater, Replay Viewer and Analyzer, and more.
 
 ### .slp Tools Library (Javascript)
-Replay files are read and stats are computed by a separate library that can be found here: https://github.com/project-slippi/slp-parser-js. This was split out from the desktop app in order to allow people to read replays and display stats in their own applications.
+Replay files are read and stats are computed by a separate library that can be found here: https://github.com/project-slippi/slippi-js. This was split out from the desktop app in order to allow people to read replays and display stats in their own applications.
 
 ### Nintendont (C)
 We have also created a custom build of Nintendont which emulates a Slippi hardware device in a similar way to Dolphin. It is still currently a WIP but it can be found here: https://github.com/project-slippi/Nintendont/tree/slippi
-
-## Credits
-* Launcher icon made by [Twitter](https://www.flaticon.com/authors/twitter) from www.flaticon.com
