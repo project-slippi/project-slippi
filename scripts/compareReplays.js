@@ -1,9 +1,10 @@
 const { default: SlippiGame } = require('slp-parser-js');
+const util = require('util');
 const _ = require('lodash');
 const moment = require('moment');
 
-const replay1Path = "C:\\Users\\Jas\\Downloads\\desync_slippi_replays\\ICs-3.slp";
-const replay2Path = "C:\\Users\\Jas\\Downloads\\desync_slippi_replays\\Peach-3.slp";
+const replay1Path = String.raw`C:\Users\Jas\Downloads\desync-tourney\pat.slp`;
+const replay2Path = String.raw`C:\Users\Jas\Downloads\desync-tourney\price.slp`;
 
 // Set to 0 to print all
 const framePrintMax = 5;
@@ -19,13 +20,31 @@ const gameSettings = game1.getSettings(); // These should be identical between t
 let iFrameIdx = -123;
 let framePrintCount = 0;
 
+const deadActionStates = {
+	"6": true,
+	"7": true,
+};
+
 function findDifferences(f1, f2, type, playerIndex, isFollower) {
 	const difference = {};
+
+	if (!f1 || !f2) {
+		return difference;
+	}
 
 	const t1 = f1[type];
 	const t2 = f2[type];
 
 	const prefix = isFollower ? "follower-" : "";
+
+	// if (f1.post.frame === 1950 && isFollower) {
+	// 	console.log(f1);
+	// }
+
+	// // Seems to be a weird case where Nana does inputs while dead?
+	// if (deadActionStates[f1.post.actionStateId] && f1.post.actionStateId === f2.post.actionStateId && isFollower) {
+	// 	return;
+	// }
 
 	_.forEach(t1, (value, key) => {
 		if (key === "physicalLTrigger" || key === "physicalRTrigger") {
@@ -41,7 +60,15 @@ function findDifferences(f1, f2, type, playerIndex, isFollower) {
 			return;
 		}
 
-		difference[`${prefix}${type}-${key}-${playerIndex}`] = `${value} | ${t2[key]}`;
+		let printVal1 = value;
+		let printVal2 = t2[key];
+		if (key === "seed" || key === "buttons") {
+			printVal1 = `0x${printVal1.toString(16)}`;
+			printVal2 = `0x${printVal2.toString(16)}`;
+		}
+
+		// difference[`${prefix}${type}-actionStateIdFixed-${playerIndex}`] = `${t1['actionStateId']} | ${t2['actionStateId']}`;
+		difference[`${prefix}${type}-${key}-${playerIndex}`] = `${printVal1} | ${printVal2}`;
 	});
 
 	return difference;
@@ -57,6 +84,12 @@ function findDifferences(f1, f2, type, playerIndex, isFollower) {
 
 // const diff = findDifferences(f1, f2, "pre", 0);
 // console.log(diff);
+
+// const frameToOutput = 2026;
+// console.log(util.inspect({
+// 	game1: game1Frames[frameToOutput],
+// 	game2: game2Frames[frameToOutput],
+// }, false, 10, true));
 
 while (game1Frames[iFrameIdx] && game2Frames[iFrameIdx]) {
 	let difference = {};
@@ -92,6 +125,7 @@ while (game1Frames[iFrameIdx] && game2Frames[iFrameIdx]) {
 
 		console.log({
 			frame: iFrameIdx,
+			sceneFrame: iFrameIdx + 123,
 			timer: moment.utc(duration.as('milliseconds')).format('m:ss.SSS'),
 			...difference,
 		});
