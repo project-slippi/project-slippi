@@ -3,11 +3,11 @@ const util = require('util');
 const _ = require('lodash');
 const moment = require('moment');
 
-const replay1Path = String.raw`C:\Users\Jas\Downloads\desync-tourney\pat.slp`;
-const replay2Path = String.raw`C:\Users\Jas\Downloads\desync-tourney\price.slp`;
+const replay1Path = String.raw`D:\Slippi\OnlineDesyncs\Post-Release\ZeroedInputs\Ashkon\AshkonPerspective.slp`;
+const replay2Path = String.raw`D:\Slippi\OnlineDesyncs\Post-Release\ZeroedInputs\Ashkon\OppPerspective.slp`;
 
 // Set to 0 to print all
-const framePrintMax = 5;
+const framePrintMax = 50;
 
 const game1 = new SlippiGame(replay1Path);
 const game2 = new SlippiGame(replay2Path);
