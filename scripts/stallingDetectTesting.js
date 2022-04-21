@@ -1,6 +1,6 @@
 const { SlippiGame } = require("@slippi/slippi-js");
 
-const game = new SlippiGame("D:\\Slippi\\Tournament-Replays\\Genesis-8\\Top 8\\Game_8C56C58C3FBD_20220417T181205.slp");
+const game = new SlippiGame("D:\\Slippi\\Tournament-Replays\\Genesis-8\\Top 8\\Game_8C56C58C3FBD_20220417T183153.slp");
 const frames = Object.values(game.getFrames());
 
 const settings = game.getSettings();
@@ -10,6 +10,9 @@ const p2Idx = settings.players[1].playerIndex;
 
 let p1CloserCount = 0;
 let p2CloserCount = 0;
+
+let p1AirborneCount = 0;
+let p2AirborneCount = 0;
 
 frames.forEach(frame => {
   p1Post = frame.players[p1Idx].post;
@@ -22,9 +25,16 @@ frames.forEach(frame => {
   } else if (p2Distance < p1Distance) {
     p2CloserCount += 1;
   }
+
+  p1AirborneCount += p1Post.isAirborne;
+  p2AirborneCount += p2Post.isAirborne;
 });
 
 const total = frames.length;
-console.log(`Port: FramesCloserTo0 (PercentOfGameCloserTo0)`);
-console.log(`P${p1Idx + 1}: ${p1CloserCount} (${(100 * p1CloserCount / total).toFixed(1)}%)`);
-console.log(`P${p2Idx + 1}: ${p2CloserCount} (${(100 * p2CloserCount / total).toFixed(1)}%)`);
+console.log(`P${p1Idx + 1}:
+  CloserToCenter: ${p1CloserCount} (${(100 * p1CloserCount / total).toFixed(1)}%)
+  Airborne: ${p1AirborneCount} (${(100 * p1AirborneCount / total).toFixed(1)}%)`);
+
+console.log(`P${p2Idx + 1}:
+  CloserToCenter: ${p2CloserCount} (${(100 * p2CloserCount / total).toFixed(1)}%)
+  Airborne: ${p2AirborneCount} (${(100 * p2AirborneCount / total).toFixed(1)}%)`);
