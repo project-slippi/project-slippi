@@ -3,8 +3,8 @@ const util = require('util');
 const _ = require('lodash');
 const moment = require('moment');
 
-const replay1Path = String.raw`D:\Slippi\OnlineDesyncs\Post-Release\ZeroedInputs\Ashkon\AshkonPerspective.slp`;
-const replay2Path = String.raw`D:\Slippi\OnlineDesyncs\Post-Release\ZeroedInputs\Ashkon\OppPerspective.slp`;
+const replay1Path = String.raw`C:\Users\Owner\Documents\prog\slippi-replay-tester\Game_20220904T204903.slp`;
+const replay2Path = String.raw`C:\Users\Owner\Documents\prog\slippi-replay-tester\Game_20220904T204856.slp`;
 
 // Set to 0 to print all
 const framePrintMax = 50;
@@ -68,7 +68,8 @@ function findDifferences(f1, f2, type, playerIndex, isFollower) {
 		}
 
 		// difference[`${prefix}${type}-actionStateIdFixed-${playerIndex}`] = `${t1['actionStateId']} | ${t2['actionStateId']}`;
-		difference[`${prefix}${type}-${key}-${playerIndex}`] = `${printVal1} | ${printVal2}`;
+		// difference[`${prefix}${type}-${key}-${playerIndex}`] = `${printVal1} | ${printVal2}`;
+        difference[`${prefix}${type}-${key}-${playerIndex}`] = [printVal1, printVal2];
 	});
 
 	return difference;
@@ -123,7 +124,7 @@ while (game1Frames[iFrameIdx] && game2Frames[iFrameIdx]) {
 	if (!_.isEmpty(difference)) {
 		const duration = moment.duration((28800 - iFrameIdx) / 60, 'seconds');
 
-		console.log({
+		console.table({
 			frame: iFrameIdx,
 			sceneFrame: iFrameIdx + 123,
 			timer: moment.utc(duration.as('milliseconds')).format('m:ss.SSS'),
