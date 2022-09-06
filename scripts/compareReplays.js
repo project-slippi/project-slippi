@@ -110,8 +110,8 @@ while (gameFrames.every(e => e[iFrameIdx])) {
 		if (followerFrames.every(f => f !== null)) {
 			difference = {
 				...difference,
-				...findDifferences(followerFrames, "pre", player.playerIndex, false),
-				...findDifferences(followerFrames, "post", player.playerIndex, false),
+				...findDifferences(followerFrames, "pre", player.playerIndex, true),
+				...findDifferences(followerFrames, "post", player.playerIndex, true),
 			};
 		}
 	});
