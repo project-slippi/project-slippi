@@ -3,19 +3,20 @@ const util = require('util');
 const _ = require('lodash');
 const moment = require('moment');
 
-const replay1Path = String.raw`C:\Users\Owner\Documents\prog\slippi-replay-tester\Game_20220904T204903.slp`;
-const replay2Path = String.raw`C:\Users\Owner\Documents\prog\slippi-replay-tester\Game_20220904T204856.slp`;
+const replayPaths = [
+	String.raw`C:\Users\Owner\Documents\prog\slippi-replay-tester\Game_20220904T204903.slp`,
+	String.raw`C:\Users\Owner\Documents\prog\slippi-replay-tester\Game_20220904T204856.slp`,
+	String.raw`C:\Users\Owner\Documents\prog\slippi-replay-tester\Game_20220904T204856_1.slp`,
+]
 
 // Set to 0 to print all
 const framePrintMax = 50;
 
-const game1 = new SlippiGame(replay1Path);
-const game2 = new SlippiGame(replay2Path);
+const games = replayPaths.map(path => new SlippiGame(path));
 
-const game1Frames = game1.getFrames();
-const game2Frames = game2.getFrames();
+const gameFrames = games.map(game => game.getFrames());
 
-const gameSettings = game1.getSettings(); // These should be identical between the two games
+const gameSettings = games[0].getSettings(); // These should be identical between the games
 
 let iFrameIdx = -123;
 let framePrintCount = 0;
@@ -25,15 +26,14 @@ const deadActionStates = {
 	"7": true,
 };
 
-function findDifferences(f1, f2, type, playerIndex, isFollower) {
+function findDifferences(playerFrames, type, playerIndex, isFollower) {
 	const difference = {};
 
-	if (!f1 || !f2) {
+	if (playerFrames.some(f => f === null)) {
 		return difference;
 	}
 
-	const t1 = f1[type];
-	const t2 = f2[type];
+	const types = playerFrames.map(f => f[type]);
 
 	const prefix = isFollower ? "follower-" : "";
 
@@ -46,7 +46,7 @@ function findDifferences(f1, f2, type, playerIndex, isFollower) {
 	// 	return;
 	// }
 
-	_.forEach(t1, (value, key) => {
+	_.forEach(types[0], (value, key) => {
 		if (key === "physicalLTrigger" || key === "physicalRTrigger") {
 			return;
 		}
@@ -56,20 +56,17 @@ function findDifferences(f1, f2, type, playerIndex, isFollower) {
 		// 	return;
 		// }
 
-		if (value === t2[key]) {
+		if (types.every(t => t[key] === value)) {
 			return;
 		}
 
-		let printVal1 = value;
-		let printVal2 = t2[key];
+		let printVals = types.map(t => t[key]);
+
 		if (key === "seed" || key === "buttons") {
-			printVal1 = `0x${printVal1.toString(16)}`;
-			printVal2 = `0x${printVal2.toString(16)}`;
+			printVals = printVals.map(v => `0x${v.toString(16)}`);
 		}
 
-		// difference[`${prefix}${type}-actionStateIdFixed-${playerIndex}`] = `${t1['actionStateId']} | ${t2['actionStateId']}`;
-		// difference[`${prefix}${type}-${key}-${playerIndex}`] = `${printVal1} | ${printVal2}`;
-        difference[`${prefix}${type}-${key}-${playerIndex}`] = [printVal1, printVal2];
+        difference[`${prefix}${type}-${key}-${playerIndex}`] = printVals;
 	});
 
 	return difference;
@@ -92,31 +89,29 @@ function findDifferences(f1, f2, type, playerIndex, isFollower) {
 // 	game2: game2Frames[frameToOutput],
 // }, false, 10, true));
 
-while (game1Frames[iFrameIdx] && game2Frames[iFrameIdx]) {
+while (gameFrames.every(e => e[iFrameIdx])) {
 	let difference = {};
 
-	const game1Frame = game1Frames[iFrameIdx];
-	const game2Frame = game2Frames[iFrameIdx];
+	const frames = gameFrames.map(g => g[iFrameIdx]);
 
 	_.forEach(gameSettings.players, (player) => {
-		const f1 = game1Frame.players[player.playerIndex];
-		const f2 = game2Frame.players[player.playerIndex];
+
+		const playerFrames = frames.map(f => f.players[player.playerIndex]);
 
 		difference = {
 			...difference,
-			...findDifferences(f1, f2, "pre", player.playerIndex, false),
-			...findDifferences(f1, f2, "post", player.playerIndex, false),
+			...findDifferences(playerFrames, "pre", player.playerIndex, false),
+			...findDifferences(playerFrames, "post", player.playerIndex, false),
 		};
 
-		const ff1 = _.get(game1Frame, ['followers', player.playerIndex]);
-		const ff2 = _.get(game2Frame, ['followers', player.playerIndex]);
+		const followerFrames = frames.map(f => _.get(f, ['followers'], player.playerIndex));
 
 		// Check for nana desyncs
-		if (ff1 && ff2) {
+		if (followerFrames.every(f => f !== null)) {
 			difference = {
 				...difference,
-				...findDifferences(ff1, ff2, "pre", player.playerIndex, true),
-				...findDifferences(ff1, ff2, "post", player.playerIndex, true),
+				...findDifferences(followerFrames, "pre", player.playerIndex, false),
+				...findDifferences(followerFrames, "post", player.playerIndex, false),
 			};
 		}
 	});
