@@ -1,13 +1,14 @@
-const { default: SlippiGame } = require('slp-parser-js');
+const { SlippiGame } = require("@slippi/slippi-js");
 const util = require('util');
 const _ = require('lodash');
 const moment = require('moment');
 
-const replay1Path = String.raw`D:\Slippi\OnlineDesyncs\Post-Release\ZeroedInputs\Ashkon\AshkonPerspective.slp`;
-const replay2Path = String.raw`D:\Slippi\OnlineDesyncs\Post-Release\ZeroedInputs\Ashkon\OppPerspective.slp`;
+const replay1Path = String.raw`/Users/Fizzi/Downloads/Desyncs/Real/cherryello-1/one.slp`;
+const replay2Path = String.raw`/Users/Fizzi/Downloads/Desyncs/Real/cherryello-1/two.slp`;
 
 // Set to 0 to print all
-const framePrintMax = 50;
+const framePrintMax = 30;
+const posLenient = false;
 
 const game1 = new SlippiGame(replay1Path);
 const game2 = new SlippiGame(replay2Path);
@@ -24,6 +25,34 @@ const deadActionStates = {
 	"6": true,
 	"7": true,
 };
+
+const ignoredKeys = {
+	"physicalLTrigger": true,
+	"physicalRTrigger": true,
+	"selfInducedSpeeds": true,
+};
+
+const processing = {
+	"positionX": {
+		enabled: posLenient,
+		pre: (val) => Math.trunc(val * 10.0),
+		post: (val) => val / 10.0,
+
+	},
+	"positionY": {
+		enabled: posLenient,
+		pre: (val) => Math.trunc(val * 10.0),
+		post: (val) => val / 10.0,
+	},
+	"seed": {
+		enabled: true,
+		post: (val) => `0x${val.toString(16)}`,
+	},
+	"buttons": {
+		enabled: true,
+		post: (val) => `0x${val.toString(16)}`,
+	}
+}
 
 function findDifferences(f1, f2, type, playerIndex, isFollower) {
 	const difference = {};
@@ -47,28 +76,36 @@ function findDifferences(f1, f2, type, playerIndex, isFollower) {
 	// }
 
 	_.forEach(t1, (value, key) => {
-		if (key === "physicalLTrigger" || key === "physicalRTrigger") {
+		if (ignoredKeys[key]) {
 			return;
 		}
+
 
 		// // TEMP: Only look for frames with input desync
 		// if (key !== "joystickX" && key !== "buttons" && key !== "joystickY" && key !== "cStickX" && key !== "cStickY" && key !== "trigger") {
 		// 	return;
 		// }
 
-		if (value === t2[key]) {
+		let val1 = value;
+		let val2 = t2[key];
+
+		const p = processing[key];
+		if (p?.enabled && p?.pre) {
+			val1 = p.pre(val1);
+			val2 = p.pre(val2);
+		}
+
+		if (val1 === val2) {
 			return;
 		}
 
-		let printVal1 = value;
-		let printVal2 = t2[key];
-		if (key === "seed" || key === "buttons") {
-			printVal1 = `0x${printVal1.toString(16)}`;
-			printVal2 = `0x${printVal2.toString(16)}`;
+		if (p?.enabled && p?.post) {
+			val1 = p.post(val1);
+			val2 = p.post(val2);
 		}
 
 		// difference[`${prefix}${type}-actionStateIdFixed-${playerIndex}`] = `${t1['actionStateId']} | ${t2['actionStateId']}`;
-		difference[`${prefix}${type}-${key}-${playerIndex}`] = `${printVal1} | ${printVal2}`;
+		difference[`${prefix}${type}-${key}-${playerIndex}`] = `${val1} | ${val2}`;
 	});
 
 	return difference;
@@ -125,6 +162,7 @@ while (game1Frames[iFrameIdx] && game2Frames[iFrameIdx]) {
 
 		console.log({
 			frame: iFrameIdx,
+			printCount: framePrintCount,
 			sceneFrame: iFrameIdx + 123,
 			timer: moment.utc(duration.as('milliseconds')).format('m:ss.SSS'),
 			...difference,
@@ -141,3 +179,5 @@ while (game1Frames[iFrameIdx] && game2Frames[iFrameIdx]) {
 
 	iFrameIdx += 1;
 }
+
+console.log("Processing complete...");
