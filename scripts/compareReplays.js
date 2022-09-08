@@ -3,12 +3,12 @@ const util = require('util');
 const _ = require('lodash');
 const moment = require('moment');
 
-const replay1Path = String.raw`/Users/Fizzi/Downloads/Desyncs/Real/cherryello-1/one.slp`;
-const replay2Path = String.raw`/Users/Fizzi/Downloads/Desyncs/Real/cherryello-1/two.slp`;
+const replay1Path = String.raw`C:\Users\Jas\Downloads\Desyncs\False/one.slp`;
+const replay2Path = String.raw`C:\Users\Jas\Downloads\Desyncs\False/two.slp`;
 
 // Set to 0 to print all
-const framePrintMax = 30;
-const posLenient = false;
+const framePrintMax = 10;
+const posLenient = true;
 
 const game1 = new SlippiGame(replay1Path);
 const game2 = new SlippiGame(replay2Path);
@@ -89,6 +89,9 @@ function findDifferences(f1, f2, type, playerIndex, isFollower) {
 		let val1 = value;
 		let val2 = t2[key];
 
+		const orig1 = val1;
+		const orig2 = val2;
+
 		const p = processing[key];
 		if (p?.enabled && p?.pre) {
 			val1 = p.pre(val1);
@@ -100,8 +103,8 @@ function findDifferences(f1, f2, type, playerIndex, isFollower) {
 		}
 
 		if (p?.enabled && p?.post) {
-			val1 = p.post(val1);
-			val2 = p.post(val2);
+			val1 = `${p.post(val1)} (${orig1})`;
+			val2 = `${p.post(val2)} (${orig2})`;
 		}
 
 		// difference[`${prefix}${type}-actionStateIdFixed-${playerIndex}`] = `${t1['actionStateId']} | ${t2['actionStateId']}`;
@@ -127,6 +130,10 @@ function findDifferences(f1, f2, type, playerIndex, isFollower) {
 // 	game1: game1Frames[frameToOutput],
 // 	game2: game2Frames[frameToOutput],
 // }, false, 10, true));
+
+// TODO: Add gecko code list comparison
+// const codes1 = game1.getGeckoList();
+// console.log(codes1.codes.length);
 
 while (game1Frames[iFrameIdx] && game2Frames[iFrameIdx]) {
 	let difference = {};
@@ -161,8 +168,8 @@ while (game1Frames[iFrameIdx] && game2Frames[iFrameIdx]) {
 		const duration = moment.duration((28800 - iFrameIdx) / 60, 'seconds');
 
 		console.log({
-			frame: iFrameIdx,
 			printCount: framePrintCount,
+			frame: iFrameIdx,
 			sceneFrame: iFrameIdx + 123,
 			timer: moment.utc(duration.as('milliseconds')).format('m:ss.SSS'),
 			...difference,
