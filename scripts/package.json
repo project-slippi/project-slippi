@@ -2,7 +2,7 @@
   "name": "slippi-scripts",
   "version": "1.0.0",
   "dependencies": {
-    "@slippi/slippi-js": "^6.3.0",
+    "@slippi/slippi-js": "^6.4.0",
     "moment": "^2.29.4"
   }
 }

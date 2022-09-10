@@ -3,8 +3,8 @@ const util = require('util');
 const _ = require('lodash');
 const moment = require('moment');
 
-const replay1Path = String.raw`C:\Users\Jas\Downloads\Desyncs\False/one.slp`;
-const replay2Path = String.raw`C:\Users\Jas\Downloads\Desyncs\False/two.slp`;
+const replay1Path = String.raw`/Users/Fizzi/Downloads/Desyncs/FalsePositives/graves-2/one.slp`;
+const replay2Path = String.raw`/Users/Fizzi/Downloads/Desyncs/FalsePositives/graves-2/two.slp`;
 
 // Set to 0 to print all
 const framePrintMax = 10;
@@ -132,8 +132,23 @@ function findDifferences(f1, f2, type, playerIndex, isFollower) {
 // }, false, 10, true));
 
 // TODO: Add gecko code list comparison
-// const codes1 = game1.getGeckoList();
-// console.log(codes1.codes.length);
+const codes1 = (game1.getGeckoList()?.codes ?? []).map(c => ({ ...c, path: replay1Path}));
+const codes2 = (game2.getGeckoList()?.codes ?? []).map(c => ({ ...c, path: replay2Path}));;
+const differentCodes = [
+	..._.differenceBy(codes1, codes2, 'address'),
+	..._.differenceBy(codes2, codes1, 'address'),	
+];
+if (_.isEmpty(differentCodes)) {
+	console.log("Gecko codes match.");
+} else {
+	console.log("Some gecko codes differ between the replays:");
+	console.log(differentCodes.map(code => ({
+		type: `${code.type.toString(16).toUpperCase()}`,
+		address: `${code.address.toString(16).toUpperCase()}`,
+		path: code.path,
+	})));
+}
+
 
 while (game1Frames[iFrameIdx] && game2Frames[iFrameIdx]) {
 	let difference = {};
@@ -165,18 +180,18 @@ while (game1Frames[iFrameIdx] && game2Frames[iFrameIdx]) {
 	});
 
 	if (!_.isEmpty(difference)) {
-		const duration = moment.duration((28800 - iFrameIdx) / 60, 'seconds');
-
-		console.log({
-			printCount: framePrintCount,
-			frame: iFrameIdx,
-			sceneFrame: iFrameIdx + 123,
-			timer: moment.utc(duration.as('milliseconds')).format('m:ss.SSS'),
-			...difference,
-		});
-
 		// Frame -39 is first playable frame. There seem to be some differences during the freeze frames
 		if (framePrintMax && iFrameIdx >= -39) {
+			const duration = moment.duration((28800 - iFrameIdx) / 60, 'seconds');
+
+			console.log({
+				printCount: framePrintCount,
+				frame: iFrameIdx,
+				sceneFrame: iFrameIdx + 123,
+				timer: moment.utc(duration.as('milliseconds')).format('m:ss.SSS'),
+				...difference,
+			});
+
 			framePrintCount++;
 			if (framePrintCount > framePrintMax) {
 				return;
