@@ -1,22 +1,16 @@
 const { SlippiGame } = require("@slippi/slippi-js");
 const util = require('util');
 const _ = require('lodash');
+const path = require('path');
 const moment = require('moment');
+const fs = require('fs');
 
-const replay1Path = String.raw`/Users/Fizzi/Downloads/Desyncs/FalsePositives/graves-2/one.slp`;
-const replay2Path = String.raw`/Users/Fizzi/Downloads/Desyncs/FalsePositives/graves-2/two.slp`;
+const replay1Path = String.raw`C:\Users\Jas\Documents\Slippi\Replays\Desyncs\2022-09\mode.unranked-2022-09-15T23_19_42.11-0-5-0\3ab50b10-0kGaOjukYjXoSD4AEvZqFfLQjr12.slp`;
+const replay2Path = String.raw`C:\Users\Jas\Documents\Slippi\Replays\Desyncs\2022-09\mode.unranked-2022-09-15T23_19_42.11-0-5-0\570f5ba4-0nPAcRhk6JUDb8s7pXioy5kuTBA3.slp`;
 
 // Set to 0 to print all
-const framePrintMax = 10;
+const framePrintMax = 20;
 const posLenient = true;
-
-const game1 = new SlippiGame(replay1Path);
-const game2 = new SlippiGame(replay2Path);
-
-const game1Frames = game1.getFrames();
-const game2Frames = game2.getFrames();
-
-const gameSettings = game1.getSettings(); // These should be identical between the two games
 
 let iFrameIdx = -123;
 let framePrintCount = 0;
@@ -52,7 +46,50 @@ const processing = {
 		enabled: true,
 		post: (val) => `0x${val.toString(16)}`,
 	}
-}
+};
+
+const game1 = new SlippiGame(replay1Path);
+const game2 = new SlippiGame(replay2Path);
+
+const game1Frames = game1.getFrames();
+const game2Frames = game2.getFrames();
+
+const gameSettings = game1.getSettings(); // These should be identical between the two games
+
+const codeNames = {
+	// Third-party codes
+	"8007D5A0": "Fastfall Sparkle v1.2",
+	"802F6690": "HUD Transparency v1.1",
+	"802F71E0": "Smaller \"Ready, GO!\"",
+	"80071960": "Yellow During IASA",
+	"800CC818": "Turn Green When Actionable",
+	"8008A478": "Turn Green When Actionable",
+	"801C3374": "Target Test Never Ends [Link Master]",
+	"80450F94": "Unrestricted Pause Camera [Link Master]",
+	"80450F98": "Unrestricted Pause Camera [Link Master]",
+	"80450F9C": "Unrestricted Pause Camera [Link Master]",
+	"80450FA0": "Unrestricted Pause Camera [Link Master]",
+	"80450FA4": "Unrestricted Pause Camera [Link Master]",
+	"80099864": "UCF 0.66?: https://smashboards.com/threads/the-20xx-melee-training-hack-pack-v5-0-1-6-9-2022.351221/post-21890688",
+};
+
+const injectionPath = "./InjectionLists";
+const injectionLists = fs.readdirSync(injectionPath);
+injectionLists.forEach(listf => {
+	const contents = fs.readFileSync(path.join(injectionPath, listf), {encoding:'utf8', flag:'r'});
+	const list = JSON.parse(contents);
+	list.Details.forEach(code => {
+		const details = _.filter([code.Name, code.Annotation]);
+		codeNames[code.InjectionAddress.toUpperCase()] = details.join(" | ");
+	});
+});
+
+// These codes seem to store data inside them or something and will often mismatch, ignore them
+const changingCodes = {
+	0x80005618: true, // Required: Slippi Online | Online/Static/UserDisplayFunctions.asm
+	0x802652F0: true, // Required: Slippi Online | Online/Menus/CSS/InitSheikSelector.asm
+	0x803753B4: true, // Required: Slippi Online
+};
 
 function findDifferences(f1, f2, type, playerIndex, isFollower) {
 	const difference = {};
@@ -131,22 +168,93 @@ function findDifferences(f1, f2, type, playerIndex, isFollower) {
 // 	game2: game2Frames[frameToOutput],
 // }, false, 10, true));
 
-// TODO: Add gecko code list comparison
+// Start gecko code list comparison
 const codes1 = (game1.getGeckoList()?.codes ?? []).map(c => ({ ...c, path: replay1Path}));
 const codes2 = (game2.getGeckoList()?.codes ?? []).map(c => ({ ...c, path: replay2Path}));;
-const differentCodes = [
-	..._.differenceBy(codes1, codes2, 'address'),
-	..._.differenceBy(codes2, codes1, 'address'),	
-];
+
+// Key by address such that duplicated codes will use the last copy only
+const codes1ByInj = _.keyBy(codes1, "address");
+const codes2ByInj = _.keyBy(codes2, "address");
+
+const formatCodeContents = (contents) => {
+	return _.chain(_.range(0, contents.length, 8)).map(idx => (
+		(`${_.chain(contents).slice(idx, idx + 4).map(b => _.padStart(b.toString(16), 2, "0")).join("").value()}` + 
+			` ${_.chain(contents).slice(idx + 4, idx + 8).map(b => _.padStart(b.toString(16), 2, "0")).join("").value()}`).toUpperCase()
+	)).join("\n").value();
+};
+
+const formatForDisplay = (code1, code2, type) => {
+	const display = {
+		name: codeNames[code1.address.toString(16).toUpperCase()] ?? "Unknown",
+		difftype: type,
+		codetype: code1.type.toString(16).toUpperCase(),
+		address: code1.address.toString(16).toUpperCase(),
+	};
+
+	if (type === "missing") {
+		display["presentIn"] = code1.path;
+		display["body"] = formatCodeContents(code1.contents);
+	} else if (type === "mismatch") {
+		display["body1"] = formatCodeContents(code1.contents);
+		display["body2"] = formatCodeContents(code2.contents);
+	}
+
+	return display;
+};
+
+const getCodeComparison = (code1, code2) => {
+	// code1 should always exists since we are iterating through them
+	if (!code1) {
+		throw new Error("Gecko code input issue?");
+	}
+
+	if (!code2) {
+		return "missing"; // Injection does not exist in code list 2
+	}
+
+	let c1c = code1.contents;
+	let c2c = code2.contents;
+
+	// If both codes are injections, remove the last 4 bytes for the comparison because I don't
+	// think they're guaranteed to be the same because of the way the backup process happens
+	if (code1.type === 0xC2 && code2.type === 0xC2) {
+		c1c = c1c.slice(0, c1c.length - 4);
+		c2c = c2c.slice(0, c2c.length - 4);
+	}
+
+	const codesAreMismatched = c1c.length !== c2c.length || !c1c.every((v, i) => v === c2c[i]);
+	if (codesAreMismatched && !changingCodes[code1.address]) {
+		return "mismatch";
+	}
+
+	return "match";
+};
+
+const differentCodes = [];
+_.forEach(codes1ByInj, (code1, address) => {
+	const code2 = codes2ByInj[address];
+	const comp = getCodeComparison(code1, code2);
+
+	// If code2 is missing or mismatched, add to difference and move on
+	if (comp === "missing" || comp === "mismatch") {
+		differentCodes.push(formatForDisplay(code1, code2, comp));
+	}
+
+	// If the injection exists in both, delete it from codes2ByInj because we will be adding
+	// everything that remains in there at the end.
+	delete codes2ByInj[address];
+});
+
+// Add all the codes remaining in the codes2 list, these are missing in codes1 list
+_.forEach(codes2ByInj, (code2) => {
+	differentCodes.push(formatForDisplay(code2, null, "missing"));
+});
+
 if (_.isEmpty(differentCodes)) {
 	console.log("Gecko codes match.");
 } else {
 	console.log("Some gecko codes differ between the replays:");
-	console.log(differentCodes.map(code => ({
-		type: `${code.type.toString(16).toUpperCase()}`,
-		address: `${code.address.toString(16).toUpperCase()}`,
-		path: code.path,
-	})));
+	console.log(differentCodes);
 }
 
 
@@ -194,7 +302,7 @@ while (game1Frames[iFrameIdx] && game2Frames[iFrameIdx]) {
 
 			framePrintCount++;
 			if (framePrintCount > framePrintMax) {
-				return;
+				break;
 			}
 		}
 	}

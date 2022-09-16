@@ -1,0 +1,18 @@
+{
+ "Details": [
+  {
+   "InjectionAddress": "800DA9DC",
+   "Name": "Disable Wobbling",
+   "Codetype": "Auto",
+   "Annotation": "External/PreventWobbling/1.asm",
+   "Tags": "[affects-gameplay]"
+  },
+  {
+   "InjectionAddress": "8008F090",
+   "Name": "Disable Wobbling",
+   "Codetype": "Auto",
+   "Annotation": "External/PreventWobbling/2.asm",
+   "Tags": "[affects-gameplay]"
+  }
+ ]
+}
