@@ -56,7 +56,7 @@ All the code to make Dolphin support the assembly codes were built on top of Fas
 To find the Slippi-specific stuff in the codebase, search for "Slippi".
 
 ### Replay File
-Dolphin currently serves the purpose of receiving data from the game and writting a replay file. To understand the structure and format of the replay file, please read the spec here: https://github.com/project-slippi/slippi-wiki/blob/master/SPEC.md
+Dolphin currently serves the purpose of receiving data from the game and writing a replay file. To understand the structure and format of the replay file, please read the spec here: https://github.com/project-slippi/slippi-wiki/blob/master/SPEC.md
 
 ### Slippi Launcher (TypeScript/React/Material-UI)
 The desktop application is maintained in the repo found here: https://github.com/project-slippi/slippi-launcher.
