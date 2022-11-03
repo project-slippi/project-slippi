@@ -5,12 +5,13 @@ const path = require('path');
 const moment = require('moment');
 const fs = require('fs');
 
-const replay1Path = String.raw`C:\Users\Jas\Documents\Slippi\Replays\Desyncs\2022-09\mode.unranked-2022-09-15T23_19_42.11-0-5-0\3ab50b10-0kGaOjukYjXoSD4AEvZqFfLQjr12.slp`;
-const replay2Path = String.raw`C:\Users\Jas\Documents\Slippi\Replays\Desyncs\2022-09\mode.unranked-2022-09-15T23_19_42.11-0-5-0\570f5ba4-0nPAcRhk6JUDb8s7pXioy5kuTBA3.slp`;
+const replay1Path = String.raw`C:\Users\Jas\Downloads\desyncs_2022-10-24_mode.unranked-2022-10-24T03_39_57.49-0-2-0_80d765b4-z1NsEbeE3MhpsUOloYbn0eBNH7g2.slp`;
+const replay2Path = String.raw`C:\Users\Jas\Downloads\desyncs_2022-10-24_mode.unranked-2022-10-24T03_39_57.49-0-2-0_3ab50b10-Mt5pnTUDPuO93TC57MR00GeLjjF2.slp`;
 
 // Set to 0 to print all
-const framePrintMax = 20;
+const framePrintMax = 200;
 const posLenient = true;
+const showFreezeFrames = true;
 
 let iFrameIdx = -123;
 let framePrintCount = 0;
@@ -29,14 +30,12 @@ const ignoredKeys = {
 const processing = {
 	"positionX": {
 		enabled: posLenient,
-		pre: (val) => Math.trunc(val * 10.0),
-		post: (val) => val / 10.0,
+		isEqual: (v1, v2) => v1 - v2 < 1,
 
 	},
 	"positionY": {
 		enabled: posLenient,
-		pre: (val) => Math.trunc(val * 10.0),
-		post: (val) => val / 10.0,
+		isEqual: (v1, v2) => v1 - v2 < 1,
 	},
 	"seed": {
 		enabled: true,
@@ -89,6 +88,11 @@ const changingCodes = {
 	0x80005618: true, // Required: Slippi Online | Online/Static/UserDisplayFunctions.asm
 	0x802652F0: true, // Required: Slippi Online | Online/Menus/CSS/InitSheikSelector.asm
 	0x803753B4: true, // Required: Slippi Online
+	0x8023CCA4: true, // Required: Slippi Online | Online/Menus/CSS/TextEntryScreen/CheckTriggersAndZ.asm
+	0x80264534: true, // Required: Slippi Online | Online/Menus/CSS/LoadCSSText.asm
+	0x802652F4: true, // Required: Slippi Online | Online/Menus/CSS/Teams/InitTeamToggleButton.asm
+	0x80015F88: true, // Required: Slippi Online
+	0x802F666C: true, // Recommended: Apply Delay to all In-Game Scenes | Common/UseInGameDelay/InitializeInGameDelay.asm
 };
 
 function findDifferences(f1, f2, type, playerIndex, isFollower) {
@@ -117,6 +121,9 @@ function findDifferences(f1, f2, type, playerIndex, isFollower) {
 			return;
 		}
 
+		// if (key !== "positionX" && key !== "positionY") {
+		// 	return;
+		// }
 
 		// // TEMP: Only look for frames with input desync
 		// if (key !== "joystickX" && key !== "buttons" && key !== "joystickY" && key !== "cStickX" && key !== "cStickY" && key !== "trigger") {
@@ -130,12 +137,9 @@ function findDifferences(f1, f2, type, playerIndex, isFollower) {
 		const orig2 = val2;
 
 		const p = processing[key];
-		if (p?.enabled && p?.pre) {
-			val1 = p.pre(val1);
-			val2 = p.pre(val2);
-		}
-
-		if (val1 === val2) {
+		if (p?.enabled && p?.isEqual && p.isEqual(val1, val2)) {
+			return;
+		} else if (val1 === val2) {
 			return;
 		}
 
@@ -289,7 +293,7 @@ while (game1Frames[iFrameIdx] && game2Frames[iFrameIdx]) {
 
 	if (!_.isEmpty(difference)) {
 		// Frame -39 is first playable frame. There seem to be some differences during the freeze frames
-		if (framePrintMax && iFrameIdx >= -39) {
+		if (framePrintMax && (showFreezeFrames || iFrameIdx >= -39)) {
 			const duration = moment.duration((28800 - iFrameIdx) / 60, 'seconds');
 
 			console.log({
