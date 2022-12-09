@@ -5,12 +5,13 @@ const path = require('path');
 const moment = require('moment');
 const fs = require('fs');
 
-const replay1Path = String.raw`C:\Users\Jas\Downloads\desyncs_2022-10-24_mode.unranked-2022-10-24T03_39_57.49-0-2-0_80d765b4-z1NsEbeE3MhpsUOloYbn0eBNH7g2.slp`;
-const replay2Path = String.raw`C:\Users\Jas\Downloads\desyncs_2022-10-24_mode.unranked-2022-10-24T03_39_57.49-0-2-0_3ab50b10-Mt5pnTUDPuO93TC57MR00GeLjjF2.slp`;
+const replay1Path = String.raw`C:\Users\Jas\Downloads\desyncs_2022-12-08_mode.direct-2022-12-08T19_04_19.50-0-4-0_ad0ea850-LtKWP7jNf4YswZ1msclbtnNObkl1.slp`;
+const replay2Path = String.raw`C:\Users\Jas\Downloads\desyncs_2022-12-08_mode.direct-2022-12-08T19_04_19.50-0-4-0_5bf1ae0b-HW9Vv217owhphpoKmNbsT2OKYSq2.slp`;
 
 // Set to 0 to print all
-const framePrintMax = 200;
+const framePrintMax = 20;
 const posLenient = true;
+const posOnly = true;
 const showFreezeFrames = true;
 
 let iFrameIdx = -123;
@@ -30,12 +31,12 @@ const ignoredKeys = {
 const processing = {
 	"positionX": {
 		enabled: posLenient,
-		isEqual: (v1, v2) => v1 - v2 < 1,
+		isEqual: (v1, v2) => Math.abs(v1 - v2) < 1,
 
 	},
 	"positionY": {
 		enabled: posLenient,
-		isEqual: (v1, v2) => v1 - v2 < 1,
+		isEqual: (v1, v2) => Math.abs(v1 - v2) < 1,
 	},
 	"seed": {
 		enabled: true,
@@ -75,7 +76,7 @@ const codeNames = {
 const injectionPath = "./InjectionLists";
 const injectionLists = fs.readdirSync(injectionPath);
 injectionLists.forEach(listf => {
-	const contents = fs.readFileSync(path.join(injectionPath, listf), {encoding:'utf8', flag:'r'});
+	const contents = fs.readFileSync(path.join(injectionPath, listf), { encoding: 'utf8', flag: 'r' });
 	const list = JSON.parse(contents);
 	list.Details.forEach(code => {
 		const details = _.filter([code.Name, code.Annotation]);
@@ -121,9 +122,9 @@ function findDifferences(f1, f2, type, playerIndex, isFollower) {
 			return;
 		}
 
-		// if (key !== "positionX" && key !== "positionY") {
-		// 	return;
-		// }
+		if (posOnly && key !== "positionX" && key !== "positionY") {
+			return;
+		}
 
 		// // TEMP: Only look for frames with input desync
 		// if (key !== "joystickX" && key !== "buttons" && key !== "joystickY" && key !== "cStickX" && key !== "cStickY" && key !== "trigger") {
@@ -173,8 +174,8 @@ function findDifferences(f1, f2, type, playerIndex, isFollower) {
 // }, false, 10, true));
 
 // Start gecko code list comparison
-const codes1 = (game1.getGeckoList()?.codes ?? []).map(c => ({ ...c, path: replay1Path}));
-const codes2 = (game2.getGeckoList()?.codes ?? []).map(c => ({ ...c, path: replay2Path}));;
+const codes1 = (game1.getGeckoList()?.codes ?? []).map(c => ({ ...c, path: replay1Path }));
+const codes2 = (game2.getGeckoList()?.codes ?? []).map(c => ({ ...c, path: replay2Path }));;
 
 // Key by address such that duplicated codes will use the last copy only
 const codes1ByInj = _.keyBy(codes1, "address");
@@ -182,7 +183,7 @@ const codes2ByInj = _.keyBy(codes2, "address");
 
 const formatCodeContents = (contents) => {
 	return _.chain(_.range(0, contents.length, 8)).map(idx => (
-		(`${_.chain(contents).slice(idx, idx + 4).map(b => _.padStart(b.toString(16), 2, "0")).join("").value()}` + 
+		(`${_.chain(contents).slice(idx, idx + 4).map(b => _.padStart(b.toString(16), 2, "0")).join("").value()}` +
 			` ${_.chain(contents).slice(idx + 4, idx + 8).map(b => _.padStart(b.toString(16), 2, "0")).join("").value()}`).toUpperCase()
 	)).join("\n").value();
 };
