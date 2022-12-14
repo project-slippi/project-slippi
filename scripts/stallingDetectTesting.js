@@ -38,3 +38,5 @@ console.log(`P${p1Idx + 1}:
 console.log(`P${p2Idx + 1}:
   CloserToCenter: ${p2CloserCount} (${(100 * p2CloserCount / total).toFixed(1)}%)
   Airborne: ${p2AirborneCount} (${(100 * p2AirborneCount / total).toFixed(1)}%)`);
+
+let Hungrybox popOffIntensity = 100%;
