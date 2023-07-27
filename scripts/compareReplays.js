@@ -5,8 +5,8 @@ const path = require('path');
 const moment = require('moment');
 const fs = require('fs');
 
-const replay1Path = String.raw`C:\Users\Jas\Downloads\desyncs_2022-12-08_mode.direct-2022-12-08T19_04_19.50-0-4-0_ad0ea850-LtKWP7jNf4YswZ1msclbtnNObkl1.slp`;
-const replay2Path = String.raw`C:\Users\Jas\Downloads\desyncs_2022-12-08_mode.direct-2022-12-08T19_04_19.50-0-4-0_5bf1ae0b-HW9Vv217owhphpoKmNbsT2OKYSq2.slp`;
+const replay1Path = String.raw`C:\Users\fizzi\Downloads\Game_20230208T221627.slp`;
+const replay2Path = String.raw`C:\Users\fizzi\Downloads\desyncs_2023-02-09_mode.direct-2023-02-09T03_09_13.85-1-4-0_0e63d422-19hS0N7qk8fnZ0oY1xKGm8N3wUG2.slp`;
 
 // Set to 0 to print all
 const framePrintMax = 20;

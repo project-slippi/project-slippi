@@ -7,10 +7,10 @@
   resolved "https://registry.yarnpkg.com/@shelacek/ubjson/-/ubjson-1.1.1.tgz#949d9e6fb5cf2ada4197de6f8430fa7894d61ed4"
   integrity sha512-2Vi46ct3IWzh8eAz9IZ0NulIRtJbGgJDppatJvufB0fHwasRSfklBoQrVrCutF24fSuRvTvZVebjtcIHOxvzWw==
 
-"@slippi/slippi-js@^6.4.0":
-  version "6.4.0"
-  resolved "https://registry.yarnpkg.com/@slippi/slippi-js/-/slippi-js-6.4.0.tgz#7264ac79a01b2050288842cd966225a69155fc65"
-  integrity sha512-aa3IJtSRGyuPrYwBL8KLxPdZNeA7fvhbQ/1PXWftlibkXadDVT0a1hK5TWSbM+/90dr+iegPcaehs0Q/0mUPLA==
+"@slippi/slippi-js@^6.7.0":
+  version "6.7.0"
+  resolved "https://registry.yarnpkg.com/@slippi/slippi-js/-/slippi-js-6.7.0.tgz#6f19c148a3eccda7ff1c87fb1e2aaf34cea51568"
+  integrity sha512-fm3enFS9VA2DpnGqY2HS6sZaFAQwa+uBYdzkA3qRtwGOGmxvOJWrr/Is75a/eXBsHhKLHIzOoFWWqW3RfbvWqw==
   dependencies:
     "@shelacek/ubjson" "^1.0.1"
     date-fns "^2.28.0"
